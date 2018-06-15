@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8865F0E6-BB3A-4481-8B69-B3ED88306ABD}</ProjectGuid>
+    <ProjectGuid>{A9734F4B-CD34-40D5-BB7F-8F79482CD09E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Factory</RootNamespace>
@@ -40,30 +40,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigFactory.cs" />
-    <Compile Include="HandlerFactory.cs" />
+    <Compile Include="ConnectionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Dal\Dal.csproj">
-      <Project>{d8364701-db86-4c38-8cbc-7c2d735d03d6}</Project>
-      <Name>Dal</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IDal\IDal.csproj">
-      <Project>{73e70ac5-2909-4ef1-8653-460cbe3837e5}</Project>
-      <Name>IDal</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ILogic\ILogic.csproj">
-      <Project>{29DBE069-70D0-49BA-9D2E-C0761AD804B9}</Project>
+      <Project>{29dbe069-70d0-49ba-9d2e-c0761ad804b9}</Project>
       <Name>ILogic</Name>
     </ProjectReference>
     <ProjectReference Include="..\Logic\Logic.csproj">
       <Project>{9be0af4f-36f3-4c6a-b6d4-81f361a4d3ad}</Project>
       <Name>Logic</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

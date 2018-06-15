@@ -1,7 +1,9 @@
-﻿namespace AreannaBot
+﻿using Factory;
+
+namespace AreannaBot
 {
     internal class Program
     {
-        static void Main(string[] args) => new AreannaBot().StartAsync().GetAwaiter().GetResult(); // Start the bot.
+        static void Main(string[] args) => ConnectionFactory.GenerateConnection().Start().GetAwaiter().GetResult(); // Start the bot.
     }
 }

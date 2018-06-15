@@ -1,18 +1,16 @@
-﻿using System;
+﻿using Discord.Rest;
+using Discord.WebSocket;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord.Rest;
-using Discord.WebSocket;
-using ILogic.Interfaces;
 
 namespace Logic.Channels
 {
-    public class ChannelHandler : IHandler
+    public class ChannelHandler
     {
         private DiscordSocketClient _client;
         private HashSet<ulong> _channels;
 
-        public async Task Initialize(DiscordSocketClient client, IConfig config)
+        public async Task Initialize(DiscordSocketClient client)
         {
             this._client = client;
             this._channels = new HashSet<ulong>();

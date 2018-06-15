@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Connection.cs" />
     <Compile Include="Channels\ChannelHandler.cs" />
     <Compile Include="Commands\CommandHandler.cs" />
     <Compile Include="Commands\Modules\AlertCommand.cs" />
@@ -80,13 +81,16 @@
     <Compile Include="Configuration\Settings\Config.cs" />
     <Compile Include="Extentions\EmbedExtention.cs" />
     <Compile Include="Extentions\IEnumerableExtentions.cs" />
-    <Compile Include="Music\MusicHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Dal\Dal.csproj">
       <Project>{D8364701-DB86-4C38-8CBC-7C2D735D03D6}</Project>
       <Name>Dal</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DalFactory\DalFactory.csproj">
+      <Project>{8865F0E6-BB3A-4481-8B69-B3ED88306ABD}</Project>
+      <Name>DalFactory</Name>
     </ProjectReference>
     <ProjectReference Include="..\IDal\IDal.csproj">
       <Project>{73e70ac5-2909-4ef1-8653-460cbe3837e5}</Project>

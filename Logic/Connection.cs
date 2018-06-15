@@ -1,44 +1,47 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Factory;
-using ILogic.Interfaces;
+using Logic.Channels;
+using Logic.Commands;
+using Logic.Configuration.Settings;
 using System;
 using System.Threading.Tasks;
+using DalFactory;
+using IConnection = ILogic.Interfaces.IConnection;
 
-namespace AreannaBot
+namespace Logic
 {
-    internal class AreannaBot
+    public class Connection : IConnection
     {
         private DiscordSocketClient _client;
-        private IHandler _commandHandler;
-        private IHandler _channelHandler;
-        private IConfig _config;
+        private CommandHandler _commandHandler;
+        private ChannelHandler _channelHandler;
+        private Config _config;
 
         /// <summary>
         /// Creates a new instance of this class.
         /// </summary>
-        public AreannaBot()
+        public Connection()
         {
-            _config = ConfigFactory.GenerateConfig();
-            _commandHandler = HandlerFactory.GenerateCommandHandler();
-            _channelHandler = HandlerFactory.GenerateChannelHandler();
+            _commandHandler = new CommandHandler();
+            _channelHandler = new ChannelHandler();
+            _config = new Config(ConfigDalFactory.GenerateConfigDal());
         }
 
         /// <summary>
         /// Asynchronous start of the connection.
         /// </summary>
-        public async Task StartAsync()
+        public async Task Start()
         {
-            if (string.IsNullOrWhiteSpace(_config.GetConfig().Token)) return;
+            if (string.IsNullOrWhiteSpace(_config.Token)) return;
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Verbose
             });
             _client.Log += Log;
-            await _client.LoginAsync(TokenType.Bot, _config.GetConfig().Token);
+            await _client.LoginAsync(TokenType.Bot, _config.Token);
             await _client.StartAsync();
-            await _commandHandler.Initialize(_client, _config);
-            await _channelHandler.Initialize(_client, _config);
+            await _commandHandler.Initialize(_client, _config.Prefix);
+            await _channelHandler.Initialize(_client);
             await Task.Delay(-1); // Stop application from closing.
         }
 

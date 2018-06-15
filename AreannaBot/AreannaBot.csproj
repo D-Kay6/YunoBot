@@ -153,7 +153,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AreannaBot.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -162,8 +161,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Factory\Factory.csproj">
+    <ProjectReference Include="..\DalFactory\DalFactory.csproj">
       <Project>{8865f0e6-bb3a-4481-8b69-b3ed88306abd}</Project>
+      <Name>DalFactory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Factory\Factory.csproj">
+      <Project>{A9734F4B-CD34-40D5-BB7F-8F79482CD09E}</Project>
       <Name>Factory</Name>
     </ProjectReference>
     <ProjectReference Include="..\ILogic\ILogic.csproj">
