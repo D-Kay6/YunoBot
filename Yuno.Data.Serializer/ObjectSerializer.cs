@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Yuno.Data.Serializer
 {
-    public class ObjectSerializer<T> where T : struct
+    public class ObjectSerializer<T>
     {
         private IFormatter _formatter;
         private string _directory;

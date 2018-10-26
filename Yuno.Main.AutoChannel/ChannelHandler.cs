@@ -5,7 +5,8 @@ using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Yuno.Data.Core.Interfaces;
-using Yuno.Data.Core.Structs;
+using Yuno.Logic;
+using Yuno.Logic.Core;
 
 namespace Yuno.Main.AutoChannel
 {
@@ -13,12 +14,10 @@ namespace Yuno.Main.AutoChannel
     {
         private ISerializer _serializer;
         private DiscordSocketClient _client;
-        private Dictionary<ulong, AutoChannel> _autoChannels;
 
         public ChannelHandler(ISerializer serializer)
         {
             this._serializer = serializer;
-            this._autoChannels = new Dictionary<ulong, AutoChannel>();
         }
 
         public async Task Initialize(DiscordSocketClient client)
@@ -37,12 +36,13 @@ namespace Yuno.Main.AutoChannel
             if (state1.VoiceChannel != null)
             {
                 oldChannel = state1.VoiceChannel;
-                var autoChannel = GetAutoChannel(oldChannel.Guild.Id);
-                if (autoChannel.IsGeneratedChannel(oldChannel.Id))
+                var persistence = DomainTranslator.Translate(_serializer.Read(oldChannel.Guild.Id));
+                var autoChannel = (AutoChannelLogic)persistence.AutoChannel;
+                if (autoChannel.IsControlledChannel(oldChannel.Id))
                 {
                     if (oldChannel.Users.Count != 0) return;
                     autoChannel.RemoveChannel(oldChannel.Id);
-                    _serializer.Write(oldChannel.Guild.Id, new Persistence(autoChannel.Channels, autoChannel.AutoChannelIcon));
+                    _serializer.Write(oldChannel.Guild.Id, persistence);
                     await oldChannel.DeleteAsync();
                     return;
                 }
@@ -54,10 +54,11 @@ namespace Yuno.Main.AutoChannel
 
             if (state2.VoiceChannel != null)
             {
-                var autoChannel = GetAutoChannel(state2.VoiceChannel.Guild.Id);
-                if (autoChannel.IsAutoChannel(state2.VoiceChannel.Name))
+                oldChannel = state2.VoiceChannel;
+                var persistence = DomainTranslator.Translate(_serializer.Read(oldChannel.Guild.Id));
+                var autoChannel = (AutoChannelLogic)persistence.AutoChannel;
+                if (autoChannel.IsAutoChannel(oldChannel.Name))
                 {
-                    oldChannel = state2.VoiceChannel;
                     newChannel = await oldChannel.Guild.CreateVoiceChannelAsync("--channel");
                     await newChannel.ModifyAsync(v => 
                     {
@@ -74,22 +75,13 @@ namespace Yuno.Main.AutoChannel
                     await newChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
 
                     autoChannel.AddChannel(newChannel.Id);
-                    _serializer.Write(state2.VoiceChannel.Guild.Id, new Persistence(autoChannel.Channels, autoChannel.AutoChannelIcon));
+                    _serializer.Write(state2.VoiceChannel.Guild.Id, persistence);
 
                     await ((SocketGuildUser)user).ModifyAsync(a => a.Channel = newChannel);
                 }
             }
             
             #endregion
-        }
-
-        private AutoChannel GetAutoChannel(ulong id)
-        {
-            if (_autoChannels.ContainsKey(id)) return _autoChannels[id];
-            var autoChannel = new AutoChannel();
-            autoChannel.Load(_serializer.Read(id));
-            _autoChannels.Add(id, autoChannel);
-            return autoChannel;
         }
     }
 }

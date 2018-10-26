@@ -1,4 +1,4 @@
-﻿using Yuno.Data.Core.Structs;
+﻿using Yuno.Logic.Core;
 
 namespace Yuno.Data.Core.Interfaces
 {

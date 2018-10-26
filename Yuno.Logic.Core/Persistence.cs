@@ -8,9 +8,9 @@ namespace Yuno.Logic.Core
     {
         public AutoChannel AutoChannel { get; protected set; }
 
-        public Persistence(IEnumerable<ulong> channels = null, int autoChannelIcon = 0)
+        public Persistence()
         {
-            AutoChannel = new AutoChannel(channels, autoChannelIcon);
+            this.AutoChannel = new AutoChannel();
         }
     }
 }

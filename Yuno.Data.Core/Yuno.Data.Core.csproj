@@ -47,5 +47,11 @@
     <Compile Include="Structs\Config.cs" />
     <Compile Include="Structs\Persistence.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Yuno.Logic.Core\Yuno.Logic.Core.csproj">
+      <Project>{F97751E5-EB07-4D01-8880-FAD0C7366DCC}</Project>
+      <Name>Yuno.Logic.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -50,6 +50,10 @@
       <Project>{51B488DA-4932-46D8-B33B-15752B5302C3}</Project>
       <Name>Yuno.Data.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Yuno.Logic.Core\Yuno.Logic.Core.csproj">
+      <Project>{F97751E5-EB07-4D01-8880-FAD0C7366DCC}</Project>
+      <Name>Yuno.Logic.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

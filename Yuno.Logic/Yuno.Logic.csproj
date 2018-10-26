@@ -38,8 +38,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="AutoChannelLogic.cs" />
+    <Compile Include="DomainTranslator.cs" />
+    <Compile Include="PersistenceLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Yuno.Logic.Core\Yuno.Logic.Core.csproj">
+      <Project>{f97751e5-eb07-4d01-8880-fad0c7366dcc}</Project>
+      <Name>Yuno.Logic.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

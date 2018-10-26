@@ -20,11 +20,5 @@ namespace Yuno.Logic.Core
             this._channels = new HashSet<ulong>();
             this.AutoChannelIcon = 10133;
         }
-        
-        public AutoChannel(IEnumerable<ulong> channels = null, int autoChannelIcon = 10133)
-        {
-            this._channels = channels == null ? new HashSet<ulong>() : new HashSet<ulong>(channels);
-            this.AutoChannelIcon = autoChannelIcon;
-        }
     }
 }
