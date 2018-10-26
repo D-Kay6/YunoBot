@@ -6,7 +6,7 @@ using Yuno.Main.Extentions;
 
 namespace Yuno.Main.Commands.Modules
 {
-    public class Pick : ModuleBase<SocketCommandContext>
+    public class PickModule : ModuleBase<SocketCommandContext>
     {
         [Command("pick")]
         public async Task Command([Remainder]string message)
@@ -14,7 +14,7 @@ namespace Yuno.Main.Commands.Modules
             var selection = GetRandomOption(message);
             var embed = EmbedExtention.CreateEmbed($"Choice for {Context.User.Username}", selection, new Color(255, 255, 0));
 
-            await Context.Channel.SendMessageAsync("", false, embed);
+            await ReplyAsync("", false, embed);
         }
 
         private string GetRandomOption(string message)

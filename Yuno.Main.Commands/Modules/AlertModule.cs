@@ -8,17 +8,17 @@ using Yuno.Main.Extentions;
 
 namespace Yuno.Main.Commands.Modules
 {
-    public class Alert : ModuleBase<SocketCommandContext>
+    public class AlertModule : ModuleBase<SocketCommandContext>
     {
         private bool _isGlobal = false;
         private bool _isOwner = false;
         private HashSet<ulong> _usersDone;
         
         [Command("alert")]
-        public async Task Command([Remainder] string message)
+        public async Task Command(params string[] args)
         {
+            var message = HandleArgs(args);
             if (string.IsNullOrWhiteSpace(message)) return;
-            message = HandleArgs(message.Split(' '));
             await SendAlert(message);
         }
 
@@ -52,7 +52,7 @@ namespace Yuno.Main.Commands.Modules
             _usersDone = new HashSet<ulong>();
             if (_isGlobal)
             {
-                Context.Client.Guilds.ForEach(async g => await SendAlert(g, message));
+                Context.Client.Guilds.Foreach(async g => await SendAlert(g, message));
             }
             else
             {
@@ -69,7 +69,7 @@ namespace Yuno.Main.Commands.Modules
                 return;
             }
 
-            guild.Users.ForEach(async u => await SendDM(u, message));
+            guild.Users.Foreach(async u => await SendDM(u, message));
         }
 
         private async Task SendDM(IUser user, string message)

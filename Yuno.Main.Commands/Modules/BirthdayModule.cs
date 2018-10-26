@@ -8,7 +8,7 @@ using Discord.WebSocket;
 
 namespace Yuno.Main.Commands.Modules
 {
-    public class Birthday : ModuleBase<SocketCommandContext>
+    public class BirthdayModule : ModuleBase<SocketCommandContext>
     {
         [Command("birthday")]
         public async Task Command([Remainder] string message)

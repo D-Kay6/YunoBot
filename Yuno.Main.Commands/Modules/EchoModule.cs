@@ -5,13 +5,13 @@ using Yuno.Main.Extentions;
 
 namespace Yuno.Main.Commands.Modules
 {
-    public class Echo : ModuleBase<SocketCommandContext>
+    public class EchoModule : ModuleBase<SocketCommandContext>
     {
         [Command("echo")]
         public async Task Command([Remainder] string message)
         {
             var embed = EmbedExtention.CreateEmbed($"Message by {Context.User.Username}", message, Color.Green);
-            await Context.Channel.SendMessageAsync("", false, embed);
+            await ReplyAsync("", false, embed);
         }
     }
 }

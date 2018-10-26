@@ -7,8 +7,8 @@ namespace Yuno.Main.Commands.Modules
 {
     public class AutoChannel : ModuleBase<SocketCommandContext>
     {
-        [Alias("autochannel")]
-        [Command("ac")]
+        [Alias("ac")]
+        [Command("autochannel")]
         public async Task Command([Remainder] string message)
         {
             IEnumerable<string> args = message.Split(' ');

@@ -11,7 +11,7 @@ using Yuno.Main.Music.YouTube;
 
 namespace Yuno.Main.Commands.Modules
 {
-    public class Music : ModuleBase<SocketCommandContext>
+    public class MusicModule : ModuleBase<SocketCommandContext>
     {
         public YouTubeDownloadService YoutubeDownloadService { get; set; }
 

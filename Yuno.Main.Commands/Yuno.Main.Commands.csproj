@@ -199,21 +199,30 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandHandler.cs" />
-    <Compile Include="Modules\Alert.cs" />
-    <Compile Include="Modules\Autochannel.cs" />
-    <Compile Include="Modules\Birthday.cs" />
-    <Compile Include="Modules\Echo.cs" />
-    <Compile Include="Modules\Kill.cs" />
-    <Compile Include="Modules\Music.cs" />
+    <Compile Include="Modules\AlertModule.cs" />
+    <Compile Include="Modules\AutoChannelModule.cs" />
+    <Compile Include="Modules\BirthdayModule.cs" />
+    <Compile Include="Modules\EchoModule.cs" />
+    <Compile Include="Modules\HelpModule.cs" />
+    <Compile Include="Modules\KillModule.cs" />
+    <Compile Include="Modules\MusicModule.cs" />
     <Compile Include="Modules\MusicCommand.cs" />
-    <Compile Include="Modules\Pick.cs" />
-    <Compile Include="Modules\Praise.cs" />
+    <Compile Include="Modules\PickModule.cs" />
+    <Compile Include="Modules\PraiseModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Yuno.Data.Core\Yuno.Data.Core.csproj">
+      <Project>{51b488da-4932-46d8-b33b-15752b5302c3}</Project>
+      <Name>Yuno.Data.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Yuno.Logic.Core\Yuno.Logic.Core.csproj">
+      <Project>{F97751E5-EB07-4D01-8880-FAD0C7366DCC}</Project>
+      <Name>Yuno.Logic.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Yuno.Main.Extentions\Yuno.Main.Extentions.csproj">
       <Project>{719368A9-8969-4F4D-8D80-BEE4CD997C11}</Project>
       <Name>Yuno.Main.Extentions</Name>
