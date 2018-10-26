@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoChannelLogic.cs" />
+    <Compile Include="CommandSettingsLogic.cs" />
     <Compile Include="DomainTranslator.cs" />
     <Compile Include="PersistenceLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

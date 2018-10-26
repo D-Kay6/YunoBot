@@ -57,7 +57,7 @@ namespace Yuno.Main
 
             await _client.LoginAsync(TokenType.Bot, config.Token);
             await _client.StartAsync();
-            await _commandHandler.Initialize(_client, _services, config.Prefix);
+            await _commandHandler.Initialize(_client, _services, _persistence);
             await _channelHandler.Initialize(_client);
             await Task.Delay(-1); // Stop application from closing.
         }
