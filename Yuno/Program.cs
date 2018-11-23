@@ -1,4 +1,5 @@
-﻿using Yuno.Main.Core;
+﻿using System.Threading.Tasks;
+using Yuno.Main.Core;
 using Yuno.Main.Factory;
 
 namespace Yuno
@@ -6,6 +7,10 @@ namespace Yuno
     class Program
     {
         private static IBot _bot = BotFactory.GenerateBot();
-        static void Main(string[] args) => _bot.Start().GetAwaiter().GetResult();
+
+        private static async Task Main(string[] args)
+        {
+            await _bot.Start();
+        }
     }
 }
