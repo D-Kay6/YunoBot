@@ -3,17 +3,17 @@ using Yuno.Data.Core.Structs;
 
 namespace Yuno.Data.Json
 {
-    public class Configuration : Yuno.Data.Json.Json, IConfig
+    public class Configuration : Json, IConfig
     {
         private const string Directory = "Configuration";
         private const string File = "Config.json";
 
-        public Config Read()
+        public ConfigData Read()
         {
-            return Read<Config>(Directory, File);
+            return Read<ConfigData>(Directory, File);
         }
 
-        public void Write(Config config)
+        public void Write(ConfigData config)
         {
             Write(config, Directory, File);
         }

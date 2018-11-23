@@ -1,30 +1,31 @@
 ﻿using System.IO;
 using Yuno.Data.Core.Interfaces;
-using Yuno.Logic.Core;
+using Yuno.Data.Core.Structs;
+using Yuno.Data.Core.Structs.Data;
 
 namespace Yuno.Data.Serializer
 {
     public class Serializer : ISerializer
     {
-        private const string Directory = "Data";
+        private const string Directory = "Data\\Saves";
         private const string File = ".bin";
         private string FullPath => Path.Combine(Directory, File);
 
-        private ObjectSerializer<Persistence> _serializer;
+        private ObjectSerializer _serializer;
 
         public Serializer()
         {
-            this._serializer = new ObjectSerializer<Persistence>(Directory);
+            this._serializer = new ObjectSerializer();
+        }
+        
+        public T Read<T>(ulong id)
+        {
+            return _serializer.ReadData<T>($"{Directory}\\{id}\\{typeof(T).Name}{File}");
         }
 
-        public Persistence Read(ulong id)
+        public void Write<T>(ulong id, T data)
         {
-            return _serializer.ReadData($"{id}{File}");
-        }
-
-        public void Write(ulong id, Persistence data)
-        {
-            _serializer.SaveData($"{id}{File}", data);
+            _serializer.SaveData($"{Directory}\\{id}\\{typeof(T).Name}{File}", data);
         }
     }
 }

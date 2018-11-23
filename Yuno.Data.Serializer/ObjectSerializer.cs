@@ -5,33 +5,29 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Yuno.Data.Serializer
 {
-    public class ObjectSerializer<T>
+    public class ObjectSerializer
     {
         private IFormatter _formatter;
-        private string _directory;
-        
-        private string FullPath(string file) => Path.Combine(_directory, file);
 
-        public ObjectSerializer(string directory)
+        public ObjectSerializer()
         {
             _formatter = new BinaryFormatter();
-            this._directory = directory;
         }
 
-        public void SaveData(string file, T data)
+        public void SaveData<T>(string path, T data)
         {
-            if (!Directory.Exists(_directory)) Directory.CreateDirectory(_directory);
-            using (Stream outStream = new FileStream(FullPath(file), FileMode.Create, FileAccess.Write, FileShare.None))
+            var directory = Path.GetDirectoryName(path);
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+            using (Stream outStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
             {
                 _formatter.Serialize(outStream, data);
             }
         }
 
-        public T ReadData(string file)
+        public T ReadData<T>(string path)
         {
-            var path = FullPath(file);
-            if (!File.Exists(path)) return Activator.CreateInstance<T>();
-            using (Stream inStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None))
+            if (!File.Exists(path)) return default;
+            using (Stream inStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
             {
                 try
                 {
@@ -39,10 +35,9 @@ namespace Yuno.Data.Serializer
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("The data file is corrupt and will be replaced.");
-                    var instance = Activator.CreateInstance<T>();
-                    SaveData(file, instance);
-                    return instance;
+                    Console.WriteLine($"The data file '{path}' is corrupt and will be removed.");
+                    File.Delete(path);
+                    return default;
                 }
             }
         }

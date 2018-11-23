@@ -1,10 +1,11 @@
-﻿using Yuno.Logic.Core;
+﻿using Yuno.Data.Core.Structs;
+using Yuno.Data.Core.Structs.Data;
 
 namespace Yuno.Data.Core.Interfaces
 {
     public interface ISerializer
     {
-        Persistence Read(ulong id);
-        void Write(ulong id, Persistence data);
+        T Read<T>(ulong id);
+        void Write<T>(ulong id, T data);
     }
 }
