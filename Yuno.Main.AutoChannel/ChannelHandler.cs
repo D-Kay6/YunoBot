@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -6,21 +7,14 @@ using Discord.Rest;
 using Discord.WebSocket;
 using Yuno.Data.Core.Interfaces;
 using Yuno.Logic;
-using Yuno.Logic.Core;
 
 namespace Yuno.Main.AutoChannel
 {
     public class ChannelHandler
     {
-        private ISerializer _serializer;
         private DiscordSocketClient _client;
 
-        public ChannelHandler(ISerializer serializer)
-        {
-            this._serializer = serializer;
-        }
-
-        public async Task Initialize(DiscordSocketClient client)
+        public async Task Initialize(DiscordSocketClient client, IServiceProvider services)
         {
             this._client = client;
             _client.UserVoiceStateUpdated += HandleChannelAsync;
@@ -28,60 +22,44 @@ namespace Yuno.Main.AutoChannel
 
         private async Task HandleChannelAsync(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
         {
-            SocketVoiceChannel oldChannel;
-            RestVoiceChannel newChannel;
-
-            #region Leave channel
-
-            if (state1.VoiceChannel != null)
-            {
-                oldChannel = state1.VoiceChannel;
-                var persistence = DomainTranslator.Translate(_serializer.Read(oldChannel.Guild.Id));
-                var autoChannel = (AutoChannelLogic)persistence.AutoChannel;
-                if (autoChannel.IsControlledChannel(oldChannel.Id))
-                {
-                    if (oldChannel.Users.Count != 0) return;
-                    autoChannel.RemoveChannel(oldChannel.Id);
-                    _serializer.Write(oldChannel.Guild.Id, persistence);
-                    await oldChannel.DeleteAsync();
-                    return;
-                }
-            } 
+            if (state1.VoiceChannel != null) LeaveChannel(state1.VoiceChannel);
             
-            #endregion
+            if (state2.VoiceChannel != null) JoinChannel(state2.VoiceChannel, (SocketGuildUser)user);
+        }
 
-            #region Join channel
+        private async void LeaveChannel(SocketVoiceChannel channel)
+        {
+            var autoChannel = Logic.AutoChannel.Load(channel.Guild.Id);
+            if (!autoChannel.IsControlledChannel(channel.Id)) return;
+            if (channel.Users.Count != 0) return;
+            autoChannel.RemoveChannel(channel.Id);
+            autoChannel.Save();
+            channel.DeleteAsync();
+        }
 
-            if (state2.VoiceChannel != null)
+        private async void JoinChannel(SocketVoiceChannel channel, SocketGuildUser user)
+        {
+            var autoChannel = Logic.AutoChannel.Load(channel.Guild.Id);
+            if (!autoChannel.IsAutoChannel(channel.Name)) return;
+            var newChannel = await channel.Guild.CreateVoiceChannelAsync("--channel");
+            await newChannel.ModifyAsync(v =>
             {
-                oldChannel = state2.VoiceChannel;
-                var persistence = DomainTranslator.Translate(_serializer.Read(oldChannel.Guild.Id));
-                var autoChannel = (AutoChannelLogic)persistence.AutoChannel;
-                if (autoChannel.IsAutoChannel(oldChannel.Name))
-                {
-                    newChannel = await oldChannel.Guild.CreateVoiceChannelAsync("--channel");
-                    await newChannel.ModifyAsync(v => 
-                    {
-                        v.Bitrate = oldChannel.Bitrate;
-                        v.CategoryId = oldChannel.CategoryId;
-                        v.UserLimit = oldChannel.UserLimit;
-                    });
-                    foreach (var overwrite in oldChannel.PermissionOverwrites)
-                    {
-                        var role = oldChannel.Guild.GetRole(overwrite.TargetId);
-                        await newChannel.AddPermissionOverwriteAsync(role, overwrite.Permissions);
-                    }
-
-                    await newChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
-
-                    autoChannel.AddChannel(newChannel.Id);
-                    _serializer.Write(state2.VoiceChannel.Guild.Id, persistence);
-
-                    await ((SocketGuildUser)user).ModifyAsync(a => a.Channel = newChannel);
-                }
-            }
+                v.Bitrate = channel.Bitrate;
+                v.CategoryId = channel.CategoryId;
+                v.UserLimit = channel.UserLimit;
+            });
+            await (user.ModifyAsync(a => a.Channel = newChannel));
+            autoChannel.AddChannel(newChannel.Id);
+            autoChannel.Save();
+            var tasks = channel.PermissionOverwrites.Select(o => newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(o.TargetId), o.Permissions));
+            Task.WhenAll(tasks);
             
-            #endregion
+            newChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
+            //foreach (var overwrite in channel.PermissionOverwrites)
+            //{
+            //    var role = channel.Guild.GetRole(overwrite.TargetId);
+            //    await newChannel.AddPermissionOverwriteAsync(role, overwrite.Permissions);
+            //}
         }
     }
 }
