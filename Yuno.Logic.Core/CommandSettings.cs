@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Yuno.Logic.Core
 {
+    [Serializable]
     public class CommandSettings
     {
         public string Prefix { get; protected set; }

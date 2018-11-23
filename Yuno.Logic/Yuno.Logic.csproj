@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +32,25 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -38,16 +58,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoChannelLogic.cs" />
-    <Compile Include="CommandSettingsLogic.cs" />
-    <Compile Include="DomainTranslator.cs" />
-    <Compile Include="PersistenceLogic.cs" />
+    <Compile Include="AutoChannel.cs" />
+    <Compile Include="CommandSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Yuno.Logic.Core\Yuno.Logic.Core.csproj">
-      <Project>{f97751e5-eb07-4d01-8880-fad0c7366dcc}</Project>
-      <Name>Yuno.Logic.Core</Name>
+    <ProjectReference Include="..\Yuno.Data.Core\Yuno.Data.Core.csproj">
+      <Project>{51B488DA-4932-46D8-B33B-15752B5302C3}</Project>
+      <Name>Yuno.Data.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Yuno.Data.Factory\Yuno.Data.Factory.csproj">
+      <Project>{001D9D61-F877-49F3-8A7B-A5C6755E38F8}</Project>
+      <Name>Yuno.Data.Factory</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
