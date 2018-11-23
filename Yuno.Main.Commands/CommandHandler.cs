@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Discord.Commands;
+using Discord.WebSocket;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using Discord.Commands;
-using Discord.WebSocket;
-using Yuno.Data.Core.Interfaces;
+using Yuno.Logic;
 
 namespace Yuno.Main.Commands
 {
@@ -12,14 +12,12 @@ namespace Yuno.Main.Commands
         private DiscordSocketClient _client;
         private CommandService _service;
         private IServiceProvider _services;
-        private ISerializer _serializer;
 
-        public async Task Initialize(DiscordSocketClient client, IServiceProvider services, ISerializer serializer)
+        public async Task Initialize(DiscordSocketClient client, IServiceProvider services)
         {
             this._client = client;
             _services = services;
             this._service = new CommandService();
-            this._serializer = serializer;
             await _service.AddModulesAsync(Assembly.GetExecutingAssembly());
             _client.MessageReceived += HandleCommandAsync;
         }
@@ -28,14 +26,28 @@ namespace Yuno.Main.Commands
         {
             if (!(s is SocketUserMessage msg)) return;
             var context = new SocketCommandContext(_client, msg);
+            var prefix = CommandSettings.Load(context.Guild.Id).Prefix;
             var argPos = 0;
-            if (msg.HasStringPrefix(_serializer.Read(context.Guild.Id).CommandSettings.Prefix, ref argPos) || msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
+            ËxecuteCommandAsync(context, prefix, argPos);
+        }
+
+        private async Task ËxecuteCommandAsync(SocketCommandContext context, string prefix, int argPos)
+        {
+            var result = await _service.ExecuteAsync(context, argPos, _services);
+            if (result.IsSuccess) return;
+            Console.WriteLine(result.ErrorReason);
+            switch (result.Error)
             {
-                var result = await _service.ExecuteAsync(context, argPos, _services);
-                if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
-                {
-                    Console.WriteLine(result.ErrorReason);
-                }
+                case CommandError.UnmetPrecondition:
+                    await context.Channel.SendMessageAsync($"I'm unable to do that. You lack the required permissions for this.");
+                    break;
+                case CommandError.BadArgCount:
+                    await context.Channel.SendMessageAsync($"Ehmm... I think you made a mistake somewhere. Try using {prefix}help if you forgot the syntax.");
+                    break;
+                default:
+                    await context.Channel.SendMessageAsync($"Sorry, I don't know what to do with that.");
+                    break;
             }
         }
     }
