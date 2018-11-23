@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -10,6 +13,7 @@ using Yuno.Main.Commands;
 using Yuno.Main.Core;
 using Yuno.Main.Music;
 using Yuno.Main.Music.YouTube;
+using Yuno.Main.Restart;
 
 namespace Yuno.Main
 {
@@ -34,7 +38,7 @@ namespace Yuno.Main
             _persistence = SerializerFactory.GenerateSerializer();
 
             _commandHandler = new CommandHandler();
-            _channelHandler = new ChannelHandler(_persistence);
+            _channelHandler = new ChannelHandler();
         }
 
         /// <summary>
@@ -42,31 +46,56 @@ namespace Yuno.Main
         /// </summary>
         public async Task Start()
         {
-            var config = _config.Read();
-            if (string.IsNullOrWhiteSpace(config.Token)) return;
-            _client = new DiscordSocketClient(new DiscordSocketConfig
+            while (RestartHandler.KeepAlive)
             {
-                LogLevel = LogSeverity.Verbose
-            });
-            _client.Log += Log;
+                DownloadPrerequisites();
+                var config = _config.Read();
+                if (string.IsNullOrWhiteSpace(config.Token)) return;
+                _client = new DiscordSocketClient(new DiscordSocketConfig
+                {
+                    LogLevel = LogSeverity.Verbose
+                });
+                _client.Log += Log;
 
-            IServiceCollection serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            _services = serviceCollection.BuildServiceProvider();
-            _services.GetService<SongService>().AudioPlaybackService = _services.GetService<AudioPlaybackService>();
+                IServiceCollection serviceCollection = new ServiceCollection();
+                ConfigureServices(serviceCollection);
+                _services = serviceCollection.BuildServiceProvider();
 
-            await _client.LoginAsync(TokenType.Bot, config.Token);
-            await _client.StartAsync();
-            await _commandHandler.Initialize(_client, _services, _persistence);
-            await _channelHandler.Initialize(_client);
-            await Task.Delay(-1); // Stop application from closing.
+                await _client.LoginAsync(TokenType.Bot, config.Token);
+                await _client.StartAsync();
+                await _client.SetActivityAsync(new Game("with her Yuki Diary"));
+                await _commandHandler.Initialize(_client, _services);
+                await _channelHandler.Initialize(_client, _services);
+                await RestartHandler.AwaitRestart();
+            }
         }
 
         private void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton(new YouTubeDownloadService());
-            serviceCollection.AddSingleton(new AudioPlaybackService());
-            serviceCollection.AddSingleton(new SongService());
+            serviceCollection.AddSingleton(_persistence);
+        }
+
+        private void DownloadPrerequisites()
+        {
+            using (var client = new WebClient())
+            {
+                var directory = "Bin";
+                var file = "Bin/Youtube-dl.exe";
+                if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+                if (File.Exists(Path.Combine(directory, file))) File.Delete(Path.Combine(directory, file));
+                client.DownloadFile("https://youtube-dl.org/downloads/latest/youtube-dl.exe", file);
+            }
+            using (var client = new WebClient())
+            {
+                var file = "libsodium.dll";
+                if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/libsodium.dll", file);
+            }
+            using (var client = new WebClient())
+            {
+                var file = "opus.dll";
+                if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
+            }
         }
 
         /// <summary>
