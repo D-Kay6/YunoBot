@@ -11,42 +11,17 @@ namespace Yuno.Main.Commands.Modules
     [Group("praise")]
     public class PraiseModule : ModuleBase<SocketCommandContext>
     {
-        private Random _random = new Random();
-
-        [Command("praise")]
-        public async Task Command([Remainder]string message)
+        [Priority(-1)]
+        [Command]
+        public async Task DefaultPraise([Remainder]string message)
         {
-            var users = Context.Channel.GetUsers();
-            SocketGuildUser user;
-            switch (message.ToLower())
-            {
-                case "satan":
-                    await PraiseDKay();
-                    return;
-                case "god":
-                    await PraiseDemanicus();
-                    return;
-                case "wizard":
-                    await PraiseJim();
-                    return;
-                case "everyone":
-                    await ReplyAsync($"Yay! You're all such lovely people :heart:.", false);
-                    await ReplyAsync($"But don't be getting any ideas now. \nNo one could even get close to my wonderful D-Kay.", false);
-                    return;
-                case "someone":
-                    users.RemoveAll(u => u.IsBot);
-                    user = users.ElementAt(_random.Next(users.Count));
-                    break;
-                default:
-                    user = users.GetUser(message);
-                    if (user == null)
-                    {
-                        await ReplyAsync($"Wait, who do you mean? I cannot find '{message}'.");
-                        return;
-                    }
-                    break;
-            }
+            var user = Context.Channel.TryGetUser(message).Result;
+            await PraiseUser(user, message);
+        }
 
+        private async Task PraiseUser(SocketGuildUser user, string message = null)
+        {
+            if (user == null) return;
             switch (user.Id)
             {
                 case 255453041531158538:
@@ -59,30 +34,47 @@ namespace Yuno.Main.Commands.Modules
                     await PraiseJim();
                     return;
                 default:
-                    await PraiseUser(user);
+                    await ReplyAsync($"Good job, {user.Mention}. You deserve a :cookie:.", false);
                     return;
             }
         }
-
-        private async Task PraiseUser(SocketGuildUser user)
+        
+        [Command("everyone")]
+        public async Task PraiseEveryone()
         {
-            if (user == null) return;
-            await ReplyAsync($"Good job, {user.Mention}. You deserve a :cookie:.", false);
+            await ReplyAsync($"Yay! You're all such lovely people :heart:.", false);
+            await ReplyAsync($"But don't be getting any ideas now. \nNo one could even get close to my wonderful D-Kay.", false);
         }
-
-        private async Task PraiseDKay()
+        
+        [Command("someone")]
+        public async Task PraiseSomeone()
+        {
+            var user = Context.Channel.GetRandomUser();
+            await PraiseUser(user);
+        }
+        
+        [Command("child")]
+        public async Task PraiseChild()
+        {
+            await ReplyAsync("I am not gonna do that. Are you sure you did not mean /kill child?");
+        }
+        
+        [Command("satan")]
+        public async Task PraiseDKay()
         {
             await ReplyAsync("All hail the bringer of pain and destruction *(and my future husband)*, D-Kay :heart:.", false);
         }
-
-        private async Task PraiseDemanicus()
+        
+        [Command("god")]
+        public async Task PraiseDemanicus()
         {
             await ReplyAsync("Wait, are you sure you mean him? Ok then. \nAll hail our lord and savior, Demanicus.", false);
         }
-
-        private async Task PraiseJim()
+        
+        [Command("wizard")]
+        public async Task PraiseJim()
         {
-            await ReplyAsync("I cannot imagine he deserves it but, \nAll hail our powerful and destructive wizard, {message}.", false);
+            await ReplyAsync("I cannot imagine he deserves it but, \nAll hail our powerful and destructive wizard, jim.", false);
         }
     }
 }
