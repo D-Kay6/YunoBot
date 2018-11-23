@@ -1,4 +1,6 @@
-﻿namespace Yuno.Main.Music
+﻿using Discord;
+
+namespace Yuno.Main.Music
 {
     public interface IPlayable
     {
@@ -8,9 +10,13 @@
 
         string Title { get; }
 
-        string Requester { get; set; }
+        IUser Requester { get; set; }
+
+        IMessageChannel TextChannel { get; }
 
         string DurationString { get; }
+
+        int Volume { get; }
 
         int Speed { get; }
 

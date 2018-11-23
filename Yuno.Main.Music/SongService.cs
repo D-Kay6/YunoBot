@@ -1,35 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks.Dataflow;
+using System.Linq;
 using Discord;
+using Yuno.Main.Extentions;
 
 namespace Yuno.Main.Music
 {
     public class SongService
     {
-        public IVoiceChannel VoiceChannel { get; private set; }
-        public IMessageChannel MessageChannel { get; private set; }
+        private static Dictionary<ulong, SongService> _songServices = new Dictionary<ulong, SongService>();
 
-        private BufferBlock<IPlayable> _songQueue;
-
-        public SongService()
+        public static SongService GetSongService(ulong id)
         {
-            _songQueue = new BufferBlock<IPlayable>();
+            if (_songServices.ContainsKey(id)) return _songServices[id];
+            var songService = new SongService();
+            _songServices.Add(id, songService);
+            return songService;
         }
+
 
         public AudioPlaybackService AudioPlaybackService { get; set; }
 
+        public IVoiceChannel VoiceChannel { get; private set; }
+
         public IPlayable NowPlaying { get; private set; }
+
+        public bool IsPlaying { get; private set; }
+
+        private Queue<IPlayable> _songQueue;
+
+
+        public SongService()
+        {
+            _songQueue = new Queue<IPlayable>();
+            AudioPlaybackService = new AudioPlaybackService();
+        }
+
 
         public void SetVoiceChannel(IVoiceChannel voiceChannel)
         {
             this.VoiceChannel = voiceChannel;
-            ProcessQueue();
         }
 
-        public void SetMessageChannel(IMessageChannel messageChannel)
+        public IEnumerable<IPlayable> GetQueue()
         {
-            this.MessageChannel = messageChannel;
+            return _songQueue;
         }
 
         public void Next()
@@ -37,44 +52,55 @@ namespace Yuno.Main.Music
             AudioPlaybackService.StopCurrentOperation();
         }
 
+        public void Shuffle()
+        {
+            lock (_songQueue)
+            {
+                _songQueue = _songQueue.Shuffle();
+            }
+        }
+
         public IList<IPlayable> Clear()
         {
-            _songQueue.TryReceiveAll(out var skippedSongs);
+            var skippedSongs = _songQueue.ToList();
+            _songQueue.Clear();
 
             Console.WriteLine($"Skipped {skippedSongs.Count} songs");
 
             return skippedSongs;
         }
 
-        public void Queue(IPlayable video)
+        public int Queue(IPlayable video)
         {
-            _songQueue.Post(video);
+            _songQueue.Enqueue(video);
+            if (!IsPlaying) ProcessQueue();
+            return _songQueue.Count;
         }
+
 
         private async void ProcessQueue()
         {
-            while (await _songQueue.OutputAvailableAsync())
+            IsPlaying = true;
+            Console.WriteLine("Connecting to voice channel");
+            using (var audioClient = await VoiceChannel.ConnectAsync())
             {
-                Console.WriteLine("Waiting for songs");
-                NowPlaying = await _songQueue.ReceiveAsync();
-                try
+                Console.WriteLine("Connected!");
+                while (_songQueue.Count > 0)
                 {
-                    await MessageChannel?.SendMessageAsync($"Now playing **{NowPlaying.Title}** | `{NowPlaying.DurationString}` | requested by {NowPlaying.Requester} | {NowPlaying.Url}");
-
-                    Console.WriteLine("Connecting to voice channel");
-                    using (var audioClient = await VoiceChannel.ConnectAsync())
+                    Console.WriteLine("Waiting for songs");
+                    NowPlaying = _songQueue.Dequeue();
+                    try
                     {
-                        Console.WriteLine("Connected!");
-                        await AudioPlaybackService.SendAsync(audioClient, NowPlaying.Uri, NowPlaying.Speed);
+                        await NowPlaying.TextChannel.SendMessageAsync($"Now playing **{NowPlaying.Title}** (`{NowPlaying.DurationString}`) | requested by {NowPlaying.Requester.Mention}");
+                        await AudioPlaybackService.SendAsync(audioClient, NowPlaying.Uri, NowPlaying.Volume, NowPlaying.Speed);
                     }
-
-                    NowPlaying.OnPostPlay();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error while playing song: {e}");
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error while playing song: {e}");
+                    }
                 }
             }
+            IsPlaying = false;
         }
     }
 }
