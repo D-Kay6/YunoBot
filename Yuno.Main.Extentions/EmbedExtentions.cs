@@ -2,7 +2,7 @@
 
 namespace Yuno.Main.Extentions
 {
-    public static class EmbedExtention
+    public static class EmbedExtentions
     {
         public static Embed CreateEmbed(string title, string message)
         {

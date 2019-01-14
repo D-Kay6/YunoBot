@@ -34,6 +34,7 @@ namespace Yuno.Main.Commands.Modules
             foreach (var guild in Context.Client.Guilds)
             {
                 if (usersDone.Contains(guild.OwnerId)) continue;
+                if (guild.Id == 264445053596991498) continue;
                 await SendDM(guild.Owner, message, "Update notice");
                 usersDone.Add(guild.OwnerId);
                 await Task.Delay(150);
@@ -43,7 +44,7 @@ namespace Yuno.Main.Commands.Modules
         private async Task SendDM(IUser user, string message, string title = "")
         {
             var channel = await user.GetOrCreateDMChannelAsync();
-            await channel.SendMessageAsync("", false, EmbedExtention.CreateEmbed(title, message));
+            await channel.SendMessageAsync("", false, EmbedExtentions.CreateEmbed(title, message));
         }
     }
 }
