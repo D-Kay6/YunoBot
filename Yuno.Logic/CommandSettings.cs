@@ -5,16 +5,12 @@ using Yuno.Data.Factory;
 namespace Yuno.Logic
 {
     [Serializable]
-    public class CommandSettings
+    public class CommandSettings : Configuration<CommandSettings>
     {
-        private static ISerializer _persistence => SerializerFactory.GenerateSerializer();
-
-        public ulong GuildId { get; private set; }
         public string Prefix { get; private set; }
 
-        public CommandSettings(ulong guildId)
+        public CommandSettings(ulong guildId) : base(guildId)
         {
-            this.GuildId = guildId;
             this.Prefix = "/";
         }
 
@@ -25,17 +21,14 @@ namespace Yuno.Logic
             return true;
         }
 
-        public static CommandSettings Load(ulong guildId)
+        public override void Save()
         {
-            var data = _persistence.Read<CommandSettings>(guildId);
-            if (data != null) return data;
-            data = new CommandSettings(guildId);
-            return data;
+            Save(this);
         }
 
-        public void Save()
+        protected override void Update()
         {
-            _persistence.Write(GuildId, this);
+            //do nothing;
         }
     }
 }

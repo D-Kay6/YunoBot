@@ -1,28 +1,23 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using Yuno.Data.Core.Interfaces;
-using Yuno.Data.Core.Structs;
-using Yuno.Data.Factory;
 
 namespace Yuno.Logic
 {
     [Serializable]
-    public class AutoChannel
+    public class AutoChannel : Configuration<AutoChannel>
     {
-        private static ISerializer _persistence => SerializerFactory.GenerateSerializer();
-
-        public ulong GuildId { get; private set; }
         public bool Enabled { get; private set; }
+        protected int PermaChannelIcon;
         protected int AutoChannelIcon;
         protected HashSet<ulong> Channels;
 
-        public AutoChannel(ulong guildId)
+        public AutoChannel(ulong guildId) : base(guildId)
         {
-            this.GuildId = guildId;
             this.Enabled = true;
             this.Channels = new HashSet<ulong>();
             this.AutoChannelIcon = 10133;
+            this.PermaChannelIcon = 128101;
         }
 
         public void LoadChannels(IEnumerable<ulong> channels)
@@ -45,15 +40,26 @@ namespace Yuno.Logic
             return Channels.Contains(id);
         }
 
-        public bool IsAutoChannel(string value)
+        public bool IsAutoChannel(IChannel channel)
         {
-            var id = char.ConvertToUtf32(value, 0);
+            var id = char.ConvertToUtf32(channel.Name, 0);
             return AutoChannelIcon.Equals(id);
+        }
+
+        public bool IsPermaChannel(IChannel channel)
+        {
+            var id = char.ConvertToUtf32(channel.Name, 0);
+            return PermaChannelIcon.Equals(id);
         }
 
         public string GetAutoChannelIcon()
         {
             return char.ConvertFromUtf32(AutoChannelIcon);
+        }
+
+        public string GetPermaChannelIcon()
+        {
+            return char.ConvertFromUtf32(PermaChannelIcon);
         }
 
         public void SetAutoChannelIcon(int value)
@@ -66,18 +72,24 @@ namespace Yuno.Logic
             AutoChannelIcon = char.ConvertToUtf32(value, 0);
         }
 
-        public static AutoChannel Load(ulong guildId)
+        public void SetPermaChannelIcon(int value)
         {
-            var data = _persistence.Read<AutoChannel>(guildId);
-            if (data != null) return data;
-            data = new AutoChannel(guildId);
-            data.Save();
-            return data;
+            PermaChannelIcon = value;
         }
 
-        public void Save()
+        public void SetPermaChannelIcon(string value)
         {
-            _persistence.Write(GuildId, this);
+            PermaChannelIcon = char.ConvertToUtf32(value, 0);
+        }
+
+        protected  override void Update()
+        {
+            if (PermaChannelIcon == 0) PermaChannelIcon = 128101;
+        }
+
+        public override void Save()
+        {
+            Save(this);
         }
     }
 }

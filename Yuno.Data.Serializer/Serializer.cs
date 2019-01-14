@@ -1,7 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Yuno.Data.Core.Interfaces;
-using Yuno.Data.Core.Structs;
-using Yuno.Data.Core.Structs.Data;
 
 namespace Yuno.Data.Serializer
 {

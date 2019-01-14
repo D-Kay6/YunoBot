@@ -8,7 +8,7 @@ namespace Yuno.Data.Json
     {
         protected T Read<T>(string directory, string file)
         {
-            if (string.IsNullOrWhiteSpace(file)) return default(T);
+            if (string.IsNullOrWhiteSpace(file)) return default;
 
             var path = string.IsNullOrWhiteSpace(directory) ? file : Path.Combine(directory, file);
             if (!File.Exists($"{path}"))
