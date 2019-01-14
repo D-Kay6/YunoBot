@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Yuno.Main.Extentions
 {
-    public static class ImageExtention
+    public static class ImageExtentions
     {
         public static string GetImagePath(string name)
         {
