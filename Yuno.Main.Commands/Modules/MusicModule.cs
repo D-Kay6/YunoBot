@@ -87,9 +87,7 @@ namespace Yuno.Main.Commands.Modules
         {
             _songService = SongService.GetSongService(Context.Guild.Id);
             if (!await CanPerform()) return;
-            _songService.Clear();
-            _songService.Next();
-            await ReplyAsync("The music player was terminated.");
+            _songService.Stop();
         }
 
         [Alias("now")]
@@ -136,6 +134,12 @@ namespace Yuno.Main.Commands.Modules
                     await DownloadSearch(name);
                     return;
                 }
+
+                if (name.Contains("results?search_query"))
+                {
+                    await ReplyAsync("I cannot find videos based of a search link (yet).");
+                    return;
+                }
                 if (name.Contains("playlist?list=")) await DownloadPlaylist(name);
                 else await DownloadUrl(name);
             }
@@ -166,6 +170,7 @@ namespace Yuno.Main.Commands.Modules
             }
 
             var invalidVideo = false;
+            var count = 0;
             foreach (var video in videos)
             {
                 if (video == null)
@@ -174,9 +179,11 @@ namespace Yuno.Main.Commands.Modules
                     invalidVideo = true;
                     continue;
                 }
-                await QueueVideo(video);
+                QueueVideo(video);
+                count++;
             }
 
+            await ReplyAsync($"Added `{count}` songs to the queue.");
             if (invalidVideo) await ReplyAsync("I could not download some of the videos in the playlist.");
         }
 
@@ -191,8 +198,8 @@ namespace Yuno.Main.Commands.Modules
             }
             catch (Exception e)
             {
-                await ReplyAsync("I was unable to find a downloadable video. Are you sure it's a valid video url?");
-                Console.WriteLine($"Error while downloading playlist: {e}");
+                await ReplyAsync("I was unable to find a downloadable video. Are you sure it's a valid video url? Please contact D-Kay#0666 if the issue persists.");
+                Console.WriteLine($"Error while downloading url: {e}");
                 return;
             }
             finally
@@ -200,7 +207,8 @@ namespace Yuno.Main.Commands.Modules
                 await notice.DeleteAsync();
             }
 
-            await QueueVideo(video);
+            var position = QueueVideo(video);
+            await ReplyAsync($"Queued **{video.Title}** (`{TimeSpan.FromSeconds(video.Duration)}`). Position in queue: #{position}");
         }
 
         private async Task DownloadSearch(string name)
@@ -223,15 +231,15 @@ namespace Yuno.Main.Commands.Modules
                 await notice.DeleteAsync();
             }
 
-            await QueueVideo(video);
+            var position = QueueVideo(video);
+            await ReplyAsync($"Queued **{video.Title}** (`{TimeSpan.FromSeconds(video.Duration)}`). Position in queue: #{position}");
         }
 
-        private async Task QueueVideo(YoutubeVideo video)
+        private int QueueVideo(YoutubeVideo video)
         {
             video.Requester = Context.User;
             video.TextChannel = Context.Channel;
-            var position = _songService.Queue(video);
-            await ReplyAsync($"Queued **{video.Title}** (`{TimeSpan.FromSeconds(video.Duration)}`). Position in queue: #{position}");
+            return _songService.Queue(video);
         }
     }
 }

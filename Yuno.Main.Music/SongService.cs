@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Discord;
 using Yuno.Main.Extentions;
+using Yuno.Main.Logging;
 
 namespace Yuno.Main.Music
 {
@@ -29,6 +31,8 @@ namespace Yuno.Main.Music
 
         private Queue<IPlayable> _songQueue;
 
+        private CancellationTokenSource _token;
+
 
         public SongService()
         {
@@ -47,9 +51,24 @@ namespace Yuno.Main.Music
             return _songQueue;
         }
 
+        public async void Stop(string reason = null)
+        {
+            if (_token == null) return;
+            _songQueue.Clear();
+            if (VoiceChannel != null)
+            {
+                var msg = "The music player was terminated.";
+                if (reason != null) msg += $" {reason}";
+                await NowPlaying.TextChannel.SendMessageAsync(msg);
+            }
+            _token.Cancel();
+            //AudioPlaybackService.StopCurrentOperation();
+        }
+
         public void Next()
         {
-            AudioPlaybackService.StopCurrentOperation();
+            _token.Cancel();
+            //AudioPlaybackService.StopCurrentOperation();
         }
 
         public void Shuffle()
@@ -80,27 +99,41 @@ namespace Yuno.Main.Music
 
         private async void ProcessQueue()
         {
-            IsPlaying = true;
-            Console.WriteLine("Connecting to voice channel");
-            using (var audioClient = await VoiceChannel.ConnectAsync())
+            try
             {
-                Console.WriteLine("Connected!");
-                while (_songQueue.Count > 0)
+                IsPlaying = true;
+                Console.WriteLine("Connecting to voice channel");
+                using (var audioClient = await VoiceChannel.ConnectAsync())
                 {
-                    Console.WriteLine("Waiting for songs");
-                    NowPlaying = _songQueue.Dequeue();
-                    try
+                    Console.WriteLine("Connected!");
+                    while (_songQueue.Count > 0)
                     {
-                        await NowPlaying.TextChannel.SendMessageAsync($"Now playing **{NowPlaying.Title}** (`{NowPlaying.DurationString}`) | requested by {NowPlaying.Requester.Mention}");
-                        await AudioPlaybackService.SendAsync(audioClient, NowPlaying.Uri, NowPlaying.Volume, NowPlaying.Speed);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Error while playing song: {e}");
+                        Console.WriteLine("Waiting for songs");
+                        NowPlaying = _songQueue.Dequeue();
+                        try
+                        {
+                            _token = new CancellationTokenSource();
+                            await NowPlaying.TextChannel.SendMessageAsync(
+                                $"Now playing **{NowPlaying.Title}** (`{NowPlaying.DurationString}`) | requested by {NowPlaying.Requester.Username}");
+                            await AudioPlaybackService.SendAsync(audioClient, NowPlaying.Uri, NowPlaying.Volume,
+                                NowPlaying.Speed, _token);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Error while playing song: {e}");
+                        }
                     }
                 }
             }
-            IsPlaying = false;
+            catch (Exception e)
+            {
+                LogsHandler.Instance.Log("Crashes", $"Exception occured in SongService. Traceback: {e}");
+            }
+            finally
+            {
+                IsPlaying = false;
+                VoiceChannel = null;
+            }
         }
     }
 }

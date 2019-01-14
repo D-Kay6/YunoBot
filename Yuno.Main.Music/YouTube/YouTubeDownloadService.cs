@@ -1,23 +1,21 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using NYoutubeDL;
-using NYoutubeDL.Helpers;
 
 namespace Yuno.Main.Music.YouTube
 {
     public class YouTubeDownloadService
     {
-        private const string Directory = "Data/Songs"; 
-        
-        private string DownloadParams => $"-o \"{Directory}/%(id)s.mp3\" --extract-audio --print-json --audio-format mp3 --download-archive \"{Directory}/Archive.txt\" --ignore-errors";
+        private const string Directory = "Data/Songs";
+
+        // --download-archive \"{Directory}/Archive.txt\"
+        private string DownloadParams => $"-o \"{Directory}/%(id)s.mp3\" --restrict-filenames --no-overwrites --extract-audio --print-json --audio-format mp3 --ignore-errors";
 
         public async Task<YoutubeVideo> DownloadUrl(string url)
         {
-            var youtubeDl = StartYoutubeDl($"{DownloadParams} {url}");
+            var youtubeDl = StartYoutubeDl($"{DownloadParams} \"{url}\"");
 
             if (youtubeDl == null)
             {

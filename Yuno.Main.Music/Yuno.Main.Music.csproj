@@ -57,14 +57,14 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Discord.Net.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.Core.2.0.0-beta\lib\net45\Discord.Net.Core.dll</HintPath>
+    <Reference Include="Discord.Net.Core, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.Core.2.0.2-dev-01059\lib\net46\Discord.Net.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Discord.Net.Rest, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.Rest.2.0.0-beta\lib\net45\Discord.Net.Rest.dll</HintPath>
+    <Reference Include="Discord.Net.Rest, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.Rest.2.0.2-dev-01059\lib\net46\Discord.Net.Rest.dll</HintPath>
     </Reference>
-    <Reference Include="Discord.Net.WebSocket, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.WebSocket.2.0.0-beta\lib\net45\Discord.Net.WebSocket.dll</HintPath>
+    <Reference Include="Discord.Net.WebSocket, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.WebSocket.2.0.2-dev-01059\lib\net46\Discord.Net.WebSocket.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -95,6 +95,7 @@
     <Compile Include="IPlayable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SongService.cs" />
+    <Compile Include="YouTube\FullYoutubeVideo.cs" />
     <Compile Include="YouTube\YoutubeVideo.cs" />
     <Compile Include="YouTube\YouTubeDownloadService.cs" />
   </ItemGroup>
@@ -105,6 +106,10 @@
     <ProjectReference Include="..\Yuno.Main.Extentions\Yuno.Main.Extentions.csproj">
       <Project>{719368A9-8969-4F4D-8D80-BEE4CD997C11}</Project>
       <Name>Yuno.Main.Extentions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Yuno.Main.Logging\Yuno.Main.Logging.csproj">
+      <Project>{3C346EFB-5FD9-4219-BE28-732CD3DF7495}</Project>
+      <Name>Yuno.Main.Logging</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

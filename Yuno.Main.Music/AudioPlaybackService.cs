@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord.Audio;
 
@@ -9,15 +10,22 @@ namespace Yuno.Main.Music
     {
         private Process _currentProcess;
 
-        public async Task SendAsync(IAudioClient client, string path, int volume, int speedModifier)
+        public async Task SendAsync(IAudioClient client, string path, int volume, int speedModifier, CancellationTokenSource token)
         {
-            _currentProcess = CreateStream(path, volume, speedModifier);
-            var output = _currentProcess.StandardOutput.BaseStream;
-            var discord = client.CreatePCMStream(AudioApplication.Music, 96 * 1024);
-            await output.CopyToAsync(discord);
-            await discord.FlushAsync();
-            _currentProcess.WaitForExit();
-            Console.WriteLine($"ffmpeg exited with code {_currentProcess.ExitCode}");
+            try
+            {
+                _currentProcess = CreateStream(path, volume, speedModifier);
+                var output = _currentProcess.StandardOutput.BaseStream;
+                var discord = client.CreatePCMStream(AudioApplication.Music, 96 * 1024);
+                await output.CopyToAsync(discord, 81920, token.Token);
+                await discord.FlushAsync();
+                _currentProcess.WaitForExit();
+                Console.WriteLine($"ffmpeg exited with code {_currentProcess.ExitCode}");
+            }
+            catch (OperationCanceledException e)
+            {
+                // do nothing
+            }
         }
 
         public void StopCurrentOperation()
