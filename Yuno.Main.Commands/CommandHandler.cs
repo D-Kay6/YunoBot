@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Yuno.Logic;
+using Yuno.Main.Logging;
 
 namespace Yuno.Main.Commands
 {
@@ -17,8 +18,11 @@ namespace Yuno.Main.Commands
         {
             this._client = client;
             _services = services;
-            this._service = new CommandService();
-            await _service.AddModulesAsync(Assembly.GetExecutingAssembly());
+            this._service = new CommandService(new CommandServiceConfig
+            {
+                DefaultRunMode = RunMode.Async
+            });
+            await _service.AddModulesAsync(Assembly.GetExecutingAssembly(), _services);
             _client.MessageReceived += HandleCommandAsync;
         }
 
@@ -29,14 +33,11 @@ namespace Yuno.Main.Commands
             var prefix = CommandSettings.Load(context.Guild.Id).Prefix;
             var argPos = 0;
             if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
-            ËxecuteCommandAsync(context, prefix, argPos);
-        }
 
-        private async Task ËxecuteCommandAsync(SocketCommandContext context, string prefix, int argPos)
-        {
+            LogsHandler.Instance.Log("Commands", context.Guild, $"{context.User.Username} executed command '{context.Message}'.");
             var result = await _service.ExecuteAsync(context, argPos, _services);
             if (result.IsSuccess) return;
-            Console.WriteLine(result.ErrorReason);
+            LogsHandler.Instance.Log("Commands", context.Guild, $"Execution failed. Error code: {result.ErrorReason}.");
             switch (result.Error)
             {
                 case CommandError.UnmetPrecondition:
@@ -46,7 +47,7 @@ namespace Yuno.Main.Commands
                     await context.Channel.SendMessageAsync($"Ehmm... I think you made a mistake somewhere. Try using {prefix}help if you forgot the syntax.");
                     break;
                 default:
-                    await context.Channel.SendMessageAsync($"Sorry, I don't know what to do with that.");
+                    await context.Channel.SendMessageAsync($"Sorry, I don't know what to do with that. Use {prefix}help if you need a list of my commands.");
                     break;
             }
         }

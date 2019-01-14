@@ -20,7 +20,7 @@ namespace Yuno.Main.Commands.Modules
                 return;
             }
 
-            var ember = EmbedExtention.CreateEmbed("Help", $@"Here is a list of commands you can use.
+            var ember = EmbedExtentions.CreateEmbed("Help", $@"Here is a list of commands you can use.
 
 __**General commands**__
 {prefix}help (command) - Show advanced help for a command.
@@ -32,9 +32,7 @@ __praise__
 {prefix}praise (username) - Send a positive message to that user.
 {prefix}praise someone - Send a positive message to a random person.
 {prefix}praise everyone - Send a positive message to everyone.
-{prefix}praise god - Send a positive message to god.
-{prefix}praise satan - Send a positive message to satan.
-{prefix}praise wizard - Send a positive message to the wizard.
+{prefix}praise role (rolename) - Send a positive message to a group.
 
 __music__
 {prefix}music play (video url) - Add a song to the queue.
@@ -54,22 +52,35 @@ __prefix__
 {prefix}prefix - Show the command prefix for this server.
 {prefix}prefix set (new prefix) - Change the command prefix for this server.
 
+__autochannel (ac)__
+{prefix}autochannel - Show the currently used icon for auto channels.
+{prefix}autochannel seticon (new icon) - Change the icon for auto channels.
+
+__permachannel (pc)__
+{prefix}permachannel - Show the currently used icon for perma channels
+{prefix}permachannel seticon (new icon) - Change the icon for perma channels.
+
+__autorole (ar)__
+{prefix}autorole - Show the currently used icon for auto roles.
+{prefix}autorole seticon (new icon) - Change the icon for auto roles.
+
+__permarole (pr)__
+{prefix}permarole - Show the currently used icon for perma roles
+{prefix}permarole seticon (new icon) - Change the icon for perma rolers.
+
 I am constantly updated with new features so keep an eye on this page.");
             await ReplyAsync("", false, ember);
         }
         
         [Command("praise")]
-        public async Task PHelpraise()
+        public async Task HelpPraise()
         {
             var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtention.CreateEmbed("Help praise", $@"Here is more information about 'praise'.
+            var embed = EmbedExtentions.CreateEmbed("Help praise", $@"Here is more information about 'praise'.
 
 {prefix}praise (username) - Send a positive message to that user.
 {prefix}praise someone - Send a positive message to a random person.
-{prefix}praise everyone - Send a positive message to everyone.
-{prefix}praise god - Send a positive message to god.
-{prefix}praise satan - Send a positive message to satan.
-{prefix}praise wizard - Send a positive message to the wizard.");
+{prefix}praise everyone - Send a positive message to everyone.");
             await ReplyAsync("", false, embed);
         }
 
@@ -77,7 +88,7 @@ I am constantly updated with new features so keep an eye on this page.");
         public async Task HelpPrefix()
         {
             var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtention.CreateEmbed("Help prefix", $@"Here is more information about 'prefix'.
+            var embed = EmbedExtentions.CreateEmbed("Help prefix", $@"Here is more information about 'prefix'.
 
 {prefix}prefix - Show the command prefix for this server.
 {prefix}prefix set (new prefix) - Change the command prefix for this server.");
@@ -88,7 +99,7 @@ I am constantly updated with new features so keep an eye on this page.");
         public async Task HelpMusic()
         {
             var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtention.CreateEmbed("Help music", $@"Here is more information about 'music'.
+            var embed = EmbedExtentions.CreateEmbed("Help music", $@"Here is more information about 'music'.
 
 {prefix}music play (video url) - Add a song to the queue.
 {prefix}music play (playlist url) - Add all songs in the playlist to the queue..

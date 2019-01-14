@@ -55,17 +55,17 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Discord.Net.Commands, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.Commands.2.0.0-beta\lib\netstandard1.1\Discord.Net.Commands.dll</HintPath>
+    <Reference Include="Discord.Net.Commands, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.Commands.2.0.2-dev-01059\lib\net46\Discord.Net.Commands.dll</HintPath>
     </Reference>
-    <Reference Include="Discord.Net.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.Core.2.0.0-beta\lib\net45\Discord.Net.Core.dll</HintPath>
+    <Reference Include="Discord.Net.Core, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.Core.2.0.2-dev-01059\lib\net46\Discord.Net.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Discord.Net.Rest, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.Rest.2.0.0-beta\lib\net45\Discord.Net.Rest.dll</HintPath>
+    <Reference Include="Discord.Net.Rest, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.Rest.2.0.2-dev-01059\lib\net46\Discord.Net.Rest.dll</HintPath>
     </Reference>
-    <Reference Include="Discord.Net.WebSocket, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.WebSocket.2.0.0-beta\lib\net45\Discord.Net.WebSocket.dll</HintPath>
+    <Reference Include="Discord.Net.WebSocket, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.WebSocket.2.0.2-dev-01059\lib\net46\Discord.Net.WebSocket.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
@@ -222,6 +222,9 @@
   <ItemGroup>
     <Compile Include="CommandHandler.cs" />
     <Compile Include="Modules\AnnounceModule.cs" />
+    <Compile Include="Modules\AutoRoleModule.cs" />
+    <Compile Include="Modules\PermaRoleModule.cs" />
+    <Compile Include="Modules\PermaChannelModule.cs" />
     <Compile Include="Modules\AutoChannelModule.cs" />
     <Compile Include="Modules\BirthdayModule.cs" />
     <Compile Include="Modules\HelpModule.cs" />
@@ -248,6 +251,10 @@
     <ProjectReference Include="..\Yuno.Main.Extentions\Yuno.Main.Extentions.csproj">
       <Project>{719368A9-8969-4F4D-8D80-BEE4CD997C11}</Project>
       <Name>Yuno.Main.Extentions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Yuno.Main.Logging\Yuno.Main.Logging.csproj">
+      <Project>{3C346EFB-5FD9-4219-BE28-732CD3DF7495}</Project>
+      <Name>Yuno.Main.Logging</Name>
     </ProjectReference>
     <ProjectReference Include="..\Yuno.Main.Music\Yuno.Main.Music.csproj">
       <Project>{6521294b-b78f-4ea2-853b-32f88563cf5e}</Project>
