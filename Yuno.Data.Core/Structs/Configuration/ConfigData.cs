@@ -1,14 +1,18 @@
 ﻿namespace Yuno.Data.Core.Structs
 {
-    public struct ConfigData
+    public class ConfigData
     {
+        public ulong ClientId;
         public string Token;
+        public string DiscordBotsToken;
         public string Prefix;
 
-        public ConfigData(string token = "", string prefix = "+")
+        public ConfigData()
         {
-            this.Token = token;
-            this.Prefix = prefix;
+            this.ClientId = 0;
+            this.Token = "";
+            this.DiscordBotsToken = "";
+            this.Prefix = "/";
         }
     }
 }

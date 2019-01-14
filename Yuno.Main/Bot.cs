@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -9,9 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Yuno.Data.Core.Interfaces;
 using Yuno.Data.Factory;
 using Yuno.Main.AutoChannel;
+using Yuno.Main.AutoRole;
 using Yuno.Main.Commands;
 using Yuno.Main.Core;
-using Yuno.Main.Music;
+using Yuno.Main.DiscordBotList;
+using Yuno.Main.Logging;
 using Yuno.Main.Music.YouTube;
 using Yuno.Main.Restart;
 
@@ -19,13 +20,15 @@ namespace Yuno.Main
 {
     public class Bot : IBot
     {
-        private IConfig _config;
-        private ISerializer _persistence;
+        private readonly IConfig _config;
+        private readonly ISerializer _persistence;
 
         private DiscordSocketClient _client;
 
         private CommandHandler _commandHandler;
         private ChannelHandler _channelHandler;
+        private RoleHandler _roleHandler;
+        private DblHandler _dblHandler;
 
         private IServiceProvider _services;
 
@@ -36,9 +39,11 @@ namespace Yuno.Main
         {
             _config = ConfigFactory.GenerateConfig();
             _persistence = SerializerFactory.GenerateSerializer();
-
+            
             _commandHandler = new CommandHandler();
             _channelHandler = new ChannelHandler();
+            _roleHandler = new RoleHandler();
+            _dblHandler = new DblHandler();
         }
 
         /// <summary>
@@ -48,25 +53,36 @@ namespace Yuno.Main
         {
             while (RestartHandler.KeepAlive)
             {
-                DownloadPrerequisites();
-                var config = _config.Read();
-                if (string.IsNullOrWhiteSpace(config.Token)) return;
-                _client = new DiscordSocketClient(new DiscordSocketConfig
+                try
                 {
-                    LogLevel = LogSeverity.Verbose
-                });
-                _client.Log += Log;
+                    DownloadPrerequisites();
+                    var config = _config.Read();
+                    if (string.IsNullOrWhiteSpace(config.Token)) return;
+                    _client = new DiscordSocketClient(new DiscordSocketConfig
+                    {
+                        LogLevel = LogSeverity.Verbose
+                    });
+                    _client.Log += Log;
 
-                IServiceCollection serviceCollection = new ServiceCollection();
-                ConfigureServices(serviceCollection);
-                _services = serviceCollection.BuildServiceProvider();
+                    IServiceCollection serviceCollection = new ServiceCollection();
+                    ConfigureServices(serviceCollection);
+                    _services = serviceCollection.BuildServiceProvider();
 
-                await _client.LoginAsync(TokenType.Bot, config.Token);
-                await _client.StartAsync();
-                await _client.SetActivityAsync(new Game("with her Yuki Diary"));
-                await _commandHandler.Initialize(_client, _services);
-                await _channelHandler.Initialize(_client, _services);
-                await RestartHandler.AwaitRestart();
+                    await _client.LoginAsync(TokenType.Bot, config.Token);
+                    await _client.StartAsync();
+                    await _client.SetActivityAsync(new Game("with her Yukiteru Diary"));
+
+                    await _commandHandler.Initialize(_client, _services);
+                    await _channelHandler.Initialize(_client, _services);
+                    await _roleHandler.Initialize(_client, _services);
+                    await _dblHandler.Initialize(_client, config);
+
+                    await RestartHandler.AwaitRestart();
+                }
+                catch (Exception e)
+                {
+                    LogsHandler.Instance.Log("Main", $"Fatal exception occured. Restarting bot. Traceback: {e}");
+                }
             }
         }
 
@@ -98,10 +114,6 @@ namespace Yuno.Main
             }
         }
 
-        /// <summary>
-        /// Print a message to the console.
-        /// </summary>
-        /// <param name="msg">The message to display</param>
         private async Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.Message);
