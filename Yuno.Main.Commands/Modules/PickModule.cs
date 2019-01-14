@@ -14,7 +14,7 @@ namespace Yuno.Main.Commands.Modules
         public async Task PickCommand([Remainder]string message)
         {
             var selection = GetRandomOption(message);
-            var embed = EmbedExtention.CreateEmbed($"Choice for {Context.User.Username}", selection, new Color(255, 255, 0));
+            var embed = EmbedExtentions.CreateEmbed($"Choice for {Context.User.Username}", selection, new Color(255, 255, 0));
 
             await ReplyAsync("", false, embed);
         }

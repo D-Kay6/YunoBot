@@ -10,51 +10,24 @@ namespace Yuno.Main.Commands.Modules
 {
     [Alias("ac")]
     [Group("autochannel")]
+    [RequireUserPermission(GuildPermission.Administrator)]
     public class AutoChannelModule : ModuleBase<SocketCommandContext>
     {
-        public ISerializer Persistence { get; set; }
-
         [Priority(-1)]
         [Command]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task DefaultAutoChannel([Remainder] string message = null)
+        public async Task DefaultAutoChannel()
         {
-            if (!string.IsNullOrWhiteSpace(message))
-            {
-                await ReplyAsync($"There is no sub-command '{message}' in /autochannel.");
-                return;
-            }
-            await ReplyAsync($"The channel icon for your server is '{AutoChannel.Load(Context.Guild.Id).GetAutoChannelIcon()}'");
+            await ReplyAsync($@"The current auto channel icon for this server is '{AutoChannel.Load(Context.Guild.Id).GetAutoChannelIcon()}'.
+You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for the icon to paste in the channel name.");
         }
 
         [Command("seticon")]
-        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task AutoChannelSetIcon([Remainder] string message)
         {
             var persistence = AutoChannel.Load(Context.Guild.Id);
             persistence.SetAutoChannelIcon(message);
             persistence.Save();
-            await ReplyAsync($"The new auto channel icon for your server is '{persistence.GetAutoChannelIcon()}'");
-        }
-
-        [Command("enable")]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task AutoChannelEnable([Remainder] string message)
-        {
-            var persistence = AutoChannel.Load(Context.Guild.Id);
-            persistence.SetAutoChannelIcon(message);
-            persistence.Save();
-            await ReplyAsync($"The new auto channel icon for your server is '{persistence.GetAutoChannelIcon()}'");
-        }
-
-        [Command("disable")]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task AutoChannelDisable([Remainder] string message)
-        {
-            var persistence = AutoChannel.Load(Context.Guild.Id);
-            persistence.SetAutoChannelIcon(message);
-            persistence.Save();
-            await ReplyAsync($"The new auto channel icon for your server is '{persistence.GetAutoChannelIcon()}'");
+            await ReplyAsync($"The new auto channel icon for this server is '{persistence.GetAutoChannelIcon()}'");
         }
     }
 }
