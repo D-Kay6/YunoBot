@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigFactory.cs" />
+    <Compile Include="LogsFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializerFactory.cs" />
   </ItemGroup>
@@ -79,6 +80,10 @@
     <ProjectReference Include="..\Yuno.Data.Serializer\Yuno.Data.Serializer.csproj">
       <Project>{5FE6A8A0-17E6-4D34-8625-1C95212B2E30}</Project>
       <Name>Yuno.Data.Serializer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Yuno.Data.Text\Yuno.Data.Text.csproj">
+      <Project>{63D9B842-8B77-43A6-AFD5-14901A800890}</Project>
+      <Name>Yuno.Data.Text</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
