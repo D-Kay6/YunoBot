@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 
 namespace Yuno.Main.Extentions
 {
@@ -31,41 +32,15 @@ namespace Yuno.Main.Extentions
 
         public static SocketGuildUser GetUser(this IEnumerable<SocketGuildUser> list, string name)
         {
-            return list.FirstOrDefault(u => u.Username.Equals(name, StringComparison.CurrentCultureIgnoreCase)) ??
-                   list.Where(u => !string.IsNullOrEmpty(u.Nickname)).FirstOrDefault(u => u.Nickname.Equals(name, StringComparison.CurrentCultureIgnoreCase)) ??
-                   list.FirstOrDefault(u => u.Username.ToLower().Contains(name.ToLower())) ??
-                   list.Where(u => !string.IsNullOrEmpty(u.Nickname)).FirstOrDefault(u => u.Nickname.ToLower().Contains(name.ToLower()));
+            return list.FirstOrDefault(u => name.Contains(u.Id.ToString())) ??
+                   list.FirstOrDefault(u => u.Username.Equals(name, StringComparison.CurrentCultureIgnoreCase)) ??
+                   list.Where(u => !string.IsNullOrEmpty(u.Nickname)).FirstOrDefault(u => u.Nickname.Equals(name, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public static async Task<SocketGuildUser> TryGetUser(this ISocketMessageChannel channel, string name)
+        public static async Task SendDM(this IUser user, string text, Embed embed)
         {
-            var users = channel.GetUsers();
-            var user = users.FirstOrDefault(u => u.Username.Equals(name, StringComparison.CurrentCultureIgnoreCase)) ??
-                   users.Where(u => !string.IsNullOrEmpty(u.Nickname)).FirstOrDefault(u => u.Nickname.Equals(name, StringComparison.CurrentCultureIgnoreCase));
-            if (user != null) return user;
-            var cList = users.Where(u => u.Username.ToLower().Contains(name.ToLower()));
-            switch (cList.Count())
-            {
-                case 1:
-                    return cList.First();
-                case 0:
-                    break;
-                default:
-                    await channel.SendMessageAsync($"I found {cList.Count()} users matching '{name}'. Please be more specific.");
-                    return null;
-            }
-            var nList = users.Where(u => !string.IsNullOrEmpty(u.Nickname)).Where(u => u.Nickname.ToLower().Contains(name.ToLower()));
-            switch (nList.Count())
-            {
-                case 1:
-                    return nList.First();
-                case 0:
-                    await channel.SendMessageAsync($"Wait, who do you mean? I cannot find {name}.");
-                    return null;
-                default:
-                    await channel.SendMessageAsync($"I found {cList.Count()} users matching '{name}'. Please be more specific.");
-                    return null;
-            }
+            var channel = await user.GetOrCreateDMChannelAsync();
+            await channel.SendMessageAsync(text, false, embed);
         }
     }
 }

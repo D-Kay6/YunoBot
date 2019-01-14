@@ -9,13 +9,24 @@ using Yuno.Main.Extentions;
 
 namespace Yuno.Main.Commands.Modules
 {
+    [Group("birthday")]
     public class BirthdayModule : ModuleBase<SocketCommandContext>
     {
-        [Command("birthday")]
-        public async Task BirthdayCommand([Remainder] string message)
+        [Priority(-1)]
+        [Command]
+        public async Task DefaultBirthday([Remainder]string name)
         {
-            var user = Context.Channel.TryGetUser(message).Result;
-            if (user == null) return;
+            await Context.Channel.SendMessageAsync($"Wait, who do you mean? I cannot find `{name}`.");
+        }
+
+        [Command]
+        public async Task DefaultBirthday(SocketGuildUser user)
+        {
+            if (user == null)
+            {
+                await Context.Channel.SendMessageAsync($"Wait, who do you mean? I cannot find {Context.Message}.");
+                return;
+            }
 
             var name = user.Nickname ?? user.Username;
             var s = name.EndsWith("s") ? "" : "s";
