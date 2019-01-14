@@ -18,6 +18,13 @@ namespace Yuno.Main.Extentions
             foreach (var item in source) action(item, index++);
             return source;
         }
+        
+        public static TSource GetRandomItem<TSource>(this IEnumerable<TSource> source)
+        {
+            var random = new Random();
+            var index = random.Next(source.Count());
+            return source.ElementAt(index);
+        }
 
         public static IEnumerable<TSource> Add<TSource>(this IEnumerable<TSource> enumerable, TSource value)
         {
