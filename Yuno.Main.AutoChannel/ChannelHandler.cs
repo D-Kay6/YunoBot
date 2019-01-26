@@ -3,7 +3,6 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Yuno.Main.Logging;
 using Yuno.Main.Music;
@@ -25,11 +24,11 @@ namespace Yuno.Main.AutoChannel
 
         private async Task HandleChannelAsync(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
         {
-            LeaveChannel(state1.VoiceChannel, (SocketGuildUser)user);
-            JoinChannel(state2.VoiceChannel, (SocketGuildUser)user);
+            LeaveChannel(state1.VoiceChannel, (SocketGuildUser) user);
+            JoinChannel(state2.VoiceChannel, (SocketGuildUser) user);
         }
 
-        private async void LeaveChannel(SocketVoiceChannel channel, SocketGuildUser user)
+        private async Task LeaveChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
             try
             {
@@ -60,24 +59,32 @@ namespace Yuno.Main.AutoChannel
             }
         }
 
-        private async void JoinChannel(SocketVoiceChannel channel, SocketGuildUser user)
+        private async Task JoinChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
-            if (channel == null || user == null) return;
-            var autoChannel = Logic.AutoChannel.Load(channel.Guild.Id);
-            if (autoChannel.IsPermaChannel(channel))
+            try
             {
-                LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
-                var nameEnding = user.Username.EndsWith("s", StringComparison.CurrentCultureIgnoreCase) ? "'" : "'s";
-                var channelId = await DuplicateChannel(channel, user, $"{user.Username}{nameEnding} channel");
-                _channels.Remove(channelId);
+                if (channel == null || user == null) return;
+                var autoChannel = Logic.AutoChannel.Load(channel.Guild.Id);
+                if (autoChannel.IsPermaChannel(channel))
+                {
+                    LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
+                    var nameEnding = user.Username.EndsWith("s", StringComparison.CurrentCultureIgnoreCase) ? "'" : "'s";
+                    var channelId = await DuplicateChannel(channel, user, $"{user.Username}{nameEnding} channel");
+                    _channels.Remove(channelId);
+                }
+                else if (autoChannel.IsAutoChannel(channel))
+                {
+                    LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
+                    var channelId = await DuplicateChannel(channel, user);
+                    autoChannel.AddChannel(channelId);
+                    autoChannel.Save();
+                    _channels.Remove(channelId);
+                }
             }
-            else if (autoChannel.IsAutoChannel(channel))
+            catch (Exception e)
             {
-                LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
-                var channelId = await DuplicateChannel(channel, user);
-                autoChannel.AddChannel(channelId);
-                autoChannel.Save();
-                _channels.Remove(channelId);
+                var info = channel == null ? "Null channel" : $"({channel.Guild.Id}) {channel.Id}, {channel.Name}";
+                LogsHandler.Instance.Log("Crashes", $"JoinChannel crashed. {info}. Stacktrace: {e}");
             }
         }
 

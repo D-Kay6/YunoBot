@@ -1,7 +1,6 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using System.Threading.Tasks;
-using Discord;
-using Yuno.Data.Core.Interfaces;
 using Yuno.Logic;
 
 namespace Yuno.Main.Commands.Modules
@@ -10,8 +9,6 @@ namespace Yuno.Main.Commands.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class PrefixModule : ModuleBase<SocketCommandContext>
     {
-        public ISerializer Persistence { get; set; }
-
         [Command]
         public async Task DefaultPrefix()
         {

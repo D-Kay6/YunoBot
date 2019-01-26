@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Discord.Commands;
-using System.Threading.Tasks;
+﻿using Discord.Commands;
 using Discord.WebSocket;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Yuno.Main.Extentions;
-using Yuno.Main.Logging;
 
 namespace Yuno.Main.Commands.Modules
 {

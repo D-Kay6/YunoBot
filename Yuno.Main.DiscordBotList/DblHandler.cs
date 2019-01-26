@@ -1,8 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using DiscordBotsList.Api;
+using System;
+using System.Threading.Tasks;
 using Yuno.Data.Core.Structs;
+using Yuno.Data.Core.Structs.Configuration;
 
 namespace Yuno.Main.DiscordBotList
 {

@@ -1,7 +1,4 @@
-﻿using Yuno.Data.Core.Structs;
-using Yuno.Data.Core.Structs.Data;
-
-namespace Yuno.Data.Core.Interfaces
+﻿namespace Yuno.Data.Core.Interfaces
 {
     public interface ISerializer
     {

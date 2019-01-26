@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
-using Yuno.Data.Core.Interfaces;
+using System.Threading.Tasks;
 using Yuno.Logic;
 
 namespace Yuno.Main.Commands.Modules
@@ -13,8 +10,6 @@ namespace Yuno.Main.Commands.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class PermaChannelModule : ModuleBase<SocketCommandContext>
     {
-        public ISerializer Persistence { get; set; }
-
         [Priority(-1)]
         [Command]
         public async Task DefaultPermaChannel()
@@ -27,6 +22,11 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for the ico
         public async Task PermaChannelSetIcon([Remainder] string message)
         {
             var persistence = AutoChannel.Load(Context.Guild.Id);
+            if (message.StartsWith(persistence.GetAutoChannelIcon()))
+            {
+                await ReplyAsync($"I am not able to use the same icon for both auto channels and perma channels.");
+                return;
+            }
             persistence.SetPermaChannelIcon(message);
             persistence.Save();
             await ReplyAsync($"The new perma channel icon for this server is '{persistence.GetPermaChannelIcon()}'");

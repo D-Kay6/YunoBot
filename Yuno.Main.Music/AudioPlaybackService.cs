@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Discord.Audio;
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Discord.Audio;
 
 namespace Yuno.Main.Music
 {
@@ -22,7 +22,7 @@ namespace Yuno.Main.Music
                 _currentProcess.WaitForExit();
                 Console.WriteLine($"ffmpeg exited with code {_currentProcess.ExitCode}");
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException)
             {
                 // do nothing
             }

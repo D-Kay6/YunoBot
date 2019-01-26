@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Discord.Commands;
+using Discord.WebSocket;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using Yuno.Main.Extentions;
 using Yuno.Main.Music;
 using Yuno.Main.Music.YouTube;
 

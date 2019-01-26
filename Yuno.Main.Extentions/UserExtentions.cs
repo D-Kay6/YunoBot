@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Discord;
 using Discord.WebSocket;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
 
 namespace Yuno.Main.Extentions
 {

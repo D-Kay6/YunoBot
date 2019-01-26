@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Discord;
+using System.Threading.Tasks;
 using Yuno.Main.Extentions;
 using Yuno.Main.Logging;
 
@@ -19,8 +20,7 @@ namespace Yuno.Main.Music
             _songServices.Add(id, songService);
             return songService;
         }
-
-
+        
         public AudioPlaybackService AudioPlaybackService { get; set; }
 
         public IVoiceChannel VoiceChannel { get; private set; }
@@ -32,14 +32,12 @@ namespace Yuno.Main.Music
         private Queue<IPlayable> _songQueue;
 
         private CancellationTokenSource _token;
-
-
+        
         public SongService()
         {
             _songQueue = new Queue<IPlayable>();
             AudioPlaybackService = new AudioPlaybackService();
         }
-
 
         public void SetVoiceChannel(IVoiceChannel voiceChannel)
         {
@@ -51,7 +49,7 @@ namespace Yuno.Main.Music
             return _songQueue;
         }
 
-        public async void Stop(string reason = null)
+        public async Task Stop(string reason = null)
         {
             if (_token == null) return;
             _songQueue.Clear();
@@ -95,9 +93,8 @@ namespace Yuno.Main.Music
             if (!IsPlaying) ProcessQueue();
             return _songQueue.Count;
         }
-
-
-        private async void ProcessQueue()
+        
+        private async Task ProcessQueue()
         {
             try
             {

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.WebSocket;
+using System.Threading.Tasks;
 using Yuno.Main.Extentions;
 
 namespace Yuno.Main.Commands.Modules

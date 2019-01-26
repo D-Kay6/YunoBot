@@ -1,4 +1,4 @@
-﻿namespace Yuno.Data.Core.Structs
+﻿namespace Yuno.Data.Core.Structs.Configuration
 {
     public class ConfigData
     {

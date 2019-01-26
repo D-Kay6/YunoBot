@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Discord;
+using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using Yuno.Data.Core.Interfaces;
 using Yuno.Data.Factory;
 using Yuno.Main.AutoChannel;

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+﻿using Discord;
 using Yuno.Data.Core.Interfaces;
 using Yuno.Data.Factory;
 
@@ -12,8 +6,6 @@ namespace Yuno.Main.Logging
 {
     public class LogsHandler
     {
-        private static readonly string Directory = "Logs";
-
         private static LogsHandler _instance;
 
         public static LogsHandler Instance

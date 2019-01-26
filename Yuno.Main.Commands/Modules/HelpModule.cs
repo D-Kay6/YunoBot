@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
-using Discord.Commands;
-using Yuno.Data.Core.Interfaces;
+﻿using Discord.Commands;
+using System.Threading.Tasks;
 using Yuno.Logic;
 using Yuno.Main.Extentions;
 
@@ -66,7 +65,7 @@ __autorole (ar)__
 
 __permarole (pr)__
 {prefix}permarole - Show the currently used icon for perma roles
-{prefix}permarole seticon (new icon) - Change the icon for perma rolers.
+{prefix}permarole seticon (new icon) - Change the icon for perma roles.
 
 I am constantly updated with new features so keep an eye on this page.");
             await ReplyAsync("", false, ember);
@@ -81,17 +80,6 @@ I am constantly updated with new features so keep an eye on this page.");
 {prefix}praise (username) - Send a positive message to that user.
 {prefix}praise someone - Send a positive message to a random person.
 {prefix}praise everyone - Send a positive message to everyone.");
-            await ReplyAsync("", false, embed);
-        }
-
-        [Command("prefix")]
-        public async Task HelpPrefix()
-        {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help prefix", $@"Here is more information about 'prefix'.
-
-{prefix}prefix - Show the command prefix for this server.
-{prefix}prefix set (new prefix) - Change the command prefix for this server.");
             await ReplyAsync("", false, embed);
         }
 
@@ -110,6 +98,65 @@ I am constantly updated with new features so keep an eye on this page.");
 {prefix}music skip - Skip the song currently playing.
 {prefix}music clear - Remove all songs from the queue.
 {prefix}music stop - Stop playing music and remove all songs from the queue.");
+            await ReplyAsync("", false, embed);
+        }
+
+        [Command("prefix")]
+        public async Task HelpPrefix()
+        {
+            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
+            var embed = EmbedExtentions.CreateEmbed("Help prefix", $@"Here is more information about 'prefix'.
+
+{prefix}prefix - Show the command prefix for this server.
+{prefix}prefix set (new prefix) - Change the command prefix for this server.");
+            await ReplyAsync("", false, embed);
+        }
+
+        [Alias("ac")]
+        [Command("autochannel")]
+        public async Task HelpAutoChannel()
+        {
+            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
+            var embed = EmbedExtentions.CreateEmbed("Help autochannel", $@"Here is more information about 'autochannel'.
+
+{prefix}autochannel - Show the currently used icon for auto channels.
+{prefix}autochannel seticon (new icon) - Change the icon for auto channels.");
+            await ReplyAsync("", false, embed);
+        }
+
+        [Alias("pc")]
+        [Command("permachannel")]
+        public async Task HelpPermaChannel()
+        {
+            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
+            var embed = EmbedExtentions.CreateEmbed("Help permachannel", $@"Here is more information about 'permachannel'.
+
+{prefix}permachannel - Show the currently used icon for perma channels
+{prefix}permachannel seticon (new icon) - Change the icon for perma channels.");
+            await ReplyAsync("", false, embed);
+        }
+
+        [Alias("ar")]
+        [Command("autorole")]
+        public async Task HelpAutoRole()
+        {
+            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
+            var embed = EmbedExtentions.CreateEmbed("Help autorole", $@"Here is more information about 'autorole'.
+
+{prefix}autorole - Show the currently used icon for auto roles.
+{prefix}autorole seticon (new icon) - Change the icon for auto roles.");
+            await ReplyAsync("", false, embed);
+        }
+
+        [Alias("pr")]
+        [Command("permarole")]
+        public async Task HelpPermaRole()
+        {
+            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
+            var embed = EmbedExtentions.CreateEmbed("Help permarole", $@"Here is more information about 'permarole'.
+
+{prefix}permarole - Show the currently used icon for perma roles
+{prefix}permarole seticon (new icon) - Change the icon for perma roles.");
             await ReplyAsync("", false, embed);
         }
     }

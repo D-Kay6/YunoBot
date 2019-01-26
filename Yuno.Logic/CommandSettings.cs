@@ -1,6 +1,4 @@
 ﻿using System;
-using Yuno.Data.Core.Interfaces;
-using Yuno.Data.Factory;
 
 namespace Yuno.Logic
 {

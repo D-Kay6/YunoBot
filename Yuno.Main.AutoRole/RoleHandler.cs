@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Yuno.Main.Extentions;
-using Yuno.Main.Logging;
 
 namespace Yuno.Main.AutoRole
 {
@@ -21,12 +20,13 @@ namespace Yuno.Main.AutoRole
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)
         {
             if (oldState.Activity?.Name == newState.Activity?.Name) return;
-            if (oldState.Activity != null) RemoveRole(oldState);
-            if (newState.Activity != null) AddRole(newState);
+            RemoveRole(oldState);
+            AddRole(newState);
         }
 
-        private async void RemoveRole(SocketGuildUser user)
+        private async Task RemoveRole(SocketGuildUser user)
         {
+            if (user.Activity == null) return;
             if (user.Activity.Type != ActivityType.Playing) return;
             var autoRole = Logic.AutoRole.Load(user.Guild.Id);
             var game = user.Activity.Name;
@@ -34,8 +34,9 @@ namespace Yuno.Main.AutoRole
             await user.RemoveRolesAsync(roles);
         }
 
-        private async void AddRole(SocketGuildUser user)
+        private async Task AddRole(SocketGuildUser user)
         {
+            if (user.Activity == null) return;
             if (user.Activity.Type != ActivityType.Playing) return;
             var autoRole = Logic.AutoRole.Load(user.Guild.Id);
             var game = user.Activity.Name;

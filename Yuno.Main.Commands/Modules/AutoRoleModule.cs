@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
+using System.Threading.Tasks;
 using Yuno.Data.Core.Interfaces;
 using Yuno.Logic;
 

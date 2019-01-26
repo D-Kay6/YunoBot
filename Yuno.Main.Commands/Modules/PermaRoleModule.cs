@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
-using Yuno.Data.Core.Interfaces;
+using System.Threading.Tasks;
 using Yuno.Logic;
 
 namespace Yuno.Main.Commands.Modules
@@ -13,8 +10,6 @@ namespace Yuno.Main.Commands.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class PermaRoleModule : ModuleBase<SocketCommandContext>
     {
-        public ISerializer Persistence { get; set; }
-
         [Priority(-1)]
         [Command]
         public async Task DefaultPermaRole()

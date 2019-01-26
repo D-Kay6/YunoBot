@@ -33,7 +33,7 @@ namespace Yuno.Data.Serializer
                 {
                     return (T)_formatter.Deserialize(inStream);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Console.WriteLine($"The data file '{path}' is corrupt and will be removed.");
                     File.Delete(path);
