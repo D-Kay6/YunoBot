@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Discord;
+using Discord.WebSocket;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Rest;
-using Discord.WebSocket;
-using Yuno.Data.Core.Interfaces;
-using Yuno.Logic;
 using Yuno.Main.Logging;
 using Yuno.Main.Music;
 
@@ -16,17 +14,19 @@ namespace Yuno.Main.AutoChannel
     {
         private DiscordSocketClient _client;
 
+        private HashSet<ulong> _channels;
+
         public async Task Initialize(DiscordSocketClient client, IServiceProvider services)
         {
             this._client = client;
+            this._channels = new HashSet<ulong>();
             _client.UserVoiceStateUpdated += HandleChannelAsync;
         }
 
         private async Task HandleChannelAsync(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
         {
-            if (state1.VoiceChannel != null) LeaveChannel(state1.VoiceChannel, (SocketGuildUser)user);
-            
-            if (state2.VoiceChannel != null) JoinChannel(state2.VoiceChannel, (SocketGuildUser)user);
+            LeaveChannel(state1.VoiceChannel, (SocketGuildUser)user);
+            JoinChannel(state2.VoiceChannel, (SocketGuildUser)user);
         }
 
         private async void LeaveChannel(SocketVoiceChannel channel, SocketGuildUser user)
@@ -42,6 +42,9 @@ namespace Yuno.Main.AutoChannel
                     songService.Stop("All users left the voice channel.");
                     return;
                 }
+                
+                while (_channels.Contains(channel.Id)) await Task.Delay(100);
+
                 var autoChannel = Logic.AutoChannel.Load(channel.Guild.Id);
                 if (!autoChannel.IsControlledChannel(channel.Id)) return;
                 var userName = user?.Nickname ?? user?.Username ?? "User";
@@ -65,28 +68,37 @@ namespace Yuno.Main.AutoChannel
             {
                 LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
                 var nameEnding = user.Username.EndsWith("s", StringComparison.CurrentCultureIgnoreCase) ? "'" : "'s";
-                await DuplicateChannel(channel, user, $"{user.Username}{nameEnding} channel");
+                var channelId = await DuplicateChannel(channel, user, $"{user.Username}{nameEnding} channel");
+                _channels.Remove(channelId);
             }
             else if (autoChannel.IsAutoChannel(channel))
             {
                 LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
-                autoChannel.AddChannel(await DuplicateChannel(channel, user));
+                var channelId = await DuplicateChannel(channel, user);
+                autoChannel.AddChannel(channelId);
                 autoChannel.Save();
+                _channels.Remove(channelId);
             }
         }
 
         private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name = "--channel")
         {
             var newChannel = await channel.Guild.CreateVoiceChannelAsync(name);
+            _channels.Add(newChannel.Id);
+            
             await newChannel.ModifyAsync(v =>
             {
                 v.Bitrate = channel.Bitrate;
                 v.CategoryId = channel.CategoryId;
                 v.UserLimit = channel.UserLimit;
             });
-            await (user.ModifyAsync(a => a.Channel = newChannel));
-            var tasks = channel.PermissionOverwrites.Select(o => newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(o.TargetId), o.Permissions));
-            await Task.WhenAll(tasks);
+            await user.ModifyAsync(a => a.Channel = newChannel);
+            foreach (var p in channel.PermissionOverwrites)
+            {
+                await newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(p.TargetId), p.Permissions);
+            }
+            //var tasks = channel.PermissionOverwrites.Select(o => newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(o.TargetId), o.Permissions));
+            //await Task.WhenAll(tasks);
             await newChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
             return newChannel.Id;
         }
