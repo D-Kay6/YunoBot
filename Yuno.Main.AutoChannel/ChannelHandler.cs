@@ -90,16 +90,15 @@ namespace Yuno.Main.AutoChannel
 
         private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name = "--channel")
         {
-            var newChannel = await channel.Guild.CreateVoiceChannelAsync(name);
+            var newChannel = await channel.Guild.CreateVoiceChannelAsync(name, p =>
+            {
+                p.Bitrate = channel.Bitrate;
+                p.CategoryId = channel.CategoryId;
+                p.UserLimit = channel.UserLimit;
+            });
             _channels.Add(newChannel.Id);
             
-            await newChannel.ModifyAsync(v =>
-            {
-                v.Bitrate = channel.Bitrate;
-                v.CategoryId = channel.CategoryId;
-                v.UserLimit = channel.UserLimit;
-            });
-            await user.ModifyAsync(a => a.Channel = newChannel);
+            await user.ModifyAsync(u => u.Channel = newChannel);
             foreach (var p in channel.PermissionOverwrites)
             {
                 await newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(p.TargetId), p.Permissions);
