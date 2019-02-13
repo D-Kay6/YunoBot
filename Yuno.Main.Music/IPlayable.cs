@@ -1,24 +1,21 @@
 ﻿using Discord;
+using Victoria.Entities;
 
 namespace Yuno.Main.Music
 {
     public interface IPlayable
     {
-        string Url { get; set; }
+        LavaTrack Track { get; }
 
-        string Uri { get; }
+        IGuild Guild { get; }
 
-        string Title { get; }
-
-        IUser Requester { get; set; }
+        IGuildUser Requester { get; }
 
         IMessageChannel TextChannel { get; }
 
         string DurationString { get; }
 
         int Volume { get; }
-
-        int Speed { get; }
 
         void OnPostPlay();
     }

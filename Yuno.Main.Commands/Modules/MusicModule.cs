@@ -1,21 +1,124 @@
 ﻿using Discord.Commands;
-using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Discord.WebSocket;
 using Yuno.Main.Music;
-using Yuno.Main.Music.YouTube;
 
 namespace Yuno.Main.Commands.Modules
 {
     [Group("music")]
     public class MusicModule : ModuleBase<SocketCommandContext>
     {
-        public YouTubeDownloadService YoutubeDownloadService { get; set; }
+        private AudioService AudioService { get; }
 
-        private SongService _songService;
+        public MusicModule(AudioService audioService)
+        {
+            AudioService = audioService;
+        }
 
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            AudioService.BeforeExecute(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
+        [Priority(-1)]
+        [Command]
+        public async Task DefaultMusic()
+        {
+            await MusicPlaying();
+        }
+
+        [Alias("request")]
+        [Command("play")]
+        [Summary("Requests a song to be played")]
+        public async Task MusicPlay([Remainder]string query)
+        {
+            if (!await CanPerform()) return;
+
+            var message = await ReplyAsync($"Searching for `{query}`...");
+            var track = await AudioService.GetTrack(query);
+            await message.DeleteAsync();
+            if (track == null)
+            {
+                await ReplyAsync("I could not find a valid song to play.");
+                return;
+            }
+            var song = new Song(track, Context, 25);
+            await AudioService.Queue(song);
+            await ReplyAsync($"Queued **{track.Title}** (`{track.Length}`).");
+        }
+
+        [Command("skip")]
+        public async Task MusicSkip()
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+            if (!await CanPerform()) return;
+
+            await AudioService.Skip();
+            await ReplyAsync("Skipped song");
+        }
+
+        [Command("clear")]
+        public async Task MusicClear()
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+            if (!await CanPerform()) return;
+            AudioService.Clear();
+            await ReplyAsync("Queue cleared");
+        }
+
+        [Command("stop")]
+        public async Task MusicStop()
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+            if (!await CanPerform()) return;
+            await AudioService.Stop();
+        }
+
+        [Alias("now")]
+        [Command("playing")]
+        public async Task MusicPlaying()
+        {
+            var currentSong = AudioService.CurrentTrack;
+            if (currentSong == null)
+            {
+                await ReplyAsync($"{Context.User.Mention} current queue is empty");
+            }
+            else
+            {
+                await ReplyAsync($"{Context.User.Mention} now playing `{currentSong.Title}`.");
+            }
+        }
+
+        private async Task<bool> CanPerform()
+        {
+            var user = Context.User as SocketGuildUser;
+            var voiceChannel = AudioService.VoiceChannel;
+            if (voiceChannel != null)
+            {
+                if (user?.VoiceChannel != null && voiceChannel.Id.Equals(user.VoiceChannel.Id)) return true;
+                await ReplyAsync("You must be in the same voice channel as me to be able to do this.");
+                return false;
+            }
+
+            if (user?.VoiceChannel != null) return true;
+            await ReplyAsync("You must be in a voice channel to listen to music.");
+            return false;
+        }
+
+        /*
         [Priority(-1)]
         [Command]
         public async Task DefaultMusic()
@@ -28,6 +131,7 @@ namespace Yuno.Main.Commands.Modules
         [Summary("Requests a song to be played")]
         public async Task MusicPlay([Remainder]string url)
         {
+
             _songService = SongService.GetSongService(Context.Guild.Id);
             if (!await CanPerform()) return;
             _songService.SetVoiceChannel(((SocketGuildUser)Context.User).VoiceChannel);
@@ -100,25 +204,6 @@ namespace Yuno.Main.Commands.Modules
             {
                 await ReplyAsync($"{Context.User.Mention} now playing `{_songService.NowPlaying.Title}` requested by {_songService.NowPlaying.Requester.Username}");
             }
-        }
-
-        private async Task<bool> CanPerform()
-        {
-            var user = Context.User as SocketGuildUser;
-            if (_songService.VoiceChannel != null)
-            {
-                if (user?.VoiceChannel == null || !_songService.VoiceChannel.Id.Equals(user.VoiceChannel.Id))
-                {
-                    await ReplyAsync("You must be in the same voice channel as the bot for this to work.");
-                    return false;
-                }
-            }
-            else if (user?.VoiceChannel == null)
-            {
-                await ReplyAsync("You must be in a voice channel to listen to music.");
-                return false;
-            }
-            return true;
         }
 
         private async Task Play(string name)
@@ -238,5 +323,6 @@ namespace Yuno.Main.Commands.Modules
             video.TextChannel = Context.Channel;
             return _songService.Queue(video);
         }
+        */
     }
 }

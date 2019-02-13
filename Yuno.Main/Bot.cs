@@ -13,7 +13,7 @@ using Yuno.Main.Commands;
 using Yuno.Main.Core;
 using Yuno.Main.DiscordBotList;
 using Yuno.Main.Logging;
-using Yuno.Main.Music.YouTube;
+using Yuno.Main.Music;
 using Yuno.Main.Restart;
 
 namespace Yuno.Main
@@ -70,7 +70,7 @@ namespace Yuno.Main
 
                     await _client.LoginAsync(TokenType.Bot, config.Token);
                     await _client.StartAsync();
-                    await _client.SetActivityAsync(new Game("with her Yukiteru Diary"));
+                    await _client.SetActivityAsync(new Game("her Yukiteru Diary", ActivityType.Watching));
 
                     await _commandHandler.Initialize(_client, _services);
                     await _channelHandler.Initialize(_client, _services);
@@ -88,8 +88,8 @@ namespace Yuno.Main
 
         private void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton(new YouTubeDownloadService());
             serviceCollection.AddSingleton(_persistence);
+            serviceCollection.AddSingleton(new AudioService(_client));
         }
 
         private void DownloadPrerequisites()
@@ -97,19 +97,16 @@ namespace Yuno.Main
             using (var client = new WebClient())
             {
                 var directory = "Bin";
-                var file = "Bin/Youtube-dl.exe";
+
+                var file = "Youtube-dl.exe";
                 if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
                 if (File.Exists(Path.Combine(directory, file))) File.Delete(Path.Combine(directory, file));
-                client.DownloadFile("https://youtube-dl.org/downloads/latest/youtube-dl.exe", file);
-            }
-            using (var client = new WebClient())
-            {
-                var file = "libsodium.dll";
+                client.DownloadFile("https://youtube-dl.org/downloads/latest/youtube-dl.exe", Path.Combine(directory, file));
+
+                file = "libsodium.dll";
                 if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/libsodium.dll", file);
-            }
-            using (var client = new WebClient())
-            {
-                var file = "opus.dll";
+
+                file = "opus.dll";
                 if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
             }
         }

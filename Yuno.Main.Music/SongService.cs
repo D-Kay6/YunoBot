@@ -108,12 +108,13 @@ namespace Yuno.Main.Music
                         Console.WriteLine("Waiting for songs");
                         NowPlaying = _songQueue.Dequeue();
                         try
-                        {
+                        {/*
                             _token = new CancellationTokenSource();
                             await NowPlaying.TextChannel.SendMessageAsync(
                                 $"Now playing **{NowPlaying.Title}** (`{NowPlaying.DurationString}`) | requested by {NowPlaying.Requester.Username}");
                             await AudioPlaybackService.SendAsync(audioClient, NowPlaying.Uri, NowPlaying.Volume,
                                 NowPlaying.Speed, _token);
+                            */
                         }
                         catch (Exception e)
                         {
