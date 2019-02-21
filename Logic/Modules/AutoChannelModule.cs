@@ -33,5 +33,12 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for the ico
             persistence.Save();
             await ReplyAsync($"The new auto channel icon for this server is '{persistence.GetAutoChannelIcon()}'");
         }
+
+        [Command("fix")]
+        public async Task AutoChannelFix()
+        {
+            AutoChannel.Remove(Context.Guild.Id);
+            await ReplyAsync($"Your auto channels should now be fixed. If you had a custom prefix you will need to set this again.");
+        }
     }
 }

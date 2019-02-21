@@ -54,6 +54,7 @@ __prefix__
 __autochannel (ac)__
 {prefix}autochannel - Show the currently used icon for auto channels.
 {prefix}autochannel seticon (new icon) - Change the icon for auto channels.
+{prefix}autochannel fix - Fixes the problem where I am unable to remove generates auto channels.
 
 __permachannel (pc)__
 {prefix}permachannel - Show the currently used icon for perma channels
@@ -120,7 +121,8 @@ I am constantly updated with new features so keep an eye on this page.");
             var embed = EmbedExtentions.CreateEmbed("Help autochannel", $@"Here is more information about 'autochannel'.
 
 {prefix}autochannel - Show the currently used icon for auto channels.
-{prefix}autochannel seticon (new icon) - Change the icon for auto channels.");
+{prefix}autochannel seticon (new icon) - Change the icon for auto channels.
+{prefix}autochannel fix - Fixes the problem where I am unable to remove generates auto channels.");
             await ReplyAsync("", false, embed);
         }
 
