@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Yuno</RootNamespace>
     <AssemblyName>Yuno</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -30,6 +30,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -127,18 +128,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
     <None Include="Yuno_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Yuno.Main.Core\Yuno.Main.Core.csproj">
-      <Project>{B4590B91-19ED-4566-BCCC-950B5228A760}</Project>
-      <Name>Yuno.Main.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Yuno.Main.Factory\Yuno.Main.Factory.csproj">
-      <Project>{CE741855-3DEB-4C41-8659-B27AFDFF0078}</Project>
-      <Name>Yuno.Main.Factory</Name>
+    <ProjectReference Include="..\Factory\Factory.csproj">
+      <Project>{4fcc56f4-e71a-4110-b4fe-f8d115052292}</Project>
+      <Name>Factory</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

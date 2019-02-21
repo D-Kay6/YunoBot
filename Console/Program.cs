@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Yuno.Main.Core;
-using Factory.Bot;
+using ILogic;
+using LogicFactory;
 
-namespace Yuno
+namespace Console
 {
     class Program
     {
