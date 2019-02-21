@@ -29,6 +29,12 @@ namespace Yuno.Logic
             return data;
         }
 
+        public static void Remove(ulong guildId)
+        {
+            var data = (T)Activator.CreateInstance(typeof(T), guildId);
+            data.Save();
+        }
+
         protected void Save(T data)
         {
             Persistence.Write(GuildId, data);
