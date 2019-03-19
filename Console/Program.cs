@@ -2,7 +2,7 @@
 using ILogic;
 using LogicFactory;
 
-namespace Console
+namespace Yuno
 {
     class Program
     {

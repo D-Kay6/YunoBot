@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IDal", "IDal\IDal.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dal", "Dal\Dal.csproj", "{15F3F546-B7F1-4605-BDB4-C20986063BED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{E05CBCDB-1464-4FF5-B11C-D2C712E7084D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yuno", "Console\Yuno.csproj", "{E05CBCDB-1464-4FF5-B11C-D2C712E7084D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicFactory", "LogicFactory\LogicFactory.csproj", "{AD81BC82-1F05-4871-80BF-00E13F80BC17}"
 EndProject
