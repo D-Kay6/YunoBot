@@ -86,6 +86,7 @@
     <Compile Include="Data\AutoRole.cs" />
     <Compile Include="Data\CommandSettings.cs" />
     <Compile Include="Data\Configuration.cs" />
+    <Compile Include="Exceptions\AudioExceptions.cs" />
     <Compile Include="Extentions\EmbedExtentions.cs" />
     <Compile Include="Extentions\IEnumerableExtentions.cs" />
     <Compile Include="Extentions\ImageExtentions.cs" />

@@ -35,8 +35,9 @@ __praise__
 
 __music__
 {prefix}music play (video url) - Add a song to the queue.
-{prefix}music play (playlist url) - Add all songs in the playlist to the queue..
 {prefix}music play (name) - Search for a song by it's name and add it to the queue.
+{prefix}music pause - Pause the currently playing song.
+{prefix}music unpause - Un-pause the currently playing song.
 {prefix}music playing - Show what song is currently playing.
 {prefix}music queue - List all the songs in the queue.
 {prefix}music shuffle - Shuffle all the songs in the queue.
@@ -91,8 +92,9 @@ I am constantly updated with new features so keep an eye on this page.");
             var embed = EmbedExtentions.CreateEmbed("Help music", $@"Here is more information about 'music'.
 
 {prefix}music play (video url) - Add a song to the queue.
-{prefix}music play (playlist url) - Add all songs in the playlist to the queue..
 {prefix}music play (name) - Search for a song by it's name and add it to the queue.
+{prefix}music pause - Pause the currently playing song.
+{prefix}music unpause - Un-pause the currently playing song.
 {prefix}music playing - Show what song is currently playing.
 {prefix}music queue - List all the songs in the queue.
 {prefix}music shuffle - Shuffle all the songs in the queue.

@@ -1,7 +1,9 @@
-﻿using Discord.Commands;
+﻿using System.Linq;
+using Discord.Commands;
 using Discord.WebSocket;
 using Logic.Services;
 using System.Threading.Tasks;
+using Logic.Extentions;
 
 namespace Logic.Modules
 {
@@ -34,6 +36,13 @@ namespace Logic.Modules
         public async Task MusicPlay([Remainder] string query)
         {
             if (!await CanPerform()) return;
+            if (query.Contains("playlist?list="))
+            {
+                await ReplyAsync("Sorry, but I do not have support for playlists yet.");
+                return;
+            }
+
+            if (query.Contains("&list=")) query = query.Substring(0, query.IndexOf("&list="));
 
             var message = await ReplyAsync($"Searching for `{query}`...");
             var track = await AudioService.GetTrack(query);
@@ -45,8 +54,26 @@ namespace Logic.Modules
             }
 
             var song = new Song(track, Context, 25);
-            await AudioService.Queue(song);
-            await ReplyAsync($"Queued **{track.Title}** (`{track.Length}`).");
+            var position = await AudioService.Queue(song);
+            if (position == 0) return;
+            await ReplyAsync($"Queued #{position} **{track.Title}** (`{track.Length}`).");
+        }
+
+        [Command("shuffle")]
+        public async Task MusicShuffle()
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+
+            if (!await CanPerform()) return;
+            
+            var notice = await ReplyAsync("Shuffling...");
+            AudioService.Shuffle();
+            await notice.DeleteAsync();
+            await ReplyAsync("The queue has been shuffled.");
         }
 
         [Command("skip")]
@@ -61,7 +88,20 @@ namespace Logic.Modules
             if (!await CanPerform()) return;
 
             await AudioService.Skip();
-            await ReplyAsync("Skipped song");
+        }
+
+        [Command("stop")]
+        public async Task MusicStop()
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+
+            if (!await CanPerform()) return;
+            await AudioService.Stop();
+            await ReplyAsync("Music player was terminated.");
         }
 
         [Command("clear")]
@@ -78,19 +118,6 @@ namespace Logic.Modules
             await ReplyAsync("Queue cleared");
         }
 
-        [Command("stop")]
-        public async Task MusicStop()
-        {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync("I'm currently not playing music.");
-                return;
-            }
-
-            if (!await CanPerform()) return;
-            await AudioService.Stop();
-        }
-
         [Alias("now")]
         [Command("playing")]
         public async Task MusicPlaying()
@@ -100,6 +127,62 @@ namespace Logic.Modules
                 await ReplyAsync($"{Context.User.Mention} current queue is empty");
             else
                 await ReplyAsync($"{Context.User.Mention} now playing `{currentSong.Title}`.");
+        }
+        
+        [Command("queue")]
+        public async Task MusicQueue()
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+
+            var queue = AudioService.GetQueue();
+            if (!queue.Any())
+            {
+                await ReplyAsync("There is no music in the queue. Use /music play to add some music.");
+                return;
+            }
+            var position = 1;
+            var msg = "";
+            foreach (var item in queue)
+            {
+                msg += $"#{position}  **{item.Track.Title}** (`{item.Track.Length}`).\n";
+                position++;
+            }
+
+            await ReplyAsync(msg);
+        }
+
+        [Command("pause")]
+        public async Task MusicPause()
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+
+            if (!await CanPerform()) return;
+
+            if (await AudioService.Pause()) await ReplyAsync("Music player is paused.");
+            else await ReplyAsync("The music player is already paused.");
+        }
+
+        [Command("unpause")]
+        public async Task MusicUnPause()
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+
+            if (!await CanPerform()) return;
+
+            if (await AudioService.Play()) await ReplyAsync("Music player is un-paused.");
+            else await ReplyAsync("The music player is not paused.");
         }
 
         private async Task<bool> CanPerform()
