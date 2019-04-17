@@ -15,23 +15,23 @@ namespace Logic.Modules
         public async Task DefaultPermaChannel()
         {
             await ReplyAsync(
-                $@"The current perma channel icon for this server is '{AutoChannel.Load(Context.Guild.Id).GetPermaChannelIcon()}'.
-You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for the icon to paste in the channel name.");
+                $@"The current perma channel prefix for this server is '{AutoChannel.Load(Context.Guild.Id).PermaPrefix}'.
+You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
         }
 
         [Command("seticon")]
         public async Task PermaChannelSetIcon([Remainder] string message)
         {
             var persistence = AutoChannel.Load(Context.Guild.Id);
-            if (message.StartsWith(persistence.GetAutoChannelIcon()))
+            if (message.Equals(persistence.AutoPrefix))
             {
-                await ReplyAsync("I am not able to use the same icon for both auto channels and perma channels.");
+                await ReplyAsync("I am not able to use the same prefix for both auto channels and perma channels.");
                 return;
             }
 
             persistence.SetPermaChannelIcon(message);
             persistence.Save();
-            await ReplyAsync($"The new perma channel icon for this server is '{persistence.GetPermaChannelIcon()}'");
+            await ReplyAsync($"The new perma channel prefix for this server is '{persistence.PermaPrefix}'");
         }
     }
 }

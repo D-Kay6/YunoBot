@@ -35,13 +35,13 @@ namespace Logic.Handlers
             {
                 if (channel == null) return;
 
-                if (channel.Users.Count != 0)
+                if (channel.Users.Count > 0)
                 {
                     if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(_client.CurrentUser.Id)) return;
                     var audioService = (AudioService)_services.GetService(typeof(AudioService));
                     audioService.BeforeExecute(channel.Guild.Id);
                     await audioService.TextChannel.SendMessageAsync("Music player was terminated. All users have left the voice channel.");
-                    audioService.Stop();
+                    await audioService.Stop();
                     return;
                 }
 
@@ -95,8 +95,7 @@ namespace Logic.Handlers
             }
         }
 
-        private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user,
-            string name = "--channel")
+        private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name = "--channel")
         {
             var newChannel = await channel.Guild.CreateVoiceChannelAsync(name, p =>
             {

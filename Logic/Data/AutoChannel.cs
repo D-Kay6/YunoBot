@@ -7,16 +7,16 @@ namespace Logic.Data
     [Serializable]
     public class AutoChannel : Configuration<AutoChannel>
     {
-        protected int AutoChannelIcon;
+        public string AutoPrefix { get; protected set; }
+        public string PermaPrefix { get; protected set; }
         protected HashSet<ulong> Channels;
-        protected int PermaChannelIcon;
 
         public AutoChannel(ulong guildId) : base(guildId)
         {
             Enabled = true;
+            AutoPrefix = "➕";
+            PermaPrefix = "👥";
             Channels = new HashSet<ulong>();
-            AutoChannelIcon = 10133;
-            PermaChannelIcon = 128101;
         }
 
         public bool Enabled { get; }
@@ -53,44 +53,27 @@ namespace Logic.Data
             return PermaChannelIcon.Equals(id);
         }
 
-        public string GetAutoChannelIcon()
-        {
-            return char.ConvertFromUtf32(AutoChannelIcon);
-        }
-
-        public string GetPermaChannelIcon()
-        {
-            return char.ConvertFromUtf32(PermaChannelIcon);
-        }
-
-        public void SetAutoChannelIcon(int value)
-        {
-            AutoChannelIcon = value;
-        }
-
         public void SetAutoChannelIcon(string value)
         {
-            AutoChannelIcon = char.ConvertToUtf32(value, 0);
-        }
-
-        public void SetPermaChannelIcon(int value)
-        {
-            PermaChannelIcon = value;
+            AutoPrefix = value;
         }
 
         public void SetPermaChannelIcon(string value)
         {
-            PermaChannelIcon = char.ConvertToUtf32(value, 0);
-        }
-
-        protected override void Update()
-        {
-            if (PermaChannelIcon == 0) PermaChannelIcon = 128101;
+            PermaPrefix = value;
         }
 
         public override void Save()
         {
             Save(this);
+        }
+
+        protected int AutoChannelIcon;
+        protected int PermaChannelIcon;
+        protected override void Update()
+        {
+            if (AutoPrefix == null) AutoPrefix = char.ConvertFromUtf32(AutoChannelIcon);
+            if (PermaPrefix == null) PermaPrefix = char.ConvertFromUtf32(PermaChannelIcon);
         }
     }
 }
