@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Logic.Extentions;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Logic.Modules
@@ -14,28 +15,32 @@ namespace Logic.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DefaultAnnounce([Remainder] string message)
         {
-            if (string.IsNullOrWhiteSpace(message)) return;
-            foreach (var user in Context.Guild.Users)
+            if (string.IsNullOrWhiteSpace(message))
             {
-                await SendDM(user, message, Context.Guild.Name);
-                await Task.Delay(150);
+                await ReplyAsync("I cannot send an empty message.");
+                return;
             }
+
+            SendAnnouncement(Context.Guild.Users, message, Context.Guild.Name);
         }
 
         [Command("global")]
         [RequireOwner]
         public async Task AnnounceGlobal([Remainder] string message)
         {
-            if (string.IsNullOrWhiteSpace(message)) return;
-            var usersDone = new HashSet<ulong>();
-            foreach (var guild in Context.Client.Guilds)
+            if (string.IsNullOrWhiteSpace(message))
             {
-                if (usersDone.Contains(guild.OwnerId)) continue;
-                if (guild.Id == 264445053596991498) continue;
-                await SendDM(guild.Owner, message, "Update notice");
-                usersDone.Add(guild.OwnerId);
-                await Task.Delay(150);
+                await ReplyAsync("I cannot send an empty message.");
+                return;
             }
+
+            var users = (from guild in Context.Client.Guilds where guild.Id != 264445053596991498 select guild.Owner).Cast<IUser>().ToList();
+            SendAnnouncement(users, message, "Update notice");
+        }
+
+        private async Task SendAnnouncement(IReadOnlyCollection<IUser> users, string message, string title = "")
+        {
+            users.Foreach(async u => await SendDM(u, message, title));
         }
 
         private async Task SendDM(IUser user, string message, string title = "")
