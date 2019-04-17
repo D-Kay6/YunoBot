@@ -27,6 +27,7 @@ namespace Logic.Handlers
 
         private async Task HandleCommandAsync(SocketMessage s)
         {
+            if (s.Author.IsBot) return;
             if (!(s is SocketUserMessage msg)) return;
             var context = new SocketCommandContext(_client, msg);
             var prefix = CommandSettings.Load(context.Guild.Id).Prefix;
