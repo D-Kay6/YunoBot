@@ -31,8 +31,13 @@ namespace Logic.Handlers
             if (user.Activity.Type != ActivityType.Playing) return;
             var autoRole = AutoRole.Load(user.Guild.Id);
             var game = user.Activity.Name;
+            var userName = user.Nickname ?? user.Username ?? "User";
             var roles = user.Roles.Where(r => autoRole.IsAutoRole(r) && r.Name.ContainsIgnoreCase(game));
-            await user.RemoveRolesAsync(roles);
+            if (roles.Any())
+            {
+                await user.RemoveRolesAsync(roles);
+                LogsHandler.Instance.Log("Roles", user.Guild, $"{userName} lost roles '{string.Join(" ", roles.Select(r => r.Name))}.");
+            }
         }
 
         private async Task AddRole(SocketGuildUser user)
@@ -42,11 +47,20 @@ namespace Logic.Handlers
             var autoRole = AutoRole.Load(user.Guild.Id);
             var game = user.Activity.Name;
 
+            var userName = user.Nickname ?? user.Username ?? "User";
             var rolesA = user.Guild.Roles.Where(r => autoRole.IsAutoRole(r) && r.Name.ContainsIgnoreCase(game));
-            await user.AddRolesAsync(rolesA);
+            if (rolesA.Any())
+            {
+                await user.AddRolesAsync(rolesA);
+                LogsHandler.Instance.Log("Roles", user.Guild, $"{userName} got roles '{string.Join(" ", rolesA.Select(r => r.Name))}.");
+            }
 
             var rolesP = user.Guild.Roles.Where(r => autoRole.IsPermaRole(r) && r.Name.ContainsIgnoreCase(game));
-            await user.AddRolesAsync(rolesP);
+            if (rolesP.Any())
+            {
+                await user.AddRolesAsync(rolesP);
+                LogsHandler.Instance.Log("Roles", user.Guild, $"{userName} got roles '{string.Join(" ", rolesP.Select(r => r.Name))}.");
+            }
         }
     }
 }
