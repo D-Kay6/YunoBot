@@ -18,17 +18,23 @@ namespace Logic.Modules
         public async Task DefaultAutoRole()
         {
             await ReplyAsync(
-                $@"The current auto role icon for this server is '{AutoRole.Load(Context.Guild.Id).GetAutoRoleIcon()}'.
-You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for the icon to paste in the channel name.");
+                $@"The current auto role prefix for this server is `{AutoRole.Load(Context.Guild.Id).AutoPrefix}`.
+You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
         }
 
         [Command("seticon")]
         public async Task AutoRoleSetIcon([Remainder] string message)
         {
             var persistence = AutoRole.Load(Context.Guild.Id);
+            if (message.Equals(persistence.PermaPrefix))
+            {
+                await ReplyAsync("I am not able to use the same prefix for both auto roles and perma roles.");
+                return;
+            }
+
             persistence.SetAutoRoleIcon(message);
             persistence.Save();
-            await ReplyAsync($"The new auto role icon for this server is '{persistence.GetAutoRoleIcon()}'");
+            await ReplyAsync($"The new auto role prefix for this server is `{persistence.AutoPrefix}`");
         }
     }
 }
