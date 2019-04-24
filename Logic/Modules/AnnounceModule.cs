@@ -4,6 +4,8 @@ using Logic.Extentions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord.Net;
+using Logic.Handlers;
 
 namespace Logic.Modules
 {
@@ -45,8 +47,16 @@ namespace Logic.Modules
 
         private async Task SendDM(IUser user, string message, string title = "")
         {
-            var channel = await user.GetOrCreateDMChannelAsync();
-            await channel.SendMessageAsync("", false, EmbedExtentions.CreateEmbed(title, message));
+            try
+            {
+                LogsHandler.Instance.Log("Announcement", $"{user.Username}({user.Id}) - {message}");
+                var channel = await user.GetOrCreateDMChannelAsync();
+                await channel.SendMessageAsync("", false, EmbedExtentions.CreateEmbed(title, message));
+            }
+            catch (HttpException)
+            {
+                LogsHandler.Instance.Log("Announcement", $"Could not send announcement to {user.Username}({user.Id}).");
+            }
         }
     }
 }
