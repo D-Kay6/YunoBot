@@ -52,7 +52,7 @@ namespace Logic.Handlers
             if (rolesA.Any())
             {
                 await user.AddRolesAsync(rolesA);
-                LogsHandler.Instance.Log("Roles", user.Guild, $"{userName} got roles '{string.Join(" ", rolesA.Select(r => r.Name))}.");
+                LogsHandler.Instance.Log("Roles", user.Guild, $"{userName} got roles {string.Join(" ", rolesA.Select(r => r.Name))}.");
             }
 
             var rolesP = user.Guild.Roles.Where(r => autoRole.IsPermaRole(r) && r.Name.ContainsIgnoreCase(game));
