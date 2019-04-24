@@ -53,6 +53,7 @@ namespace Logic.Handlers
                 LogsHandler.Instance.Log("Channels", channel.Guild, $"{userName} left channel '{channel.Name}'.");
                 autoChannel.RemoveChannel(channel.Id);
                 autoChannel.Save();
+                if (channel.Guild.GetChannel(channel.Id) == null) return;
                 await channel.DeleteAsync();
             }
             catch (Exception e)
@@ -70,19 +71,12 @@ namespace Logic.Handlers
                 var autoChannel = AutoChannel.Load(channel.Guild.Id);
                 if (autoChannel.IsPermaChannel(channel))
                 {
-                    LogsHandler.Instance.Log("Channels", channel.Guild,
-                        $"{user.Username} joined channel '{channel.Name}'.");
-                    var nameEnding = user.Username.EndsWith("s", StringComparison.CurrentCultureIgnoreCase)
-                        ? "'"
-                        : "'s";
-                    var channelId = await DuplicateChannel(channel, user, $"{user.Username}{nameEnding} channel");
+                    var channelId = await DuplicateChannel(channel, user, autoChannel.PermaName);
                     _channels.Remove(channelId);
                 }
                 else if (autoChannel.IsAutoChannel(channel))
                 {
-                    LogsHandler.Instance.Log("Channels", channel.Guild,
-                        $"{user.Username} joined channel '{channel.Name}'.");
-                    var channelId = await DuplicateChannel(channel, user);
+                    var channelId = await DuplicateChannel(channel, user, autoChannel.AutoName);
                     autoChannel.AddChannel(channelId);
                     autoChannel.Save();
                     _channels.Remove(channelId);
@@ -95,9 +89,12 @@ namespace Logic.Handlers
             }
         }
 
-        private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name = "--channel")
+        private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
         {
-            var newChannel = await channel.Guild.CreateVoiceChannelAsync(name, p =>
+            LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
+            var userName = user.Nickname ?? user.Username;
+            userName += userName.EndsWith("s", StringComparison.CurrentCultureIgnoreCase) ? "'" : "'s";
+            var newChannel = await channel.Guild.CreateVoiceChannelAsync(string.Format(name, userName), p =>
             {
                 p.Bitrate = channel.Bitrate;
                 p.CategoryId = channel.CategoryId;
@@ -110,8 +107,7 @@ namespace Logic.Handlers
                 await newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(p.TargetId), p.Permissions);
             //var tasks = channel.PermissionOverwrites.Select(o => newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(o.TargetId), o.Permissions));
             //await Task.WhenAll(tasks);
-            await newChannel.AddPermissionOverwriteAsync(user,
-                new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
+            await newChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
             return newChannel.Id;
         }
     }
