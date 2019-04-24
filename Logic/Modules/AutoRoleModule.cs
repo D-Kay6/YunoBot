@@ -12,29 +12,43 @@ namespace Logic.Modules
     public class AutoRoleModule : ModuleBase<SocketCommandContext>
     {
         public ISerializer Persistence { get; set; }
-
-        [Priority(-1)]
+        
         [Command]
         public async Task DefaultAutoRole()
         {
             await ReplyAsync(
-                $@"The current auto role prefix for this server is `{AutoRole.Load(Context.Guild.Id).AutoPrefix}`.
-You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
+@"Auto roles are roles that are temporary granted when a user starts playing a game, and removed when the user stops playing that game.
+
+When setting up auto roles, you need to make sure I have at least the `manage roles` permission.
+If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
+Create a role with the auto role prefix (you can get this through `/autorole prefix`) followed by the exact name of the game as it would appear in the status of a user.
+You can set-up your own prefix for auto roles with `/autorole prefix set <prefix>`.");
         }
 
-        [Command("seticon")]
-        public async Task AutoRoleSetIcon([Remainder] string message)
+        [Group("prefix")]
+        public class AutoChannelPrefixModule : ModuleBase<SocketCommandContext>
         {
-            var persistence = AutoRole.Load(Context.Guild.Id);
-            if (message.Equals(persistence.PermaPrefix))
+            [Command]
+            public async Task DefaultAutoRolePrefix()
             {
-                await ReplyAsync("I am not able to use the same prefix for both auto roles and perma roles.");
-                return;
+                var autoRole = AutoRole.Load(Context.Guild.Id);
+                await ReplyAsync(
+$@"The current auto role prefix is `{autoRole.AutoPrefix}`.
+You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
             }
 
-            persistence.SetAutoRoleIcon(message);
-            persistence.Save();
-            await ReplyAsync($"The new auto role prefix for this server is `{persistence.AutoPrefix}`");
+            [Command("set")]
+            public async Task AutoRolePrefixSet([Remainder] string message)
+            {
+                var autoRole = AutoRole.Load(Context.Guild.Id);
+                if (autoRole.SetAutoRoleIcon(message))
+                {
+                    await ReplyAsync("I am not able to use the same prefix for both auto roles and perma roles.");
+                    return;
+                }
+                autoRole.Save();
+                await ReplyAsync($"The new auto role prefix is `{autoRole.AutoPrefix}`.");
+            }
         }
     }
 }

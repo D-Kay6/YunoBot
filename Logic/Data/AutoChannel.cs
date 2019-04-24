@@ -8,14 +8,18 @@ namespace Logic.Data
     public class AutoChannel : Configuration<AutoChannel>
     {
         public string AutoPrefix { get; protected set; }
+        public string AutoName { get; protected set; }
         public string PermaPrefix { get; protected set; }
+        public string PermaName { get; protected set; }
         protected HashSet<ulong> Channels;
 
         public AutoChannel(ulong guildId) : base(guildId)
         {
             Enabled = true;
             AutoPrefix = "➕";
+            AutoName = "--channel";
             PermaPrefix = "👥";
+            PermaName = "{0} channel";
             Channels = new HashSet<ulong>();
         }
 
@@ -43,24 +47,36 @@ namespace Logic.Data
 
         public bool IsAutoChannel(IChannel channel)
         {
-            var id = char.ConvertToUtf32(channel.Name, 0);
-            return AutoChannelIcon.Equals(id);
+            return channel.Name.StartsWith(AutoPrefix, StringComparison.Ordinal);
         }
 
         public bool IsPermaChannel(IChannel channel)
         {
-            var id = char.ConvertToUtf32(channel.Name, 0);
-            return PermaChannelIcon.Equals(id);
+            return channel.Name.StartsWith(PermaPrefix, StringComparison.Ordinal);
         }
 
-        public void SetAutoChannelIcon(string value)
+        public bool SetAutoChannelPrefix(string value)
         {
+            if (PermaPrefix == value) return false;
             AutoPrefix = value;
+            return true;
         }
 
-        public void SetPermaChannelIcon(string value)
+        public void SetAutoChannelName(string value)
         {
+            AutoName = value;
+        }
+
+        public bool SetPermaChannelPrefix(string value)
+        {
+            if (AutoPrefix == value) return false;
             PermaPrefix = value;
+            return true;
+        }
+
+        public void SetPermaChannelName(string value)
+        {
+            PermaName = value;
         }
 
         public override void Save()
@@ -74,6 +90,11 @@ namespace Logic.Data
         {
             if (AutoPrefix == null) AutoPrefix = char.ConvertFromUtf32(AutoChannelIcon);
             if (PermaPrefix == null) PermaPrefix = char.ConvertFromUtf32(PermaChannelIcon);
+            if (AutoName == null)
+            {
+                AutoName = "--channel";
+                PermaName = "{0} channel";
+            }
         }
     }
 }

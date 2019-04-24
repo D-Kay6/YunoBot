@@ -20,22 +20,26 @@ namespace Logic.Data
 
         public bool IsAutoRole(IRole role)
         {
-            return role.Name.StartsWith(AutoPrefix);
+            return role.Name.StartsWith(AutoPrefix, StringComparison.Ordinal);
         }
 
         public bool IsPermaRole(IRole role)
         {
-            return role.Name.StartsWith(PermaPrefix);
+            return role.Name.StartsWith(PermaPrefix, StringComparison.Ordinal);
         }
 
-        public void SetAutoRoleIcon(string value)
+        public bool SetAutoRoleIcon(string value)
         {
+            if (PermaPrefix == value) return false;
             AutoPrefix = value;
+            return true;
         }
 
-        public void SetPermaRoleIcon(string value)
+        public bool SetPermaRoleIcon(string value)
         {
+            if (AutoPrefix == value) return false;
             PermaPrefix = value;
+            return true;
         }
         
         public override void Save()
