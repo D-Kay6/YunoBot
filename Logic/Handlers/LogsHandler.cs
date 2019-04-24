@@ -19,7 +19,7 @@ namespace Logic.Handlers
 
         public void Log(string name, IGuild guild, string message)
         {
-            _logs.Log(name, $"{guild.Id} - {message}");
+            _logs.Log(name, $"{guild.Name}({guild.Id}) - {message}");
         }
 
         public void Log(string name, string message)
