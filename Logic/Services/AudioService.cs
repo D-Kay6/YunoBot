@@ -91,7 +91,6 @@ namespace Logic.Services
             _lavaClient.UpdateTextChannel(song.Guild.Id, song.TextChannel);
             await song.TextChannel.SendMessageAsync($"Now playing `{song.Track.Title}` requested by {song.Requester.Nickname ?? song.Requester.Username}");
             await _player.PlayAsync(song.Track);
-            await _player.SetVolumeAsync(song.Volume);
         }
 
         private async Task EndPlayer()
@@ -122,6 +121,7 @@ namespace Logic.Services
             if (!_player.IsPlaying)
             {
                 await PlayNextTrack();
+                await _player.SetVolumeAsync(25);
                 return;
             }
             await song.TextChannel.SendMessageAsync($"Queued #{_player.Queue.Count} **{song.Track.Title}** (`{song.Track.Length}`).");
@@ -168,12 +168,9 @@ namespace Logic.Services
             await PlayNextTrack();
         }
 
-        public async Task Stop(string reason = null)
+        public async Task Stop()
         {
             if (_player == null) throw new InvalidPlayerException();
-            var msg = "The music player was stopped.";
-            if (reason != null) msg += $"\n{reason}";
-            await TextChannel.SendMessageAsync(msg);
             await _player.StopAsync();
         }
 
@@ -186,6 +183,13 @@ namespace Logic.Services
         public IReadOnlyCollection<IPlayable> GetQueue()
         {
             return new List<IPlayable>(_player.Queue.Items.Cast<IPlayable>());
+        }
+
+        public async Task ChangeVolume(int volume)
+        {
+            if (_player == null) throw new InvalidPlayerException();
+            if (!_player.IsPlaying) throw new InvalidPlayerException();
+            await _player.SetVolumeAsync(volume);
         }
     }
 }

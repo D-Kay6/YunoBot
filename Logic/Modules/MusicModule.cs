@@ -4,6 +4,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Logic.Services;
 using System.Threading.Tasks;
+using Discord;
 using Logic.Extentions;
 using Victoria.Entities;
 using SearchResult = Victoria.Entities.SearchResult;
@@ -108,6 +109,7 @@ namespace Logic.Modules
             }
 
             if (!await CanPerform()) return;
+            await AudioService.TextChannel.SendMessageAsync("The music player was stopped.");
             await AudioService.Stop();
         }
 
@@ -191,6 +193,24 @@ namespace Logic.Modules
 
             if (await AudioService.Play()) await ReplyAsync("Music player is un-paused.");
             else await ReplyAsync("The music player is not paused.");
+        }
+
+        [Command("volume")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task MusicVolume(int volume)
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync("I'm currently not playing music.");
+                return;
+            }
+
+            if (!await CanPerform()) return;
+            if (volume > 100) volume = 100;
+            if (volume < 0) volume = 0;
+            await AudioService.ChangeVolume(volume);
+
+            await ReplyAsync($"Music volume was changed to {volume}.");
         }
 
         private async Task<bool> CanPerform()

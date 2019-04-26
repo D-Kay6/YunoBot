@@ -2,7 +2,6 @@
 using Discord.Commands;
 using Logic.Extentions;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord.Net;
 using Logic.Handlers;
@@ -36,7 +35,13 @@ namespace Logic.Modules
                 return;
             }
 
-            var users = (from guild in Context.Client.Guilds where guild.Id != 264445053596991498 select guild.Owner).Cast<IUser>().ToList();
+            var users = new List<IUser>();
+            foreach (var guild in Context.Client.Guilds)
+            {
+                if (guild.Id == 264445053596991498) continue;
+                if (users.Contains(guild.Owner)) continue;
+                users.Add(guild.Owner);
+            }
             SendAnnouncement(users, message, "Update notice");
         }
 
@@ -49,9 +54,9 @@ namespace Logic.Modules
         {
             try
             {
-                LogsHandler.Instance.Log("Announcement", $"{user.Username}({user.Id}) - {message}");
                 var channel = await user.GetOrCreateDMChannelAsync();
                 await channel.SendMessageAsync("", false, EmbedExtentions.CreateEmbed(title, message));
+                LogsHandler.Instance.Log("Announcement", $"{user.Username}({user.Id}) - {message}");
             }
             catch (HttpException)
             {
