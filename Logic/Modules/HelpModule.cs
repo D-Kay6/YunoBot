@@ -26,6 +26,7 @@ I am constantly updated with new features so keep an eye on this page.");
 
             embed.AddField("__General Commands__", $@"{prefix}help <command> - Show advanced help for a command.
 {prefix}invite - Ask me for my invite link.
+{prefix}support - Join this discord if you experience problems with me.
 {prefix}pick <option1|option2|etc> - Select a random item from the options that are separated with |.
 {prefix}birthday <username> - Sing a song for a happy fellow.
 {prefix}kill <username> - Make me kill that user.");

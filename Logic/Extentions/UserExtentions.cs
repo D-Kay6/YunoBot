@@ -38,7 +38,7 @@ namespace Logic.Extentions
                        u.Nickname.Equals(name, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public static async Task SendDM(this IUser user, string text, Embed embed)
+        public static async Task SendDM(this IUser user, string text, Embed embed = null)
         {
             var channel = await user.GetOrCreateDMChannelAsync();
             await channel.SendMessageAsync(text, false, embed);
