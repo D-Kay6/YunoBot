@@ -2,17 +2,18 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Victoria.Entities;
+using Victoria.Queue;
 
 namespace Logic.Services
 {
     public class Song : IPlayable
     {
-        public Song(LavaTrack track, SocketCommandContext context, int volume)
+        public Song(LavaTrack track, SocketCommandContext context, int volume = 25)
         {
             Track = track;
             Guild = context.Guild;
             Requester = (SocketGuildUser) context.User;
-            TextChannel = context.Channel;
+            TextChannel = context.Channel as ITextChannel;
             DurationString = track.Length.ToString();
             Volume = volume;
         }
@@ -25,7 +26,7 @@ namespace Logic.Services
 
         public IGuildUser Requester { get; }
 
-        public IMessageChannel TextChannel { get; }
+        public ITextChannel TextChannel { get; }
 
         public string DurationString { get; }
 

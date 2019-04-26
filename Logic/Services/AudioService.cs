@@ -1,50 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using Discord;
+﻿using Discord;
 using Discord.WebSocket;
-using System.Linq;
-using System.Threading.Tasks;
 using Logic.Exceptions;
 using Logic.Extentions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Discord.Commands;
 using Victoria;
 using Victoria.Entities;
-using Victoria.Entities.Enums;
+using Victoria.Queue;
+using SearchResult = Victoria.Entities.SearchResult;
 
 namespace Logic.Services
 {
     public class AudioService
     {
         private readonly DiscordSocketClient _client;
-        private readonly Lavalink _lavalink;
-
-        private LavaNode _node;
+        private readonly LavaRestClient _lavaRestClient;
+        private readonly LavaSocketClient _lavaClient;
         private LavaPlayer _player;
-
-        private Dictionary<ulong, Queue<IPlayable>> _queues;
-        private Queue<IPlayable> _queue;
 
         public bool IsPlaying => _player?.IsPlaying ?? false;
         public IVoiceChannel VoiceChannel => _player?.VoiceChannel;
-        public IMessageChannel TextChannel => _player?.TextChannel;
+        public ITextChannel TextChannel => _player?.TextChannel;
         public LavaTrack CurrentTrack => _player?.CurrentTrack;
-
-
+        
         public AudioService(DiscordSocketClient client)
         {
             _client = client;
-            _lavalink = new Lavalink();
-            _queues = new Dictionary<ulong, Queue<IPlayable>>();
+            _lavaRestClient = new LavaRestClient();
+            _lavaClient = new LavaSocketClient();
             _client.Ready += OnReady;
         }
-
+        
 
         private async Task OnReady()
         {
-            _node = await _lavalink.AddNodeAsync(_client);
-            _node.TrackException += OnTrackException;
-            _node.TrackStuck += OnTrackStuck;
-            _node.TrackFinished += OnTrackFinished;
+            await _lavaClient.StartAsync(_client, new Configuration
+            {
+                AutoDisconnect = true
+            });
+            _lavaClient.OnTrackException += OnTrackException;
+            _lavaClient.OnTrackStuck += OnTrackStuck;
+            _lavaClient.OnTrackFinished += OnTrackFinished;
         }
+
 
         private async Task OnTrackStuck(LavaPlayer player, LavaTrack track, long whatefs)
         {
@@ -58,22 +58,23 @@ namespace Logic.Services
             await PlayNextTrack();
         }
 
-        private async Task OnTrackFinished(LavaPlayer player, LavaTrack track, TrackReason reason)
+        private async Task OnTrackFinished(LavaPlayer player, LavaTrack track, TrackEndReason reason)
         {
             _player = player;
             switch (reason)
             {
-                case TrackReason.Finished:
+                case TrackEndReason.Finished:
                     await PlayNextTrack();
                     break;
-                case TrackReason.Replaced:
+                case TrackEndReason.Replaced:
                     break;
-                case TrackReason.LoadFailed:
+                case TrackEndReason.LoadFailed:
                     await PlayNextTrack();
                     break;
-                case TrackReason.Cleanup:
+                case TrackEndReason.Cleanup:
                     break;
-                case TrackReason.Stopped:
+                case TrackEndReason.Stopped:
+                    await EndPlayer();
                     break;
             }
         }
@@ -81,59 +82,63 @@ namespace Logic.Services
 
         private async Task PlayNextTrack()
         {
-            _queue = _queues[_player.VoiceChannel.GuildId];
-            if (_queue.Count < 1)
+            if (_player.Queue.Count == 0)
             {
                 await EndPlayer();
                 return;
             }
-
-            var song = _queue.Dequeue();
-            _player.TextChannel = song.TextChannel;
+            var song = _player.Queue.Dequeue() as IPlayable;
+            _lavaClient.UpdateTextChannel(song.Guild.Id, song.TextChannel);
             await song.TextChannel.SendMessageAsync($"Now playing `{song.Track.Title}` requested by {song.Requester.Nickname ?? song.Requester.Username}");
             await _player.PlayAsync(song.Track);
+            await _player.SetVolumeAsync(song.Volume);
         }
 
         private async Task EndPlayer()
         {
             if (_player == null) throw new InvalidPlayerException();
-            _queues.Remove(_player.VoiceChannel.GuildId);
-            await _node.DisconnectAsync(_player.VoiceChannel.GuildId);
+            _player.Queue.Clear();
+            await _lavaClient.DisconnectAsync(_player.VoiceChannel);
         }
 
 
         public void BeforeExecute(ulong guildId)
         {
-            _player = _node.GetPlayer(guildId);
-            if (_queues.TryGetValue(guildId, out _queue)) return;
-            _queue = new Queue<IPlayable>();
-            _queues.Add(guildId, _queue);
+            _player = _lavaClient.GetPlayer(guildId);
         }
 
 
-        public async Task<LavaResult> GetTracks(string query)
+        public async Task<SearchResult> GetTracks(string query)
         {
-            return await _node.SearchYouTubeAsync(query);
+            var result = await _lavaRestClient.SearchTracksAsync(query);
+            if (result.LoadType == LoadType.NoMatches) result = await _lavaRestClient.SearchYouTubeAsync(query);
+            return result;
         }
-
-        public async Task<LavaTrack> GetTrack(string query)
+        
+        public async Task Queue(IPlayable song)
         {
-            var result = await GetTracks(query);
-            if (result.LoadResultType != LoadResultType.SearchResult) return null;
-            return result.Tracks.FirstOrDefault(t => query.Contains(t.Id)) ?? result.Tracks.First();
+            if (_player == null) _player = await _lavaClient.ConnectAsync(song.Requester.VoiceChannel);
+            _player.Queue.Enqueue(song);
+            if (!_player.IsPlaying)
+            {
+                await PlayNextTrack();
+                return;
+            }
+            await song.TextChannel.SendMessageAsync($"Queued #{_player.Queue.Count} **{song.Track.Title}** (`{song.Track.Length}`).");
         }
-
-
-        public async Task<int> Queue(IPlayable song)
+        
+        public async Task Queue(IEnumerable<IPlayable> songs, IVoiceChannel channel)
         {
-            _queue.Enqueue(song);
-
-            if (IsPlaying) return _queue.Count;
-
-            _player = await _node.ConnectAsync(song.Requester.VoiceChannel);
+            if (IsPlaying)
+            {
+                songs.Foreach(s => _player.Queue.Enqueue(s));
+                return;
+            }
+            
+            _player = await _lavaClient.ConnectAsync(channel);
+            songs.Foreach(s => _player.Queue.Enqueue(s));
             await PlayNextTrack();
             await _player.SetVolumeAsync(25);
-            return 0;
         }
 
         public async Task<bool> Play()
@@ -154,33 +159,33 @@ namespace Logic.Services
 
         public void Shuffle()
         {
-            _queue.Shuffle();
+            _player.Queue.Shuffle();
         }
 
         public async Task Skip()
         {
             if (_player == null) throw new InvalidPlayerException();
-            await _player.StopAsync();
             await PlayNextTrack();
         }
 
-        public async Task Stop()
+        public async Task Stop(string reason = null)
         {
             if (_player == null) throw new InvalidPlayerException();
+            var msg = "The music player was stopped.";
+            if (reason != null) msg += $"\n{reason}";
+            await TextChannel.SendMessageAsync(msg);
             await _player.StopAsync();
-            _queue.Clear();
-            await EndPlayer();
         }
 
         public void Clear()
         {
             if (_player == null) throw new InvalidPlayerException();
-            _queue.Clear();
+            _player.Queue.Clear();
         }
 
         public IReadOnlyCollection<IPlayable> GetQueue()
         {
-            return new List<IPlayable>(_queue);
+            return new List<IPlayable>(_player.Queue.Items.Cast<IPlayable>());
         }
     }
 }

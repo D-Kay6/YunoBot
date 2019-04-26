@@ -1,9 +1,10 @@
 ﻿using Discord;
 using Victoria.Entities;
+using Victoria.Queue;
 
 namespace Logic.Services
 {
-    public interface IPlayable
+    public interface IPlayable : IQueueObject
     {
         LavaTrack Track { get; }
 
@@ -11,7 +12,7 @@ namespace Logic.Services
 
         IGuildUser Requester { get; }
 
-        IMessageChannel TextChannel { get; }
+        ITextChannel TextChannel { get; }
 
         string DurationString { get; }
 
