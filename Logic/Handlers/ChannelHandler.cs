@@ -40,7 +40,7 @@ namespace Logic.Handlers
                     if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(_client.CurrentUser.Id)) return;
                     var audioService = (AudioService)_services.GetService(typeof(AudioService));
                     audioService.BeforeExecute(channel.Guild.Id);
-                    await audioService.TextChannel.SendMessageAsync("Music player was terminated. All users have left the voice channel.");
+                    await audioService.TextChannel.SendMessageAsync("The music player was stopped.\nAll users have left the voice channel.");
                     await audioService.Stop();
                     return;
                 }

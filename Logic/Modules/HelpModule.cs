@@ -36,12 +36,14 @@ I am constantly updated with new features so keep an eye on this page.");
 {prefix}praise everyone - Send a positive message to everyone.
 {prefix}praise role <rolename> - Send a positive message to a group.");
 
-            embed.AddField("music", $@"{prefix}music play <video url> - Add a song to the queue.
-{prefix}music play <name> - Search for a song by it's name and add it to the queue.
+            embed.AddField("music", $@"{prefix}music play <name> - Search for a song by it's name and add it to the queue.
+{prefix}music play <video url> - Add a song to the queue.
+{prefix}music play <playlist url> - Add an entire playlist to the queue.
 {prefix}music pause - Pause the currently playing song.
 {prefix}music unpause - Un-pause the currently playing song.
 {prefix}music playing - Show what song is currently playing.
 {prefix}music queue - List all the songs in the queue.
+{prefix}music volume <value> - Change my music volume. (admin only)
 {prefix}music shuffle - Shuffle all the songs in the queue.
 {prefix}music skip - Skip the song currently playing.
 {prefix}music clear - Remove all songs from the queue.
@@ -96,12 +98,14 @@ I am constantly updated with new features so keep an eye on this page.");
             var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
             var embed = EmbedExtentions.CreateEmbed("Help music", $@"Here is more information about 'music'.
 
-{prefix}music play <video url> - Add a song to the queue.
 {prefix}music play <name> - Search for a song by it's name and add it to the queue.
+{prefix}music play <video url> - Add a song to the queue.
+{prefix}music play <playlist url> - Add an entire playlist to the queue.
 {prefix}music pause - Pause the currently playing song.
 {prefix}music unpause - Un-pause the currently playing song.
 {prefix}music playing - Show what song is currently playing.
 {prefix}music queue - List all the songs in the queue.
+{prefix}music volume <value> - Change my music volume. (admin only)
 {prefix}music shuffle - Shuffle all the songs in the queue.
 {prefix}music skip - Skip the song currently playing.
 {prefix}music clear - Remove all songs from the queue.

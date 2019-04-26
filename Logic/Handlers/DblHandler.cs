@@ -22,10 +22,17 @@ namespace Logic.Handlers
 
         private async Task UpdateGuilds()
         {
-            Console.WriteLine($"Updating guilds to {_client.Guilds.Count}");
-            var me = await DblApi.GetMeAsync();
-            await me.UpdateStatsAsync(_client.Guilds.Count);
-            await DblApi.UpdateStats(_client.Guilds.Count);
+            try
+            {
+                var me = await DblApi.GetMeAsync();
+                await me.UpdateStatsAsync(_client.Guilds.Count);
+                await DblApi.UpdateStats(_client.Guilds.Count);
+                Console.WriteLine($"Updating guilds to {_client.Guilds.Count}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Could not update guild count. {e.Message}");
+            }
         }
 
         private async Task OnClientReady()
