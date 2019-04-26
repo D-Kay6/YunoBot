@@ -17,6 +17,8 @@ namespace Logic.Services
             Volume = volume;
         }
 
+        public string Id => Track.Id;
+
         public LavaTrack Track { get; }
 
         public IGuild Guild { get; }

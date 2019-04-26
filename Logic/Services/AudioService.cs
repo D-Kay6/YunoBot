@@ -8,14 +8,16 @@ using Logic.Exceptions;
 using Logic.Extentions;
 using Victoria;
 using Victoria.Entities;
+using Victoria.Entities.Enums;
 
 namespace Logic.Services
 {
     public class AudioService
     {
         private readonly DiscordSocketClient _client;
-        private readonly LavaRestClient _lavaRestClient;
-        private readonly LavaSocketClient _lavaClient;
+        private readonly Lavalink _lavalink;
+
+        private LavaNode _node;
         private LavaPlayer _player;
 
         private Dictionary<ulong, Queue<IPlayable>> _queues;
@@ -23,15 +25,14 @@ namespace Logic.Services
 
         public bool IsPlaying => _player?.IsPlaying ?? false;
         public IVoiceChannel VoiceChannel => _player?.VoiceChannel;
-        public IMessageChannel TextChannel { get; private set; }
+        public IMessageChannel TextChannel => _player?.TextChannel;
         public LavaTrack CurrentTrack => _player?.CurrentTrack;
 
 
         public AudioService(DiscordSocketClient client)
         {
             _client = client;
-            _lavaRestClient = new LavaRestClient();
-            _lavaClient = new LavaSocketClient();
+            _lavalink = new Lavalink();
             _queues = new Dictionary<ulong, Queue<IPlayable>>();
             _client.Ready += OnReady;
         }
@@ -39,16 +40,10 @@ namespace Logic.Services
 
         private async Task OnReady()
         {
-            await _lavaClient.StartAsync(_client);
-            _lavaClient.OnTrackException += OnTrackException;
-            _lavaClient.OnTrackStuck += OnTrackStuck;
-            _lavaClient.OnTrackFinished += OnTrackFinished;
-        }
-
-        private async Task OnTrackException(LavaPlayer player, LavaTrack track, string exception)
-        {
-            _player = player;
-            await PlayNextTrack();
+            _node = await _lavalink.AddNodeAsync(_client);
+            _node.TrackException += OnTrackException;
+            _node.TrackStuck += OnTrackStuck;
+            _node.TrackFinished += OnTrackFinished;
         }
 
         private async Task OnTrackStuck(LavaPlayer player, LavaTrack track, long whatefs)
@@ -57,22 +52,28 @@ namespace Logic.Services
             await PlayNextTrack();
         }
 
-        private async Task OnTrackFinished(LavaPlayer player, LavaTrack track, TrackEndReason reason)
+        private async Task OnTrackException(LavaPlayer player, LavaTrack track, string exception)
+        {
+            _player = player;
+            await PlayNextTrack();
+        }
+
+        private async Task OnTrackFinished(LavaPlayer player, LavaTrack track, TrackReason reason)
         {
             _player = player;
             switch (reason)
             {
-                case TrackEndReason.Finished:
+                case TrackReason.Finished:
                     await PlayNextTrack();
                     break;
-                case TrackEndReason.Replaced:
+                case TrackReason.Replaced:
                     break;
-                case TrackEndReason.LoadFailed:
+                case TrackReason.LoadFailed:
                     await PlayNextTrack();
                     break;
-                case TrackEndReason.Cleanup:
+                case TrackReason.Cleanup:
                     break;
-                case TrackEndReason.Stopped:
+                case TrackReason.Stopped:
                     break;
             }
         }
@@ -88,7 +89,7 @@ namespace Logic.Services
             }
 
             var song = _queue.Dequeue();
-            TextChannel = song.TextChannel;
+            _player.TextChannel = song.TextChannel;
             await song.TextChannel.SendMessageAsync($"Now playing `{song.Track.Title}` requested by {song.Requester.Nickname ?? song.Requester.Username}");
             await _player.PlayAsync(song.Track);
         }
@@ -97,28 +98,28 @@ namespace Logic.Services
         {
             if (_player == null) throw new InvalidPlayerException();
             _queues.Remove(_player.VoiceChannel.GuildId);
-            await _lavaClient.DisconnectAsync(_player.VoiceChannel);
+            await _node.DisconnectAsync(_player.VoiceChannel.GuildId);
         }
 
 
         public void BeforeExecute(ulong guildId)
         {
-            _player = _lavaClient.GetPlayer(guildId);
+            _player = _node.GetPlayer(guildId);
             if (_queues.TryGetValue(guildId, out _queue)) return;
             _queue = new Queue<IPlayable>();
             _queues.Add(guildId, _queue);
         }
 
 
-        public async Task<SearchResult> GetTracks(string query)
+        public async Task<LavaResult> GetTracks(string query)
         {
-            return await _lavaRestClient.SearchYouTubeAsync(query);
+            return await _node.SearchYouTubeAsync(query);
         }
 
         public async Task<LavaTrack> GetTrack(string query)
         {
             var result = await GetTracks(query);
-            if (result.LoadType != LoadType.SearchResult) return null;
+            if (result.LoadResultType != LoadResultType.SearchResult) return null;
             return result.Tracks.FirstOrDefault(t => query.Contains(t.Id)) ?? result.Tracks.First();
         }
 
@@ -129,9 +130,9 @@ namespace Logic.Services
 
             if (IsPlaying) return _queue.Count;
 
-            _player = await _lavaClient.ConnectAsync(song.Requester.VoiceChannel);
+            _player = await _node.ConnectAsync(song.Requester.VoiceChannel);
             await PlayNextTrack();
-            await _player.SetVolumeAsync(50);
+            await _player.SetVolumeAsync(25);
             return 0;
         }
 
