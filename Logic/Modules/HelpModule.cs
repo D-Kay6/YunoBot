@@ -52,7 +52,8 @@ I am constantly updated with new features so keep an eye on this page.");
             embed.AddField("request", $@"{prefix}request feature <message> - Send a message to my developer with the request for a new feature.
 {prefix}request change <message> - Send a message to my developer with the request for a change of an already existing feature.");
 
-            embed.AddField("__Admin Commands__", $@"{prefix}announce <message> - Announce a message to all members of your server.");
+            embed.AddField("__Admin Commands__", $@"{prefix}welcome <username> - Send a welcome message to that user.
+{prefix}announce <message> - Announce a message to all members of your server.");
 
             embed.AddField("prefix", $@"{prefix}prefix - Show the command prefix for this server.
 {prefix}prefix set <new prefix> - Change the command prefix for this server.");

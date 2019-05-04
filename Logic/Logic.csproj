@@ -129,6 +129,7 @@
     <Compile Include="Modules\PraiseModule.cs" />
     <Compile Include="Modules\PrefixModule.cs" />
     <Compile Include="Modules\RestartModule.cs" />
+    <Compile Include="Modules\WelcomeModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AudioService.cs" />
     <Compile Include="Services\IPlayable.cs" />
