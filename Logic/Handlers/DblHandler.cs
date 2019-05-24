@@ -40,14 +40,16 @@ namespace Logic.Handlers
             await UpdateGuilds();
         }
 
-        private async Task OnGuildJoined(SocketGuild arg)
+        private async Task OnGuildJoined(SocketGuild guild)
         {
             await UpdateGuilds();
+            LogsHandler.Instance.Log("Connections", guild, "Joined.");
         }
 
-        private async Task OnGuildLeft(SocketGuild arg)
+        private async Task OnGuildLeft(SocketGuild guild)
         {
             await UpdateGuilds();
+            LogsHandler.Instance.Log("Connections", guild, "Left.");
         }
     }
 }
