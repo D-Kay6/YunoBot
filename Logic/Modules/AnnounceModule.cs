@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Logic.Extentions;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.Net;
 using Logic.Handlers;
@@ -39,7 +40,7 @@ namespace Logic.Modules
             foreach (var guild in Context.Client.Guilds)
             {
                 if (guild.Id == 264445053596991498) continue;
-                if (users.Contains(guild.Owner)) continue;
+                if (users.Any(u => u.Id.Equals(guild.OwnerId))) continue;
                 users.Add(guild.Owner);
             }
             SendAnnouncement(users, message, "Update notice");
