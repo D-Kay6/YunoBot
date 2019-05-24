@@ -38,6 +38,11 @@ namespace Logic.Extentions
                        u.Nickname.Equals(name, StringComparison.CurrentCultureIgnoreCase));
         }
 
+        public static string Nickname(this IGuildUser user)
+        {
+            return user.Nickname ?? user.Username ?? "user";
+        }
+
         public static async Task SendDM(this IUser user, string text, Embed embed = null)
         {
             var channel = await user.GetOrCreateDMChannelAsync();

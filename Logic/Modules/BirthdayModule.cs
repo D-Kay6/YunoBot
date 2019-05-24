@@ -1,6 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
 using System.Threading.Tasks;
+using Logic.Extentions;
 
 namespace Logic.Modules
 {
@@ -23,9 +24,8 @@ namespace Logic.Modules
                 return;
             }
 
-            var name = user.Nickname ?? user.Username;
-            var s = name.EndsWith("s") ? "" : "s";
-            await Context.Channel.SendMessageAsync($@"Hooray! It's our little {name}'{s} birthday!
+            var name = user.Nickname();
+            await Context.Channel.SendMessageAsync($@"Hooray! It's our little {name.ToPossessive()} birthday!
 
 Happy Birthday to You :notes:
 Happy Birthday to You
