@@ -1,9 +1,10 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
-using Logic.Data;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using DalFactory;
+using IDal.Interfaces.Database;
 
 namespace Logic.Handlers
 {
@@ -12,11 +13,13 @@ namespace Logic.Handlers
         private DiscordSocketClient _client;
         private CommandService _service;
         private IServiceProvider _services;
+        private IServerSettings _settings;
 
         public async Task Initialize(DiscordSocketClient client, IServiceProvider services)
         {
             _client = client;
             _services = services;
+            _settings = DatabaseFactory.GenerateServerSettings();
             _service = new CommandService(new CommandServiceConfig
             {
                 DefaultRunMode = RunMode.Async
@@ -30,13 +33,11 @@ namespace Logic.Handlers
             if (s.Author.IsBot) return;
             if (!(s is SocketUserMessage msg)) return;
             var context = new SocketCommandContext(_client, msg);
-            var prefix = CommandSettings.Load(context.Guild.Id).Prefix;
+            var prefix = _settings.GetCommandPrefix(context.Guild.Id);
             var argPos = 0;
-            if (!msg.HasStringPrefix(prefix, ref argPos) &&
-                !msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
+            if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
 
-            LogsHandler.Instance.Log("Commands", context.Guild,
-                $"{context.User.Username} executed command '{context.Message}'.");
+            LogsHandler.Instance.Log("Commands", context.Guild, $"{context.User.Username} executed command '{context.Message}'.");
             var result = await _service.ExecuteAsync(context, argPos, _services);
             if (result.IsSuccess) return;
             LogsHandler.Instance.Log("Commands", context.Guild, $"Execution failed. Error code: {result.ErrorReason}.");

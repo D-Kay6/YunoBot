@@ -1,9 +1,8 @@
-﻿using System.Linq;
+﻿using DalFactory;
 using Discord;
 using Discord.Commands;
-using Logic.Data;
+using System;
 using System.Threading.Tasks;
-using Logic.Extentions;
 
 namespace Logic.Modules
 {
@@ -41,23 +40,24 @@ Result -> D-Kay's channel");
             [Command]
             public async Task DefaultPermaChannelPrefix()
             {
-                var autoChannel = AutoChannel.Load(Context.Guild.Id);
+                var autoChannel = DatabaseFactory.GenerateAutoChannel();
                 await ReplyAsync(
-$@"The current perma channel prefix for this server is '{autoChannel.PermaPrefix}'.
+$@"The current perma channel prefix for this server is '{autoChannel.GetData(Context.Guild.Id).PermaPrefix}'.
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
             }
 
             [Command("set")]
             public async Task PermaChannelPrefixSet([Remainder] string message)
             {
-                var autoChannel = AutoChannel.Load(Context.Guild.Id);
-                if (autoChannel.SetPermaChannelPrefix(message))
+                var autoChannel = DatabaseFactory.GenerateAutoChannel();
+                var data = autoChannel.GetData(Context.Guild.Id);
+                if (message.Equals(data.AutoPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     await ReplyAsync("I am not able to use the same prefix for both auto channels and perma channels.");
                     return;
                 }
-                autoChannel.Save();
-                await ReplyAsync($"The new perma channel prefix is '{autoChannel.PermaPrefix}'.");
+                autoChannel.SetPermaPrefix(Context.Guild.Id, message);
+                await ReplyAsync($"The new perma channel prefix is '{message}'.");
             }
         }
 
@@ -67,17 +67,16 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
             [Command]
             public async Task DefaultPermaChannelName()
             {
-                var autoChannel = AutoChannel.Load(Context.Guild.Id);
-                await ReplyAsync($"The current name for perma generated channels is `{autoChannel.AutoName}`.");
+                var autoChannel = DatabaseFactory.GenerateAutoChannel();
+                await ReplyAsync($"The current name for perma generated channels is `{autoChannel.GetData(Context.Guild.Id).PermaName}`.");
             }
 
             [Command("set")]
             public async Task PermaChannelNameSet([Remainder] string message)
             {
-                var autoChannel = AutoChannel.Load(Context.Guild.Id);
-                autoChannel.SetPermaChannelName(message);
-                autoChannel.Save();
-                await ReplyAsync($"The new name for perma generated channels is '{autoChannel.PermaName}'.");
+                var autoChannel = DatabaseFactory.GenerateAutoChannel();
+                autoChannel.SetPermaName(Context.Guild.Id, message);
+                await ReplyAsync($"The new name for perma generated channels is '{message}'.");
             }
         }
     }

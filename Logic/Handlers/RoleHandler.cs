@@ -1,6 +1,7 @@
-﻿using Discord;
+﻿using DalFactory;
+using Discord;
 using Discord.WebSocket;
-using Logic.Data;
+using IDal.Interfaces.Database;
 using Logic.Extentions;
 using System;
 using System.Linq;
@@ -11,10 +12,12 @@ namespace Logic.Handlers
     public class RoleHandler
     {
         private DiscordSocketClient _client;
+        private IAutoRole _autoRole;
 
         public async Task Initialize(DiscordSocketClient client, IServiceProvider services)
         {
             _client = client;
+            _autoRole = DatabaseFactory.GenerateAutoRole();
             _client.GuildMemberUpdated += GuildMemberUpdated;
         }
 
@@ -29,14 +32,13 @@ namespace Logic.Handlers
         {
             if (user.Activity == null) return;
             if (user.Activity.Type != ActivityType.Playing) return;
-            var autoRole = AutoRole.Load(user.Guild.Id);
+            var roleData = _autoRole.GetData(user.Guild.Id);
             var game = user.Activity.Name;
-            var userName = user.Nickname ?? user.Username ?? "User";
-            var roles = user.Roles.Where(r => autoRole.IsAutoRole(r) && r.Name.ContainsIgnoreCase(game));
-            if (roles.Any())
+            var roles = user.Roles.Where(r => r.Name.StartsWith(roleData.AutoPrefix, StringComparison.OrdinalIgnoreCase) && r.Name.ContainsIgnoreCase(game));
+            foreach (var role in roles)
             {
-                await user.RemoveRolesAsync(roles);
-                LogsHandler.Instance.Log("Roles", user.Guild, $"{userName} lost roles '{string.Join(" ", roles.Select(r => r.Name))}.");
+                await user.RemoveRoleAsync(role);
+                LogsHandler.Instance.Log("Roles", user.Guild, $"{user.Nickname()} lost role `{role.Name}`.");
             }
         }
 
@@ -44,22 +46,16 @@ namespace Logic.Handlers
         {
             if (user.Activity == null) return;
             if (user.Activity.Type != ActivityType.Playing) return;
-            var autoRole = AutoRole.Load(user.Guild.Id);
+            var roleData = _autoRole.GetData(user.Guild.Id);
             var game = user.Activity.Name;
-
-            var userName = user.Nickname ?? user.Username ?? "User";
-            var rolesA = user.Guild.Roles.Where(r => autoRole.IsAutoRole(r) && r.Name.ContainsIgnoreCase(game));
-            if (rolesA.Any())
+            foreach (var role in user.Guild.Roles)
             {
-                await user.AddRolesAsync(rolesA);
-                LogsHandler.Instance.Log("Roles", user.Guild, $"{userName} got roles {string.Join(" ", rolesA.Select(r => r.Name))}.");
-            }
-
-            var rolesP = user.Guild.Roles.Where(r => autoRole.IsPermaRole(r) && r.Name.ContainsIgnoreCase(game));
-            if (rolesP.Any())
-            {
-                await user.AddRolesAsync(rolesP);
-                LogsHandler.Instance.Log("Roles", user.Guild, $"{userName} got roles '{string.Join(" ", rolesP.Select(r => r.Name))}.");
+                if (!role.Name.ContainsIgnoreCase(game)) continue;
+                if (user.Roles.Contains(role)) continue;
+                if (!role.Name.StartsWith(roleData.AutoPrefix, StringComparison.OrdinalIgnoreCase) &&
+                    !role.Name.StartsWith(roleData.PermaPrefix, StringComparison.OrdinalIgnoreCase)) continue;
+                await user.AddRoleAsync(role);
+                LogsHandler.Instance.Log("Roles", user.Guild, $"{user.Nickname()} got role `{role.Name}`.");
             }
         }
     }

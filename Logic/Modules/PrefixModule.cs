@@ -1,6 +1,6 @@
-﻿using Discord;
+﻿using DalFactory;
+using Discord;
 using Discord.Commands;
-using Logic.Data;
 using System.Threading.Tasks;
 
 namespace Logic.Modules
@@ -12,17 +12,16 @@ namespace Logic.Modules
         [Command]
         public async Task DefaultPrefix()
         {
-            await ReplyAsync(
-                $"The prefix for {Context.Guild.Name} is '{CommandSettings.Load(Context.Guild.Id).Prefix}'.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            await ReplyAsync($"The prefix for {Context.Guild.Name} is `{settings.GetCommandPrefix(Context.Guild.Id)}`.");
         }
 
         [Command("set")]
         public async Task PrefixSet([Remainder] string message)
         {
-            var persistence = CommandSettings.Load(Context.Guild.Id);
-            persistence.ChangePrefix(message);
-            await ReplyAsync($"The prefix for {Context.Guild.Name} was changed to '{message}'.");
-            persistence.Save();
+            var settings = DatabaseFactory.GenerateServerSettings();
+            settings.SetCommandPrefix(Context.Guild.Id, message);
+            await ReplyAsync($"The prefix for {Context.Guild.Name} was changed to `{message}`.");
         }
     }
 }

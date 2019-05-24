@@ -44,11 +44,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\Database\IAutoChannel.cs" />
+    <Compile Include="Interfaces\Database\IAutoRole.cs" />
+    <Compile Include="Interfaces\Database\IServerSettings.cs" />
+    <Compile Include="Interfaces\Database\IWelcomeMessage.cs" />
     <Compile Include="Interfaces\IConfig.cs" />
     <Compile Include="Interfaces\ILogs.cs" />
     <Compile Include="Interfaces\ISerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structs\Configuration\ConfigData.cs" />
+    <Compile Include="Structs\Database\ChannelData.cs" />
+    <Compile Include="Structs\Database\RoleData.cs" />
+    <Compile Include="Structs\Database\WelcomeData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

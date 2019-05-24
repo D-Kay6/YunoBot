@@ -1,8 +1,8 @@
-﻿using Discord;
+﻿using System;
+using Discord;
 using Discord.Commands;
-using Logic.Data;
 using System.Threading.Tasks;
-using IDal.Interfaces;
+using DalFactory;
 
 namespace Logic.Modules
 {
@@ -11,8 +11,6 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class AutoRoleModule : ModuleBase<SocketCommandContext>
     {
-        public ISerializer Persistence { get; set; }
-        
         [Command]
         public async Task DefaultAutoRole()
         {
@@ -31,23 +29,24 @@ You can set-up your own prefix for auto roles with `/autorole prefix set <prefix
             [Command]
             public async Task DefaultAutoRolePrefix()
             {
-                var autoRole = AutoRole.Load(Context.Guild.Id);
+                var autoRole = DatabaseFactory.GenerateAutoRole();
                 await ReplyAsync(
-$@"The current auto role prefix is `{autoRole.AutoPrefix}`.
+$@"The current auto role prefix is `{autoRole.GetData(Context.Guild.Id).AutoPrefix}`.
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
             }
 
             [Command("set")]
             public async Task AutoRolePrefixSet([Remainder] string message)
             {
-                var autoRole = AutoRole.Load(Context.Guild.Id);
-                if (autoRole.SetAutoRoleIcon(message))
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                var data = autoRole.GetData(Context.Guild.Id);
+                if (message.Equals(data.PermaPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     await ReplyAsync("I am not able to use the same prefix for both auto roles and perma roles.");
                     return;
                 }
-                autoRole.Save();
-                await ReplyAsync($"The new auto role prefix is `{autoRole.AutoPrefix}`.");
+                autoRole.SetAutoPrefix(Context.Guild.Id, message);
+                await ReplyAsync($"The new auto role prefix is `{message}`.");
             }
         }
     }

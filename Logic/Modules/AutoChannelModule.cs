@@ -1,9 +1,9 @@
-﻿using System.Linq;
+﻿using DalFactory;
 using Discord;
 using Discord.Commands;
-using Logic.Data;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
-using Logic.Extentions;
 
 namespace Logic.Modules
 {
@@ -42,23 +42,24 @@ Result -> D-Kay's channel");
             [Command]
             public async Task DefaultAutoChannelPrefix()
             {
-                var autoChannel = AutoChannel.Load(Context.Guild.Id);
+                var autoChannel = DatabaseFactory.GenerateAutoChannel();
                 await ReplyAsync(
-$@"The current auto channel prefix is `{autoChannel.AutoPrefix}`.
+$@"The current auto channel prefix is `{autoChannel.GetData(Context.Guild.Id).AutoPrefix}`.
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
             }
 
             [Command("set")]
             public async Task AutoChannelPrefixSet([Remainder] string message)
             {
-                var autoChannel = AutoChannel.Load(Context.Guild.Id);
-                if (!autoChannel.SetAutoChannelPrefix(message))
+                var autoChannel = DatabaseFactory.GenerateAutoChannel();
+                var data = autoChannel.GetData(Context.Guild.Id);
+                if (message.Equals(data.PermaPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     await ReplyAsync("I am not able to use the same prefix for both auto channels and perma channels.");
                     return;
                 }
-                autoChannel.Save();
-                await ReplyAsync($"The new auto channel prefix is `{autoChannel.AutoPrefix}`.");
+                autoChannel.SetAutoPrefix(Context.Guild.Id, message);
+                await ReplyAsync($"The new auto channel prefix is `{message}`.");
             }
         }
         
@@ -68,39 +69,31 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
             [Command]
             public async Task DefaultAutoChannelName()
             {
-                var autoChannel = AutoChannel.Load(Context.Guild.Id);
-                await ReplyAsync($"The current name for auto generated channels is `{autoChannel.AutoName}`.");
+                var autoChannel = DatabaseFactory.GenerateAutoChannel();
+                await ReplyAsync($"The current name for auto generated channels is `{autoChannel.GetData(Context.Guild.Id).AutoName}`.");
             }
 
             [Command("set")]
             public async Task AutoChannelNameSet([Remainder] string message)
             {
-                var autoChannel = AutoChannel.Load(Context.Guild.Id);
-                autoChannel.SetAutoChannelName(message);
-                autoChannel.Save();
-                await ReplyAsync($"The new name for auto generated channels is '{autoChannel.AutoName}'.");
+                var autoChannel = DatabaseFactory.GenerateAutoChannel();
+                autoChannel.SetAutoName(Context.Guild.Id, message);
+                await ReplyAsync($"The new name for auto generated channels is '{message}'.");
             }
-        }
-
-        [Command("fix")]
-        public async Task AutoChannelFix()
-        {
-            AutoChannel.Remove(Context.Guild.Id);
-            await ReplyAsync($"Your auto channels should now be fixed. If you had a custom prefix you will need to set this again.");
         }
 
         [Command("delete")]
         public async Task AutoChannelDelete()
         {
-            var autoChannel = AutoChannel.Load(Context.Guild.Id);
-            var channels = Context.Guild.VoiceChannels.Where(c => c.Name.StartsWith(autoChannel.AutoName));
+            var autoChannel = DatabaseFactory.GenerateAutoChannel();
+            var data = autoChannel.GetData(Context.Guild.Id);
+            var channels = Context.Guild.VoiceChannels.Where(c => c.Name.StartsWith(data.AutoName));
             foreach (var channel in channels)
             {
-                if (autoChannel.IsControlledChannel(channel.Id)) autoChannel.RemoveChannel(channel.Id);
+                if (autoChannel.IsGeneratedChannel(Context.Guild.Id, channel.Id)) autoChannel.RemoveGeneratedChannel(Context.Guild.Id, channel.Id);
                 await channel.DeleteAsync();
             }
-            autoChannel.Save();
-            await ReplyAsync($"I have removed any voice channels I could find on your server that had `{autoChannel.AutoName}` as name.");
+            await ReplyAsync($"I have removed any voice channels I could find on your server that had `{data.AutoName}` as name.");
         }
     }
 }

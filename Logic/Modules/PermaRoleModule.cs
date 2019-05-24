@@ -1,6 +1,7 @@
-﻿using Discord;
+﻿using DalFactory;
+using Discord;
 using Discord.Commands;
-using Logic.Data;
+using System;
 using System.Threading.Tasks;
 
 namespace Logic.Modules
@@ -28,23 +29,24 @@ You can set-up your own prefix for perma roles with `/permarole prefix set <pref
             [Command]
             public async Task DefaultPermaRolePrefix()
             {
-                var autoRole = AutoRole.Load(Context.Guild.Id);
+                var autoRole = DatabaseFactory.GenerateAutoRole();
                 await ReplyAsync(
-$@"The current perma role prefix for this server is `{autoRole.PermaPrefix}`.
+$@"The current perma role prefix for this server is `{autoRole.GetData(Context.Guild.Id).PermaPrefix}`.
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
             }
 
             [Command("set")]
             public async Task PermaRolePrefixSet([Remainder] string message)
             {
-                var autoRole = AutoRole.Load(Context.Guild.Id);
-                if (!autoRole.SetPermaRoleIcon(message))
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                var data = autoRole.GetData(Context.Guild.Id);
+                if (message.Equals(data.AutoPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     await ReplyAsync("I am not able to use the same prefix for both auto roles and perma roles.");
                     return;
                 }
-                autoRole.Save();
-                await ReplyAsync($"The new perma role prefix is `{autoRole.PermaPrefix}`.");
+                autoRole.SetPermaPrefix(Context.Guild.Id, message);
+                await ReplyAsync($"The new perma role prefix is `{message}`.");
             }
         }
     }
