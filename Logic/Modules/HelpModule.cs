@@ -54,11 +54,19 @@ I am constantly updated with new features so keep an eye on this page.");
             embed.AddField("request", $@"{prefix}request feature <message> - Send a message to my developer with the request for a new feature.
 {prefix}request change <message> - Send a message to my developer with the request for a change of an already existing feature.");
 
-            embed.AddField("__Admin Commands__", $@"{prefix}welcome <username, username, etc> - Send a welcome message to one or multiple users.
-{prefix}announce <message> - Announce a message to all members of your server.");
+            embed.AddField("__Admin Commands__", $@"{prefix}announce <message> - Announce a message to all members of your server.");
 
             embed.AddField("prefix", $@"{prefix}prefix - Show the command prefix for this server.
 {prefix}prefix set <new prefix> - Change the command prefix for this server.");
+
+            embed.AddField("welcome", $@"{prefix}welcome <username, username, etc> - Send a welcome message to one or multiple users.
+{prefix}welcome enable/on <textchannel> - Turn automated welcome messages on. Messages will be send in the provided text channel.
+{prefix}welcome disable/off - Turn the automated welcome messages off.
+{prefix}welcome message - Display the current welcome message.
+{prefix}welcome message set <message> - Set a custom welcome message.
+{prefix}welcome image - Display if the default image is being shown in welcome messages.
+{prefix}welcome image enable/on - Set the default image to be shown in welcome messages.
+{prefix}welcome image disable/off - Set the default image to not be shown in welcome messages.");
 
             embed.AddField("autochannel (ac)", $@"{prefix}autochannel - Show information about auto channels.
 {prefix}autochannel prefix - Show the current prefix for auto channels.
@@ -138,6 +146,24 @@ I am constantly updated with new features so keep an eye on this page.");
 
 {prefix}prefix - Show the command prefix for this server.
 {prefix}prefix set <new prefix> - Change the command prefix for this server.");
+            await ReplyAsync("", false, embed);
+        }
+
+        [Command("welcome")]
+        public async Task HelpWelcome()
+        {
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtentions.CreateEmbed("Help welcome", $@"Here is more information about 'welcome'.
+
+{prefix}welcome <username, username, etc> - Send a welcome message to one or multiple users.
+{prefix}welcome enable/on <textchannel> - Turn automated welcome messages on. Messages will be send in the provided text channel.
+{prefix}welcome disable/off - Turn the automated welcome messages off.
+{prefix}welcome message - Display the current welcome message.
+{prefix}welcome message set <message> - Set a custom welcome message.
+{prefix}welcome image - Display if the default image is being shown in welcome messages.
+{prefix}welcome image enable/on - Set the default image to be shown in welcome messages.
+{prefix}welcome image disable/off - Set the default image to not be shown in welcome messages.");
             await ReplyAsync("", false, embed);
         }
 

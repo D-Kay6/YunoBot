@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using DalFactory;
 using IDal.Interfaces;
 using ILogic;
+using Logic.Data;
 
 namespace Logic
 {
@@ -17,13 +18,15 @@ namespace Logic
     {
         private readonly IConfig _config;
         private readonly ISerializer _persistence;
-        private readonly ChannelHandler _channelHandler;
 
         private DiscordSocketClient _client;
 
+        private readonly DatabaseHandler _databaseHandler;
         private readonly CommandHandler _commandHandler;
         private readonly DblHandler _dblHandler;
+        private readonly ChannelHandler _channelHandler;
         private readonly RoleHandler _roleHandler;
+        private readonly WelcomeHandler _welcomeHandler;
 
         private IServiceProvider _services;
 
@@ -35,10 +38,12 @@ namespace Logic
             _config = ConfigFactory.GenerateConfig();
             _persistence = SerializerFactory.GenerateSerializer();
 
+            _databaseHandler = new DatabaseHandler();
             _commandHandler = new CommandHandler();
+            _dblHandler = new DblHandler();
             _channelHandler = new ChannelHandler();
             _roleHandler = new RoleHandler();
-            _dblHandler = new DblHandler();
+            _welcomeHandler = new WelcomeHandler();
         }
 
         /// <summary>
@@ -64,13 +69,15 @@ namespace Logic
 
                     await _client.LoginAsync(TokenType.Bot, config.Token);
                     await _client.StartAsync();
-                    await _client.SetActivityAsync(new Game("her Yukiteru Diary", ActivityType.Watching));
+                    await _client.SetActivityAsync(new Game("Yukiteru Diary", ActivityType.Watching));
 
+                    await _databaseHandler.Initialize(_client);
                     await _commandHandler.Initialize(_client, _services);
+                    await _dblHandler.Initialize(_client, config);
                     await _channelHandler.Initialize(_client, _services);
                     await _roleHandler.Initialize(_client, _services);
-                    await _dblHandler.Initialize(_client, config);
-
+                    await _welcomeHandler.Initialize(_client);
+                    
                     await RestartHandler.AwaitRestart();
                 }
                 catch (Exception e)
