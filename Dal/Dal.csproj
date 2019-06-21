@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Json\Localization.cs" />
     <Compile Include="MySql\AutoChannel.cs" />
     <Compile Include="MySql\AutoRole.cs" />
     <Compile Include="MySql\Connection.cs" />

@@ -1,10 +1,10 @@
-﻿using Discord.Commands;
+﻿using DalFactory;
+using Discord.Commands;
 using Discord.WebSocket;
+using IDal.Interfaces.Database;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using DalFactory;
-using IDal.Interfaces.Database;
 
 namespace Logic.Handlers
 {
@@ -30,31 +30,36 @@ namespace Logic.Handlers
 
         private async Task HandleCommandAsync(SocketMessage s)
         {
-            if (s.Author.IsBot) return;
-            if (!(s is SocketUserMessage msg)) return;
-            var context = new SocketCommandContext(_client, msg);
-            var prefix = _settings.GetCommandPrefix(context.Guild.Id);
-            var argPos = 0;
-            if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
-
-            LogsHandler.Instance.Log("Commands", context.Guild, $"{context.User.Username} executed command '{context.Message}'.");
-            var result = await _service.ExecuteAsync(context, argPos, _services);
-            if (result.IsSuccess) return;
-            LogsHandler.Instance.Log("Commands", context.Guild, $"Execution failed. Error code: {result.ErrorReason}.");
-            switch (result.Error)
+            try
             {
-                case CommandError.UnmetPrecondition:
-                    await context.Channel.SendMessageAsync(
-                        "I\'m unable to do that. You lack the required permissions for this.");
-                    break;
-                case CommandError.BadArgCount:
-                    await context.Channel.SendMessageAsync(
-                        $"Ehmm... I think you made a mistake somewhere. Try using {prefix}help if you forgot the syntax.");
-                    break;
-                default:
-                    await context.Channel.SendMessageAsync(
-                        $"Sorry, I don't know what to do with that. Use {prefix}help if you need a list of my commands.");
-                    break;
+                if (s.Author.IsBot) return;
+                if (!(s is SocketUserMessage msg)) return;
+                var context = new SocketCommandContext(_client, msg);
+                var prefix = _settings.GetCommandPrefix(context.Guild.Id);
+                var argPos = 0;
+                if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
+
+                LogsHandler.Instance.Log("Commands", context.Guild, $"{context.User.Username} executed command '{context.Message}'.");
+                var result = await _service.ExecuteAsync(context, argPos, _services);
+                if (result.IsSuccess) return;
+                LogsHandler.Instance.Log("Commands", context.Guild, $"Execution failed. Error code: {result.ErrorReason}.");
+                var lang = new Localization.Localization(context.Guild.Id);
+                switch (result.Error)
+                {
+                    case CommandError.UnmetPrecondition:
+                        await context.Channel.SendMessageAsync(lang.GetMessage("Command invalid permissions"));
+                        break;
+                    case CommandError.BadArgCount:
+                        await context.Channel.SendMessageAsync(lang.GetMessage("Command invalid arguments", prefix));
+                        break;
+                    default:
+                        await context.Channel.SendMessageAsync(lang.GetMessage("Command invalid", prefix));
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                LogsHandler.Instance.Log("Crashes", $"CommandHandler crashed. Stacktrace: {e}");
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿using Discord.WebSocket;
 using DiscordBotsList.Api;
+using IDal.Structs.Configuration;
 using System;
 using System.Threading.Tasks;
-using IDal.Structs.Configuration;
 
 namespace Logic.Handlers
 {

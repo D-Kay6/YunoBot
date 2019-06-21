@@ -3,6 +3,7 @@ using IDal.Interfaces.Database;
 using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using IDal.Structs.Localization;
 
 namespace Dal.MySql
 {
@@ -82,6 +83,57 @@ namespace Dal.MySql
                 {
                     Console.WriteLine($"Problem deleting the server. {e}");
                     return false;
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        public bool SetLanguage(ulong serverId, Language language)
+        {
+            using (var con = _connection.CreateConnection())
+            {
+                try
+                {
+                    var command = new MySqlCommand("SetLanguage", con);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ServerId", serverId);
+                    command.Parameters.AddWithValue("@Language", language.ToString());
+                    con.Open();
+                    return command.ExecuteNonQuery() > 0;
+                }
+                catch (MySqlException e)
+                {
+                    Console.WriteLine($"Problem setting the language. {e}");
+                    return false;
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        public Language GetLanguage(ulong serverId)
+        {
+            using (var con = _connection.CreateConnection())
+            {
+                try
+                {
+                    var command = new MySqlCommand("GetCommandPrefix", con);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ServerId", serverId);
+                    con.Open();
+                    Language language;
+                    Enum.TryParse((string)command.ExecuteScalar(), out language);
+                    return language;
+                }
+                catch (MySqlException e)
+                {
+                    Console.WriteLine($"Problem getting the command prefix. {e}");
+                    return default;
                 }
                 finally
                 {

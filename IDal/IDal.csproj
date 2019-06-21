@@ -49,6 +49,7 @@
     <Compile Include="Interfaces\Database\IServerSettings.cs" />
     <Compile Include="Interfaces\Database\IWelcomeMessage.cs" />
     <Compile Include="Interfaces\IConfig.cs" />
+    <Compile Include="Interfaces\ILocalization.cs" />
     <Compile Include="Interfaces\ILogs.cs" />
     <Compile Include="Interfaces\ISerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,6 +57,8 @@
     <Compile Include="Structs\Database\ChannelData.cs" />
     <Compile Include="Structs\Database\RoleData.cs" />
     <Compile Include="Structs\Database\WelcomeData.cs" />
+    <Compile Include="Structs\Localization\Language.cs" />
+    <Compile Include="Structs\Localization\LanguageData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

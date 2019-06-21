@@ -2,7 +2,6 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Victoria.Entities;
-using Victoria.Queue;
 
 namespace Logic.Services
 {

@@ -1,17 +1,25 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Net;
 using Logic.Extentions;
+using Logic.Handlers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord.Net;
-using Logic.Handlers;
 
 namespace Logic.Modules
 {
     [Group("announce")]
     public class AnnounceModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Priority(-1)]
         [Command]
         [RequireUserPermission(GuildPermission.Administrator)]
@@ -19,7 +27,7 @@ namespace Logic.Modules
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                await ReplyAsync("I cannot send an empty message.");
+                await ReplyAsync();
                 return;
             }
 
@@ -32,7 +40,7 @@ namespace Logic.Modules
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                await ReplyAsync("I cannot send an empty message.");
+                await ReplyAsync(_lang.GetMessage("Invalid message"));
                 return;
             }
 

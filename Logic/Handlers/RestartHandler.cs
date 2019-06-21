@@ -1,34 +1,49 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Logic.Handlers
 {
-    public static class RestartHandler
+    public class RestartHandler
     {
-        private static bool _restart;
+        private static RestartHandler _instance;
 
-        static RestartHandler()
+        public static RestartHandler Instance
         {
-            _restart = false;
+            get { return _instance ?? (_instance = new RestartHandler()); }
+        }
+
+        private CancellationTokenSource _restartToken;
+
+        public RestartHandler()
+        {
             KeepAlive = true;
         }
 
-        public static bool KeepAlive { get; private set; }
+        public bool KeepAlive { get; private set; }
 
-        public static void Restart()
+        public void Restart()
         {
-            _restart = true;
+            _restartToken.Cancel();
         }
 
-        public static void Shutdown()
+        public void Shutdown()
         {
             KeepAlive = false;
-            _restart = true;
+            _restartToken.Cancel();
         }
 
-        public static async Task AwaitRestart()
+        public async Task AwaitRestart()
         {
-            _restart = false;
-            while (!_restart) await Task.Delay(1);
+            _restartToken?.Dispose();
+            _restartToken = new CancellationTokenSource();
+            try
+            {
+                await Task.Delay(-1, _restartToken.Token);
+            }
+            catch (TaskCanceledException e)
+            {
+                LogsHandler.Instance.Log("Main", "Server is restarting.");
+            }
         }
     }
 }

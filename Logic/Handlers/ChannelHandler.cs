@@ -1,13 +1,13 @@
-﻿using Discord;
+﻿using DalFactory;
+using Discord;
 using Discord.WebSocket;
+using IDal.Interfaces.Database;
+using Logic.Extentions;
+using Logic.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DalFactory;
-using IDal.Interfaces.Database;
-using Logic.Extentions;
-using Logic.Services;
 
 namespace Logic.Handlers
 {
@@ -44,7 +44,8 @@ namespace Logic.Handlers
                     if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(_client.CurrentUser.Id)) return;
                     var audioService = (AudioService)_services.GetService(typeof(AudioService));
                     audioService.BeforeExecute(channel.Guild.Id);
-                    await audioService.TextChannel.SendMessageAsync("The music player was stopped.\nAll users have left the voice channel.");
+                    var lang = new Localization.Localization(channel.Guild.Id);
+                    await audioService.TextChannel.SendMessageAsync(lang.GetMessage("Channel musicplayer stopped"));
                     await audioService.Stop();
                     return;
                 }

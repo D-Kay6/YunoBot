@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="ConfigFactory.cs" />
     <Compile Include="DatabaseFactory.cs" />
+    <Compile Include="LocalizationFactory.cs" />
     <Compile Include="LogsFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializerFactory.cs" />

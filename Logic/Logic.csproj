@@ -110,6 +110,8 @@
     <Compile Include="Handlers\RestartHandler.cs" />
     <Compile Include="Handlers\RoleHandler.cs" />
     <Compile Include="Handlers\WelcomeHandler.cs" />
+    <Compile Include="Localization\Localization.cs" />
+    <Compile Include="Modules\LocalizationModule.cs" />
     <Compile Include="Modules\SupportModule.cs" />
     <Compile Include="Modules\AnnounceModule.cs" />
     <Compile Include="Modules\AutoChannelModule.cs" />
@@ -135,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Localization\English.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

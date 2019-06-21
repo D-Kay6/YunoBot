@@ -8,11 +8,19 @@ namespace Logic.Modules
     [Group("kill")]
     public class KillModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Priority(-1)]
         [Command]
         public async Task DefaultCommand([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync($"Wait, who do you mean? I cannot find `{name}`.");
+            await Context.Channel.SendMessageAsync(_lang.GetMessage("Invalid user", name));
         }
 
         [Command]
@@ -22,15 +30,13 @@ namespace Logic.Modules
             switch (user.Id)
             {
                 case 255453041531158538:
-                    await ReplyAsync(
-                        $"How dare you to order me to kill {user.Nickname()}! \nI should kill YOU for even thinking of something like that!");
+                    await ReplyAsync(_lang.GetMessage("Kill creator", user.Nickname()));
                     break;
                 case 286972781273546762:
-                    await ReplyAsync("Why would I kill myself?");
+                    await ReplyAsync(_lang.GetMessage("Kill self"));
                     break;
                 default:
-                    await Context.Channel.SendFileAsync(ImageExtentions.GetImagePath("GasaiYuno.gif"),
-                        $"Come here {user.Mention}. We're gonna have some fun...");
+                    await Context.Channel.SendFileAsync(ImageExtentions.GetImagePath("GasaiYuno.gif"), _lang.GetMessage("Kill default", user.Mention));
                     break;
             }
         }

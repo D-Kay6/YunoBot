@@ -1,10 +1,11 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using DalFactory;
+﻿using DalFactory;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Logic.Extentions;
+using System.Linq;
+using System.Threading.Tasks;
+using Logic.Services;
 
 namespace Logic.Modules
 {
@@ -12,11 +13,19 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class WelcomeModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Priority(-1)]
         [Command]
         public async Task DefaultWelcome([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync($"Wait, who do you mean? I cannot find `{name}`.");
+            await ReplyAsync(_lang.GetMessage("Unknown user", name));
         }
         
         [Command]
@@ -26,7 +35,7 @@ namespace Logic.Modules
             var settings = welcome.GetWelcomeMessage(Context.Guild.Id);
             if (settings == null)
             {
-                await ReplyAsync("No welcome settings could be found. Please go to my support discord to have this fixed.");
+                await ReplyAsync(_lang.GetMessage("Welcome exception"));
                 return;
             }
             var names = string.Join(", ", users.Select(u => u.Mention)).ReplaceLast(", ", " and ");
@@ -42,7 +51,7 @@ namespace Logic.Modules
         {
             var welcome = DatabaseFactory.GenerateWelcomeMessage();
             welcome.Enable(Context.Guild.Id, channel.Id);
-            await ReplyAsync($"I will now welcome any new member in `{channel.Name}`.");
+            await ReplyAsync(_lang.GetMessage("Welcome enable", channel.Mention));
         }
         
         [Command("disable")]
@@ -51,18 +60,31 @@ namespace Logic.Modules
         {
             var welcome = DatabaseFactory.GenerateWelcomeMessage();
             welcome.Disable(Context.Guild.Id);
-            await ReplyAsync("The welcome message has now been disabled. You can still send a welcome message with my normal command.");
+            await ReplyAsync(_lang.GetMessage("Welcome disable"));
         }
 
         [Group("message")]
         public class WelcomeMessageModule : ModuleBase<SocketCommandContext>
         {
+            private Localization.Localization _lang;
+
+            protected override void BeforeExecute(CommandInfo command)
+            {
+                _lang = new Localization.Localization(Context.Guild.Id);
+                base.BeforeExecute(command);
+            }
+
             [Command]
             public async Task DefaultWelcomeMessage()
             {
                 var welcome = DatabaseFactory.GenerateWelcomeMessage();
-                await ReplyAsync($@"The welcome message for {Context.Guild.Name} is `{welcome.GetWelcomeMessage(Context.Guild.Id)}`.
-When setting your custom welcome image, you can use `" + "{0}" + "` as a variable where the mention of the user is placed.");
+                var settings = welcome.GetWelcomeMessage(Context.Guild.Id);
+                if (settings == null)
+                {
+                    await ReplyAsync(_lang.GetMessage("Welcome exception"));
+                    return;
+                }
+                await ReplyAsync(_lang.GetMessage("Welcome message default", "{0}", settings.Message, Context.Guild.Name));
             }
 
             [Command("set")]
@@ -70,16 +92,21 @@ When setting your custom welcome image, you can use `" + "{0}" + "` as a variabl
             {
                 var welcome = DatabaseFactory.GenerateWelcomeMessage();
                 welcome.SetWelcomeMessage(Context.Guild.Id, message);
-                await ReplyAsync($@"The welcome for {Context.Guild.Name} was changed to:
-```
-{message}
-```");
+                await ReplyAsync(_lang.GetMessage("Welcome message set", message, Context.Guild.Name));
             }
         }
 
         [Group("image")]
         public class WelcomeImageModule : ModuleBase<SocketCommandContext>
         {
+            private Localization.Localization _lang;
+
+            protected override void BeforeExecute(CommandInfo command)
+            {
+                _lang = new Localization.Localization(Context.Guild.Id);
+                base.BeforeExecute(command);
+            }
+
             [Command]
             public async Task DefaultWelcomeImage()
             {
@@ -87,12 +114,11 @@ When setting your custom welcome image, you can use `" + "{0}" + "` as a variabl
                 var settings = welcome.GetWelcomeMessage(Context.Guild.Id);
                 if (settings == null)
                 {
-                    await ReplyAsync("No welcome settings could be found. Please go to my support discord to have this fixed.");
+                    await ReplyAsync(_lang.GetMessage("Welcome exception"));
                     return;
                 }
-
-                var useImage = settings.UseImage ? "use" : "not use";
-                await ReplyAsync($"I am currently set to { useImage} the standard welcome image.");
+                await ReplyAsync(_lang.GetMessage("Welcome image default",
+                    _lang.GetMessage(settings.UseImage ? "Welcome image use" : "Welcome image not use")));
             }
 
             [Command("enable")]
@@ -101,7 +127,7 @@ When setting your custom welcome image, you can use `" + "{0}" + "` as a variabl
             {
                 var welcome = DatabaseFactory.GenerateWelcomeMessage();
                 welcome.UseImage(Context.Guild.Id, true);
-                await ReplyAsync($"The welcome image for {Context.Guild.Name} will be shown in welcome messages.");
+                await ReplyAsync(_lang.GetMessage("Welcome image enable", Context.Guild.Name));
             }
 
             [Command("disable")]
@@ -110,7 +136,7 @@ When setting your custom welcome image, you can use `" + "{0}" + "` as a variabl
             {
                 var welcome = DatabaseFactory.GenerateWelcomeMessage();
                 welcome.UseImage(Context.Guild.Id, false);
-                await ReplyAsync($"The welcome image for {Context.Guild.Name} will not be shown in welcome messages.");
+                await ReplyAsync(_lang.GetMessage("Welcome image disable", Context.Guild.Name));
             }
         }
     }

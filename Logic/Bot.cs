@@ -1,5 +1,8 @@
-﻿using Discord;
+﻿using DalFactory;
+using Discord;
 using Discord.WebSocket;
+using IDal.Interfaces;
+using ILogic;
 using Logic.Handlers;
 using Logic.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,10 +10,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using DalFactory;
-using IDal.Interfaces;
-using ILogic;
-using Logic.Data;
 
 namespace Logic
 {
@@ -51,12 +50,13 @@ namespace Logic
         /// </summary>
         public async Task Start()
         {
-            while (RestartHandler.KeepAlive)
+            while (RestartHandler.Instance.KeepAlive)
                 try
                 {
                     DownloadPrerequisites();
                     var config = _config.Read();
                     if (string.IsNullOrWhiteSpace(config.Token)) return;
+                    _client?.Dispose();
                     _client = new DiscordSocketClient(new DiscordSocketConfig
                     {
                         LogLevel = LogSeverity.Verbose
@@ -78,7 +78,7 @@ namespace Logic
                     await _roleHandler.Initialize(_client, _services);
                     await _welcomeHandler.Initialize(_client);
                     
-                    await RestartHandler.AwaitRestart();
+                    await RestartHandler.Instance.AwaitRestart();
                 }
                 catch (Exception e)
                 {

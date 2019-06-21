@@ -7,12 +7,18 @@ namespace Logic.Modules
     [Group("Invite")]
     public class InviteModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Command]
         public async Task DefaultInvite()
         {
-            await Context.User.SendDM(@"You can invite me to your server with this link: https://discordapp.com/oauth2/authorize?client_id=286972781273546762&scope=bot&permissions=8.
-For more info on me, go take a look at https://discordbots.org/bot/286972781273546762, or use /help in any of the discord servers I'm in.
-If you're in need of support, come join my support server at 'https://discord.gg/YFqUMDT'.");
+            await Context.User.SendDM(_lang.GetMessage("Invite default"));
         }
     }
 }
