@@ -122,12 +122,11 @@ namespace Dal.MySql
             {
                 try
                 {
-                    var command = new MySqlCommand("GetCommandPrefix", con);
+                    var command = new MySqlCommand("GetLanguage", con);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ServerId", serverId);
                     con.Open();
-                    Language language;
-                    Enum.TryParse((string)command.ExecuteScalar(), out language);
+                    Enum.TryParse((string)command.ExecuteScalar(), out Language language);
                     return language;
                 }
                 catch (MySqlException e)
