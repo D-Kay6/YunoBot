@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 
-namespace Logic.Extentions
+namespace Logic.Extensions
 {
-    public static class StringExtentions
+    public static class StringExtensions
     {
         public static bool ContainsIgnoreCase(this string item, string value)
         {
             return CultureInfo.CurrentCulture.CompareInfo.IndexOf(item, value, CompareOptions.IgnoreCase) >= 0;
+        }
+
+        public static string FirstCharToUpper(this string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return input;
+            return input.First().ToString().ToUpper() + input.Substring(1).ToLower();
         }
 
         public static string ReplaceLast(this string item, string find, string replace)

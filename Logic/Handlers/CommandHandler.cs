@@ -59,6 +59,7 @@ namespace Logic.Handlers
             }
             catch (Exception e)
             {
+                if ((s.Channel as SocketGuildChannel).Guild.Id.Equals(264445053596991498)) return;
                 LogsHandler.Instance.Log("Crashes", $"CommandHandler crashed. Stacktrace: {e}");
             }
         }

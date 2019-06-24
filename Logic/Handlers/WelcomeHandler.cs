@@ -1,8 +1,8 @@
 ﻿using DalFactory;
 using Discord.WebSocket;
 using IDal.Interfaces.Database;
-using Logic.Extentions;
 using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Handlers
 {
@@ -30,7 +30,7 @@ namespace Logic.Handlers
 
             var msg = string.Format(welcome.Message, user.Mention);
             if (!welcome.UseImage) await channel.SendMessageAsync(msg);
-            else await channel.SendFileAsync(ImageExtentions.GetImagePath("GasaiYunoWelcome.jpg"), msg);
+            else await channel.SendFileAsync(ImageExtensions.GetImagePath("GasaiYunoWelcome.jpg"), msg);
         }
 
         private async Task DisableWelcomeMessage(SocketGuild guild)

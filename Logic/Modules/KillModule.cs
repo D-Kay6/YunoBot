@@ -1,7 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
-using Logic.Extentions;
 using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Modules
 {
@@ -36,7 +36,7 @@ namespace Logic.Modules
                     await ReplyAsync(_lang.GetMessage("Kill self"));
                     break;
                 default:
-                    await Context.Channel.SendFileAsync(ImageExtentions.GetImagePath("GasaiYuno.gif"), _lang.GetMessage("Kill default", user.Mention));
+                    await Context.Channel.SendFileAsync(ImageExtensions.GetImagePath("GasaiYuno.gif"), _lang.GetMessage("Kill default", user.Mention));
                     break;
             }
         }

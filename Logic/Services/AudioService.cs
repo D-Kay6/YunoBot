@@ -1,10 +1,10 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Logic.Exceptions;
-using Logic.Extentions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Logic.Extensions;
 using Victoria;
 using Victoria.Entities;
 using SearchResult = Victoria.Entities.SearchResult;

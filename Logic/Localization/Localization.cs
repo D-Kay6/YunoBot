@@ -2,7 +2,7 @@
 using IDal.Interfaces;
 using IDal.Interfaces.Database;
 using IDal.Structs.Localization;
-using Logic.Extentions;
+using Logic.Extensions;
 
 namespace Logic.Localization
 {

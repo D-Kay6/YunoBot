@@ -1,8 +1,8 @@
 ﻿using DalFactory;
 using Discord;
 using Discord.Commands;
-using Logic.Extentions;
 using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Modules
 {
@@ -50,7 +50,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help praise", _lang.GetMessage("Help praise title") + "\n\n" + _lang.GetMessage("Help praise", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help praise", _lang.GetMessage("Help praise title") + "\n\n" + _lang.GetMessage("Help praise", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -59,7 +59,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help music", _lang.GetMessage("Help music title") + "\n\n" + _lang.GetMessage("Help music", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help music", _lang.GetMessage("Help music title") + "\n\n" + _lang.GetMessage("Help music", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -68,7 +68,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help request", _lang.GetMessage("Help request title") + "\n\n" + _lang.GetMessage("Help request", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help request", _lang.GetMessage("Help request title") + "\n\n" + _lang.GetMessage("Help request", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -77,7 +77,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help prefix", _lang.GetMessage("Help prefix title") + "\n\n" + _lang.GetMessage("Help prefix", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help prefix", _lang.GetMessage("Help prefix title") + "\n\n" + _lang.GetMessage("Help prefix", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -86,7 +86,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help language", _lang.GetMessage("Help language title") + "\n\n" + _lang.GetMessage("Help language", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help language", _lang.GetMessage("Help language title") + "\n\n" + _lang.GetMessage("Help language", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -96,7 +96,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help welcome", _lang.GetMessage("Help welcome title") + "\n\n" + _lang.GetMessage("Help welcome", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help welcome", _lang.GetMessage("Help welcome title") + "\n\n" + _lang.GetMessage("Help welcome", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -107,7 +107,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help autochannel", _lang.GetMessage("Help autochannel title") + "\n\n" + _lang.GetMessage("Help autochannel", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help autochannel", _lang.GetMessage("Help autochannel title") + "\n\n" + _lang.GetMessage("Help autochannel", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -118,7 +118,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help permachannel", _lang.GetMessage("Help permachannel title") + "\n\n" + _lang.GetMessage("Help permachannel", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help permachannel", _lang.GetMessage("Help permachannel title") + "\n\n" + _lang.GetMessage("Help permachannel", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -129,7 +129,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help autorole", _lang.GetMessage("Help autorole title") + "\n\n" + _lang.GetMessage("Help autorole", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help autorole", _lang.GetMessage("Help autorole title") + "\n\n" + _lang.GetMessage("Help autorole", prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -140,7 +140,7 @@ namespace Logic.Modules
         {
             var settings = DatabaseFactory.GenerateServerSettings();
             var prefix = settings.GetCommandPrefix(Context.Guild.Id);
-            var embed = EmbedExtentions.CreateEmbed("Help permarole", _lang.GetMessage("Help permarole title") + "\n\n" + _lang.GetMessage("Help permarole", prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help permarole", _lang.GetMessage("Help permarole title") + "\n\n" + _lang.GetMessage("Help permarole", prefix));
             await ReplyAsync("", false, embed);
         }
     }

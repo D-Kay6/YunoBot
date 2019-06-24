@@ -1,8 +1,8 @@
 ﻿using Discord;
 
-namespace Logic.Extentions
+namespace Logic.Extensions
 {
-    public static class EmbedExtentions
+    public static class EmbedExtensions
     {
         public static Embed CreateEmbed(string title, string message)
         {

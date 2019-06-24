@@ -1,13 +1,13 @@
-﻿using Discord;
-using Discord.WebSocket;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
+using Discord.WebSocket;
 
-namespace Logic.Extentions
+namespace Logic.Extensions
 {
-    public static class UserExtentions
+    public static class UserExtensions
     {
         private static readonly Random _random = new Random();
 

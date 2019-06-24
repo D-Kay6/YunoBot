@@ -1,7 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
-using Logic.Extentions;
 using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Modules
 {

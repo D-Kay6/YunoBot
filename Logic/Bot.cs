@@ -62,6 +62,7 @@ namespace Logic
                         LogLevel = LogSeverity.Verbose
                     });
                     _client.Log += Log;
+                    _client.Ready += OnReady;
 
                     IServiceCollection serviceCollection = new ServiceCollection();
                     ConfigureServices(serviceCollection);
@@ -102,6 +103,12 @@ namespace Logic
                 file = "opus.dll";
                 if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
             }
+        }
+
+        private async Task OnReady()
+        {
+            var shartCount = await _client.GetRecommendedShardCountAsync();
+            if (shartCount > 1) Console.WriteLine($"Probably time to think about creating shards. {shartCount}");
         }
 
         private async Task Log(LogMessage msg)

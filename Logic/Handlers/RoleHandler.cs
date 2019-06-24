@@ -2,10 +2,10 @@
 using Discord;
 using Discord.WebSocket;
 using IDal.Interfaces.Database;
-using Logic.Extentions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Handlers
 {

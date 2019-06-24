@@ -2,9 +2,9 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Logic.Extentions;
 using System.Linq;
 using System.Threading.Tasks;
+using Logic.Extensions;
 using Logic.Services;
 
 namespace Logic.Modules
@@ -42,7 +42,7 @@ namespace Logic.Modules
             var msg = string.Format(settings.Message, names);
 
             if (!settings.UseImage) await ReplyAsync(msg);
-            else await Context.Channel.SendFileAsync(ImageExtentions.GetImagePath("GasaiYunoWelcome.jpg"), msg);
+            else await Context.Channel.SendFileAsync(ImageExtensions.GetImagePath("GasaiYunoWelcome.jpg"), msg);
         }
         
         [Command("enable")]

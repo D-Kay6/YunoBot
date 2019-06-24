@@ -1,6 +1,6 @@
 ﻿using Discord.Commands;
-using Logic.Extentions;
 using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Modules
 {

@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Net;
-using Logic.Extentions;
+using Logic.Extensions;
 using Logic.Handlers;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace Logic.Modules
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                await ReplyAsync();
+                await ReplyAsync(_lang.GetMessage("Invalid message"));
                 return;
             }
 
@@ -43,7 +43,7 @@ namespace Logic.Modules
                 await ReplyAsync(_lang.GetMessage("Invalid message"));
                 return;
             }
-
+            
             var users = new List<IUser>();
             foreach (var guild in Context.Client.Guilds)
             {
@@ -64,7 +64,7 @@ namespace Logic.Modules
             try
             {
                 var channel = await user.GetOrCreateDMChannelAsync();
-                await channel.SendMessageAsync("", false, EmbedExtentions.CreateEmbed(title, message));
+                await channel.SendMessageAsync("", false, EmbedExtensions.CreateEmbed(title, message));
                 LogsHandler.Instance.Log("Announcement", $"{user.Username}({user.Id}) - {message}");
             }
             catch (HttpException)

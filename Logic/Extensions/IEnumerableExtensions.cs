@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Logic.Extentions
+namespace Logic.Extensions
 {
-    public static class IEnumerableExtentions
+    public static class IEnumerableExtensions
     {
         public static IEnumerable<TSource> Foreach<TSource>(this IEnumerable<TSource> source, Action<TSource> action)
         {

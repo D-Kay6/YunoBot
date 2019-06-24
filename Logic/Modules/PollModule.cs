@@ -19,10 +19,6 @@ namespace Logic.Modules
         public async Task DefaultPoll([Remainder] string message)
         {
             return;
-            await Context.Message.DeleteAsync();
-            var embed = new EmbedBuilder();
-            embed.WithDescription("A poll has started!");
-            await ReplyAsync();
         }
     }
 }
