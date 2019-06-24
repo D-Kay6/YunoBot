@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DalFactory;
 using IDal.Interfaces.Database;
 using IDal.Structs.Localization;
+using Logic.Extensions;
 
 namespace Logic.Modules
 {
@@ -33,8 +34,7 @@ namespace Logic.Modules
         [Command("set")]
         public async Task LanguageSet(string value)
         {
-            Language language;
-            if (!Language.TryParse(value, out language))
+            if (!Enum.TryParse(value.FirstCharToUpper(), out Language language))
             {
                 await ReplyAsync(_lang.GetMessage("Language unsupported", value));
                 return;
