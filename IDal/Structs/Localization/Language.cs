@@ -4,6 +4,6 @@
     {
         English,
         Dutch,
-        Portuguese
+        //Portuguese
     }
 }
