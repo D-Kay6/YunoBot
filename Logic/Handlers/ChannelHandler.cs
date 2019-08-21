@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord.Net;
 using Logic.Extensions;
 
 namespace Logic.Handlers
@@ -35,16 +36,15 @@ namespace Logic.Handlers
 
         private async Task LeaveChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
+            if (channel == null) return;
+            var lang = new Localization.Localization(channel.Guild.Id);
             try
             {
-                if (channel == null) return;
-
                 if (channel.Users.Count > 0)
                 {
                     if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(_client.CurrentUser.Id)) return;
                     var audioService = (AudioService)_services.GetService(typeof(AudioService));
                     audioService.BeforeExecute(channel.Guild.Id);
-                    var lang = new Localization.Localization(channel.Guild.Id);
                     await audioService.TextChannel.SendMessageAsync(lang.GetMessage("Channel musicplayer stopped"));
                     await audioService.Stop();
                     return;
@@ -67,9 +67,10 @@ namespace Logic.Handlers
 
         private async Task JoinChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
+            if (channel == null || user == null) return;
+            var lang = new Localization.Localization(channel.Guild.Id);
             try
             {
-                if (channel == null || user == null) return;
                 var channelData = _autoChannel.GetData(channel.Guild.Id);
                 if (channel.Name.StartsWith(channelData.PermaPrefix, StringComparison.OrdinalIgnoreCase))
                 {
@@ -82,6 +83,17 @@ namespace Logic.Handlers
                     _autoChannel.AddGeneratedChannel(channel.Guild.Id, channelId);
                     _channels.Remove(channelId);
                 }
+            }
+            catch (HttpException httpException)
+            {
+                if (!httpException.Message.Contains("error 50013: Missing Permissions"))
+                {
+                    LogsHandler.Instance.Log("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
+                    return;
+                }
+                
+                var pmChannel = await channel.Guild.Owner.GetOrCreateDMChannelAsync();
+                await pmChannel.SendMessageAsync(lang.GetMessage("Channel no permission", channel.Guild.Name, channel.Name));
             }
             catch (Exception e)
             {

@@ -6,6 +6,8 @@
 		"Invalid ac/pc prefix": "ik kan niet dezelfde prefix gebruiken voor zowel autochannels als permachannels",
 		"Invalid ar/pr prefix": "ik kan niet dezelfde prefix gebruiken voor zowel autoroles als permaroles.",
 		
+		"Channel no permission": "Het lijkt erop dat je mijn Autochannel of Permachannel feature probeert te gebruiken op je server `{0}`, maar je hebt me niet de rechten gegeven om kanalen te kunnen bewerken.
+Verwijder de prefix van `{1}` of geef me het recht `Manage channels`.",
 		"Channel musicplayer stopped": "De muziekspeler is gestopt.
 Alle gebruikers hebben het spraak kanaal verlaten.",
 		

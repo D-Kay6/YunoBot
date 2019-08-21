@@ -6,9 +6,11 @@
 		"Invalid ac/pc prefix": "I am not able to use the same prefix for both autochannels and permachannels.",
 		"Invalid ar/pr prefix": "I am not able to use the same prefix for both autoroles and permaroles.",
 		
+		"Channel no permission": "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
+Either remove the prefix from `{1}` or give me the `Manage channels` permission.",
 		"Channel musicplayer stopped": "The music player was stopped.
 All users have left the voice channel.",
-		
+
 		"Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
 		"Command invalid arguments": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
 		"Command invalid": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
