@@ -2,13 +2,13 @@
 using Discord;
 using Discord.WebSocket;
 using IDal.Interfaces.Database;
-using Logic.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.Net;
 using Logic.Extensions;
+using Logic.Services.Music;
 
 namespace Logic.Handlers
 {
@@ -91,7 +91,7 @@ namespace Logic.Handlers
                     LogsHandler.Instance.Log("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
                     return;
                 }
-                
+
                 var pmChannel = await channel.Guild.Owner.GetOrCreateDMChannelAsync();
                 await pmChannel.SendMessageAsync(lang.GetMessage("Channel no permission", channel.Guild.Name, channel.Name));
             }
