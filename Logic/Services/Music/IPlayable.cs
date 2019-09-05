@@ -2,7 +2,7 @@
 using Victoria.Entities;
 using Victoria.Queue;
 
-namespace Logic.Services
+namespace Logic.Services.Music
 {
     public interface IPlayable : IQueueObject
     {

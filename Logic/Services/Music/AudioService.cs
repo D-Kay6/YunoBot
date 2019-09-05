@@ -1,15 +1,15 @@
-﻿using Discord;
-using Discord.WebSocket;
-using Logic.Exceptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
+using Discord.WebSocket;
+using Logic.Exceptions;
 using Logic.Extensions;
 using Victoria;
 using Victoria.Entities;
 using SearchResult = Victoria.Entities.SearchResult;
 
-namespace Logic.Services
+namespace Logic.Services.Music
 {
     public class AudioService
     {

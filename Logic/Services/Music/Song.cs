@@ -3,7 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Victoria.Entities;
 
-namespace Logic.Services
+namespace Logic.Services.Music
 {
     public class Song : IPlayable
     {
