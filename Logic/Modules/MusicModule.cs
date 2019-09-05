@@ -5,6 +5,7 @@ using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Logic.Services.Music;
 using Victoria.Entities;
 
 namespace Logic.Modules
@@ -204,7 +205,7 @@ namespace Logic.Modules
             }
 
             if (!await CanPerform()) return;
-            if (volume > 100) volume = 100;
+            if (volume > 150) volume = 150;
             if (volume < 0) volume = 0;
             await AudioService.ChangeVolume(volume);
 
