@@ -10,6 +10,10 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Logic.Services.Logs;
+using Logic.Services.Music;
+using Serilog;
+using Serilog.Core;
 
 namespace Logic
 {
@@ -20,6 +24,7 @@ namespace Logic
 
         private DiscordSocketClient _client;
 
+        private readonly StatusHandler _statusHandler;
         private readonly DatabaseHandler _databaseHandler;
         private readonly CommandHandler _commandHandler;
         private readonly DblHandler _dblHandler;
@@ -36,7 +41,13 @@ namespace Logic
         {
             _config = ConfigFactory.GenerateConfig();
             _persistence = SerializerFactory.GenerateSerializer();
+            
+            _client = new DiscordSocketClient(new DiscordSocketConfig
+            {
+                LogLevel = LogSeverity.Verbose
+            });
 
+            _statusHandler = new StatusHandler(_client);
             _databaseHandler = new DatabaseHandler();
             _commandHandler = new CommandHandler();
             _dblHandler = new DblHandler();
@@ -51,16 +62,13 @@ namespace Logic
         public async Task Start()
         {
             while (RestartHandler.Instance.KeepAlive)
+            {
                 try
                 {
                     DownloadPrerequisites();
                     var config = _config.Read();
                     if (string.IsNullOrWhiteSpace(config.Token)) return;
-                    _client?.Dispose();
-                    _client = new DiscordSocketClient(new DiscordSocketConfig
-                    {
-                        LogLevel = LogSeverity.Verbose
-                    });
+
                     _client.Log += Log;
                     _client.Ready += OnReady;
 
@@ -70,27 +78,35 @@ namespace Logic
 
                     await _client.LoginAsync(TokenType.Bot, config.Token);
                     await _client.StartAsync();
-                    await _client.SetActivityAsync(new Game("Yukiteru Diary", ActivityType.Watching));
 
+                    await _statusHandler.Initialize();
                     await _databaseHandler.Initialize(_client);
                     await _commandHandler.Initialize(_client, _services);
                     await _dblHandler.Initialize(_client, config);
                     await _channelHandler.Initialize(_client, _services);
                     await _roleHandler.Initialize(_client, _services);
                     await _welcomeHandler.Initialize(_client);
-                    
+
                     await RestartHandler.Instance.AwaitRestart();
                 }
                 catch (Exception e)
                 {
                     LogsHandler.Instance.Log("Main", $"Fatal exception occured. Restarting bot. Traceback: {e}");
                 }
+                finally
+                {
+                    await _client.StopAsync();
+                }
+            }
+
         }
 
         private void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton(_persistence);
             serviceCollection.AddSingleton(new AudioService(_client));
+            serviceCollection.AddSingleton<ILogger>(new LoggerConfiguration().WriteTo.Seq("http://localhost:5341/").CreateLogger());
+            serviceCollection.AddSingleton(new LogService());
         }
 
         private void DownloadPrerequisites()
@@ -108,7 +124,7 @@ namespace Logic
         private async Task OnReady()
         {
             var shartCount = await _client.GetRecommendedShardCountAsync();
-            if (shartCount > 1) Console.WriteLine($"Probably time to think about creating shards. {shartCount}");
+            if (shartCount > 1) LogsHandler.Instance.Log("Main", $"Probably time to think about creating shards. {shartCount}");
         }
 
         private async Task Log(LogMessage msg)
