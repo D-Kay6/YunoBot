@@ -6,6 +6,7 @@ using Logic.Handlers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Logic.Services;
 
 namespace Logic.Modules
 {
@@ -65,11 +66,11 @@ namespace Logic.Modules
             {
                 var channel = await user.GetOrCreateDMChannelAsync();
                 await channel.SendMessageAsync("", false, EmbedExtensions.CreateEmbed(title, message));
-                LogsHandler.Instance.Log("Announcement", $"{user.Username}({user.Id}) - {message}");
+                LogService.Instance.Log("Announcement", $"{user.Username}({user.Id}) - {message}");
             }
             catch (HttpException)
             {
-                LogsHandler.Instance.Log("Announcement", $"Could not send announcement to {user.Username}({user.Id}).");
+                LogService.Instance.Log("Announcement", $"Could not send announcement to {user.Username}({user.Id}).");
             }
         }
     }

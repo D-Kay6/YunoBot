@@ -1,6 +1,7 @@
 ﻿using Discord.Commands;
 using Logic.Handlers;
 using System.Threading.Tasks;
+using Logic.Services;
 
 namespace Logic.Modules
 {
@@ -8,6 +9,8 @@ namespace Logic.Modules
     public class RestartModule : ModuleBase<SocketCommandContext>
     {
         private Localization.Localization _lang;
+
+        public RestartService Service { get; set; }
 
         protected override void BeforeExecute(CommandInfo command)
         {
@@ -20,7 +23,7 @@ namespace Logic.Modules
         {
             await Context.Message.DeleteAsync();
             await ReplyAsync(_lang.GetMessage("Restart default"));
-            RestartHandler.Instance.Restart();
+            Service.Restart();
         }
 
         [Command("shutdown")]
@@ -28,7 +31,7 @@ namespace Logic.Modules
         {
             await Context.Message.DeleteAsync();
             await ReplyAsync(_lang.GetMessage("Shutdown default"));
-            RestartHandler.Instance.Shutdown();
+            Service.Shutdown();
         }
     }
 }

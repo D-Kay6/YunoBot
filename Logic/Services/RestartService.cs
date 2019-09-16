@@ -1,25 +1,19 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Logic.Handlers;
 
-namespace Logic.Handlers
+namespace Logic.Services
 {
-    public class RestartHandler
+    public class RestartService
     {
-        private static RestartHandler _instance;
-
-        public static RestartHandler Instance
-        {
-            get { return _instance ?? (_instance = new RestartHandler()); }
-        }
-
         private CancellationTokenSource _restartToken;
 
-        public RestartHandler()
+        public bool KeepAlive { get; private set; }
+
+        public RestartService()
         {
             KeepAlive = true;
         }
-
-        public bool KeepAlive { get; private set; }
 
         public void Restart()
         {
@@ -40,9 +34,9 @@ namespace Logic.Handlers
             {
                 await Task.Delay(-1, _restartToken.Token);
             }
-            catch (TaskCanceledException e)
+            catch (TaskCanceledException)
             {
-                LogsHandler.Instance.Log("Main", "Server is restarting.");
+                LogService.Instance.Log("Main", "Server is restarting.");
             }
         }
     }

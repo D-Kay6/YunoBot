@@ -5,11 +5,12 @@ using Discord;
 using Discord.WebSocket;
 using Logic.Exceptions;
 using Logic.Extensions;
+using Logic.Services.Music;
 using Victoria;
 using Victoria.Entities;
 using SearchResult = Victoria.Entities.SearchResult;
 
-namespace Logic.Services.Music
+namespace Logic.Services
 {
     public class AudioService
     {
