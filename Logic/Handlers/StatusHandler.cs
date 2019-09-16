@@ -11,24 +11,23 @@ namespace Logic.Handlers
         private Timer _timer;
         private Random _random;
 
-        public StatusHandler(DiscordSocketClient client) : base(client)
+        public StatusHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
         {
-            _timer = new Timer();
+            _timer = new Timer { Interval = TimeSpan.FromMinutes(5).TotalMilliseconds };
             _random = new Random();
         }
 
-        public override Task Initialize()
+        public override async Task Initialize()
         {
-            _timer.Interval = TimeSpan.FromMinutes(5).TotalMilliseconds;
             _timer.Elapsed += OnTick;
-            _timer.Enabled = true;
-            RandomizeActivity();
-            return Task.CompletedTask;
+            _timer.Start();
+
+            await RandomizeActivity();
         }
 
-        private void OnTick(object sender, ElapsedEventArgs e)
+        private async void OnTick(object sender, ElapsedEventArgs e)
         {
-            RandomizeActivity();
+            await RandomizeActivity();
         }
 
         private async Task RandomizeActivity()

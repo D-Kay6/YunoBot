@@ -1,4 +1,5 @@
-﻿using DalFactory;
+﻿using System;
+using DalFactory;
 using Discord.WebSocket;
 using IDal.Interfaces.Database;
 using System.Threading.Tasks;
@@ -6,24 +7,27 @@ using Logic.Extensions;
 
 namespace Logic.Handlers
 {
-    public class DatabaseHandler
+    public class DatabaseHandler : BaseHandler
     {
-        private DiscordSocketClient _client;
-        private IServerSettings _settings;
-        private IAutoChannel _autoChannel;
-        private IAutoRole _autoRole;
+        private readonly IServerSettings _settings;
+        private readonly IAutoChannel _autoChannel;
+        private readonly IAutoRole _autoRole;
 
-        public async Task Initialize(DiscordSocketClient client)
+        public DatabaseHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
         {
-            this._client = client;
+            this.Client = client;
             this._settings = DatabaseFactory.GenerateServerSettings();
             this._autoChannel = DatabaseFactory.GenerateAutoChannel();
             this._autoRole = DatabaseFactory.GenerateAutoRole();
+        }
 
-            this._client.Ready += OnReady;
-            this._client.JoinedGuild += OnGuildJoined;
-            this._client.LeftGuild += OnGuildLeft;
-            this._client.GuildUpdated += OnGuildUpdated;
+        public override async Task Initialize()
+        {
+            this.Client.JoinedGuild += OnGuildJoined;
+            this.Client.LeftGuild += OnGuildLeft;
+            this.Client.GuildUpdated += OnGuildUpdated;
+
+            await UpdateServers();
         }
 
         private async Task OnGuildJoined(SocketGuild guild)
@@ -42,14 +46,9 @@ namespace Logic.Handlers
             _settings.UpdateServer(newGuild.Id, newGuild.Name);
         }
 
-        private async Task OnReady()
-        {
-            await UpdateServers();
-        }
-
         private async Task UpdateServers()
         {
-            _client.Guilds.Foreach(g => _settings.UpdateServer(g.Id, g.Name));
+            Client.Guilds.Foreach(g => _settings.UpdateServer(g.Id, g.Name));
         }
     }
 }

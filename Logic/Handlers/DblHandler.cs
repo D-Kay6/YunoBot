@@ -3,21 +3,25 @@ using DiscordBotsList.Api;
 using IDal.Structs.Configuration;
 using System;
 using System.Threading.Tasks;
+using Logic.Services;
 
 namespace Logic.Handlers
 {
-    public class DblHandler
+    public class DblHandler : BaseHandler
     {
-        private DiscordSocketClient _client;
         public AuthDiscordBotListApi DblApi { get; private set; }
 
-        public async Task Initialize(DiscordSocketClient client, ConfigData config)
+        public DblHandler(DiscordSocketClient client, IServiceProvider serviceProvider, ConfigData config) : base(client, serviceProvider)
         {
-            _client = client;
             DblApi = new AuthDiscordBotListApi(config.ClientId, config.DiscordBotsToken);
-            client.Ready += OnClientReady;
-            client.JoinedGuild += OnGuildJoined;
-            client.LeftGuild += OnGuildLeft;
+        }
+
+        public override async Task Initialize()
+        {
+            Client.JoinedGuild += OnGuildJoined;
+            Client.LeftGuild += OnGuildLeft;
+
+            await UpdateGuilds();
         }
 
         private async Task UpdateGuilds()
@@ -25,9 +29,9 @@ namespace Logic.Handlers
             try
             {
                 var me = await DblApi.GetMeAsync();
-                await me.UpdateStatsAsync(_client.Guilds.Count);
-                await DblApi.UpdateStats(_client.Guilds.Count);
-                Console.WriteLine($"Updating guilds to {_client.Guilds.Count}");
+                await me.UpdateStatsAsync(Client.Guilds.Count);
+                await DblApi.UpdateStats(Client.Guilds.Count);
+                Console.WriteLine($"Updating guilds to {Client.Guilds.Count}");
             }
             catch (Exception e)
             {
@@ -35,21 +39,16 @@ namespace Logic.Handlers
             }
         }
 
-        private async Task OnClientReady()
-        {
-            await UpdateGuilds();
-        }
-
         private async Task OnGuildJoined(SocketGuild guild)
         {
             await UpdateGuilds();
-            LogsHandler.Instance.Log("Connections", guild, "Joined.");
+            LogService.Instance.Log("Connections", guild, "Joined.");
         }
 
         private async Task OnGuildLeft(SocketGuild guild)
         {
             await UpdateGuilds();
-            LogsHandler.Instance.Log("Connections", guild, "Left.");
+            LogService.Instance.Log("Connections", guild, "Left.");
         }
     }
 }

@@ -10,7 +10,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Logic.Services.Logs;
 using Logic.Services.Music;
 using Serilog;
 using Serilog.Core;
@@ -20,10 +19,10 @@ namespace Logic
     public class Bot : IBot
     {
         private readonly IConfig _config;
-        private readonly ISerializer _persistence;
 
         private DiscordSocketClient _client;
 
+        private readonly UpdateHandler _updateHandler;
         private readonly StatusHandler _statusHandler;
         private readonly DatabaseHandler _databaseHandler;
         private readonly CommandHandler _commandHandler;
@@ -40,20 +39,22 @@ namespace Logic
         public Bot()
         {
             _config = ConfigFactory.GenerateConfig();
-            _persistence = SerializerFactory.GenerateSerializer();
             
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Verbose
             });
 
-            _statusHandler = new StatusHandler(_client);
-            _databaseHandler = new DatabaseHandler();
-            _commandHandler = new CommandHandler();
-            _dblHandler = new DblHandler();
-            _channelHandler = new ChannelHandler();
-            _roleHandler = new RoleHandler();
-            _welcomeHandler = new WelcomeHandler();
+            _services = GenerateServiceProvider();
+
+            _updateHandler = new UpdateHandler(_client, _services);
+            _statusHandler = new StatusHandler(_client, _services);
+            _databaseHandler = new DatabaseHandler(_client, _services);
+            _commandHandler = new CommandHandler(_client, _services);
+            _dblHandler = new DblHandler(_client, _services, _config.Read());
+            _channelHandler = new ChannelHandler(_client, _services);
+            _roleHandler = new RoleHandler(_client, _services);
+            _welcomeHandler = new WelcomeHandler(_client, _services);
         }
 
         /// <summary>
@@ -61,7 +62,9 @@ namespace Logic
         /// </summary>
         public async Task Start()
         {
-            while (RestartHandler.Instance.KeepAlive)
+            var restartService = _services.GetService<RestartService>();
+
+            while (restartService.KeepAlive)
             {
                 try
                 {
@@ -71,42 +74,35 @@ namespace Logic
 
                     _client.Log += Log;
                     _client.Ready += OnReady;
-
-                    IServiceCollection serviceCollection = new ServiceCollection();
-                    ConfigureServices(serviceCollection);
-                    _services = serviceCollection.BuildServiceProvider();
-
+                    
                     await _client.LoginAsync(TokenType.Bot, config.Token);
                     await _client.StartAsync();
 
-                    await _statusHandler.Initialize();
-                    await _databaseHandler.Initialize(_client);
-                    await _commandHandler.Initialize(_client, _services);
-                    await _dblHandler.Initialize(_client, config);
-                    await _channelHandler.Initialize(_client, _services);
-                    await _roleHandler.Initialize(_client, _services);
-                    await _welcomeHandler.Initialize(_client);
-
-                    await RestartHandler.Instance.AwaitRestart();
+                    await restartService.AwaitRestart();
                 }
                 catch (Exception e)
                 {
-                    LogsHandler.Instance.Log("Main", $"Fatal exception occured. Restarting bot. Traceback: {e}");
+                    LogService.Instance.Log("Main", $"Fatal exception occured. Restarting bot. Traceback: {e}");
                 }
                 finally
                 {
                     await _client.StopAsync();
                 }
             }
-
         }
 
-        private void ConfigureServices(IServiceCollection serviceCollection)
+        private ServiceProvider GenerateServiceProvider()
         {
-            serviceCollection.AddSingleton(_persistence);
+            var serviceCollection = new ServiceCollection();
+            var log = new LogService();
+            var restart = new RestartService();
+
+            serviceCollection.AddSingleton(log);
+            serviceCollection.AddSingleton(restart);
+            serviceCollection.AddSingleton(new UpdateService(log, restart));
             serviceCollection.AddSingleton(new AudioService(_client));
-            serviceCollection.AddSingleton<ILogger>(new LoggerConfiguration().WriteTo.Seq("http://localhost:5341/").CreateLogger());
-            serviceCollection.AddSingleton(new LogService());
+
+            return serviceCollection.BuildServiceProvider();
         }
 
         private void DownloadPrerequisites()
@@ -124,7 +120,16 @@ namespace Logic
         private async Task OnReady()
         {
             var shartCount = await _client.GetRecommendedShardCountAsync();
-            if (shartCount > 1) LogsHandler.Instance.Log("Main", $"Probably time to think about creating shards. {shartCount}");
+            if (shartCount > 1) LogService.Instance.Log("Main", $"Probably time to think about creating shards. {shartCount}");
+            
+            await _updateHandler.Initialize();
+            await _statusHandler.Initialize();
+            await _databaseHandler.Initialize();
+            await _commandHandler.Initialize();
+            await _dblHandler.Initialize();
+            await _channelHandler.Initialize();
+            await _roleHandler.Initialize();
+            await _welcomeHandler.Initialize();
         }
 
         private async Task Log(LogMessage msg)

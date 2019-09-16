@@ -8,24 +8,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Net;
 using Logic.Extensions;
+using Logic.Services;
 using Logic.Services.Music;
 
 namespace Logic.Handlers
 {
-    public class ChannelHandler
+    public class ChannelHandler : BaseHandler
     {
         private HashSet<ulong> _channels;
-        private DiscordSocketClient _client;
-        private IServiceProvider _services;
         private IAutoChannel _autoChannel;
-
-        public async Task Initialize(DiscordSocketClient client, IServiceProvider services)
+        
+        public ChannelHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
         {
             _channels = new HashSet<ulong>();
-            _client = client;
-            _services = services;
             _autoChannel = DatabaseFactory.GenerateAutoChannel();
-            _client.UserVoiceStateUpdated += HandleChannelAsync;
+        }
+
+        public override async Task Initialize()
+        {
+            Client.UserVoiceStateUpdated += HandleChannelAsync;
         }
 
         private async Task HandleChannelAsync(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
@@ -42,8 +43,8 @@ namespace Logic.Handlers
             {
                 if (channel.Users.Count > 0)
                 {
-                    if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(_client.CurrentUser.Id)) return;
-                    var audioService = (AudioService)_services.GetService(typeof(AudioService));
+                    if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(Client.CurrentUser.Id)) return;
+                    var audioService = (AudioService)ServiceProvider.GetService(typeof(AudioService));
                     audioService.BeforeExecute(channel.Guild.Id);
                     await audioService.TextChannel.SendMessageAsync(lang.GetMessage("Channel musicplayer stopped"));
                     await audioService.Stop();
@@ -53,7 +54,7 @@ namespace Logic.Handlers
                 while (_channels.Contains(channel.Id)) await Task.Delay(100);
                 
                 if (!_autoChannel.IsGeneratedChannel(channel.Guild.Id, channel.Id)) return;
-                LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Nickname()} left channel '{channel.Name}'.");
+                LogService.Instance.Log("Channels", channel.Guild, $"{user.Nickname()} left channel '{channel.Name}'.");
                 if (channel.Guild.GetChannel(channel.Id) == null) return;
                 await channel.DeleteAsync();
                 _autoChannel.RemoveGeneratedChannel(channel.Guild.Id, channel.Id);
@@ -61,7 +62,7 @@ namespace Logic.Handlers
             catch (Exception e)
             {
                 var info = channel == null ? "Null channel" : $"({channel.Guild.Id}) {channel.Id}, {channel.Name}";
-                LogsHandler.Instance.Log("Crashes", $"LeaveChannel crashed. {info}. Stacktrace: {e}");
+                LogService.Instance.Log("Crashes", $"LeaveChannel crashed. {info}. Stacktrace: {e}");
             }
         }
 
@@ -88,7 +89,7 @@ namespace Logic.Handlers
             {
                 if (!httpException.Message.Contains("error 50013: Missing Permissions"))
                 {
-                    LogsHandler.Instance.Log("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
+                    LogService.Instance.Log("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
                     return;
                 }
 
@@ -98,13 +99,13 @@ namespace Logic.Handlers
             catch (Exception e)
             {
                 var info = channel == null ? "Null channel" : $"({channel.Guild.Id}) {channel.Id}, {channel.Name}";
-                LogsHandler.Instance.Log("Crashes", $"JoinChannel crashed. {info}. Stacktrace: {e}");
+                LogService.Instance.Log("Crashes", $"JoinChannel crashed. {info}. Stacktrace: {e}");
             }
         }
 
         private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
         {
-            LogsHandler.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
+            LogService.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
             var newChannel = await channel.Guild.CreateVoiceChannelAsync(string.Format(name, user.Nickname().ToPossessive()), p =>
             {
                 p.Bitrate = channel.Bitrate;

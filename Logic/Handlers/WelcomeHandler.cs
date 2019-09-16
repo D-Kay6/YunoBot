@@ -1,4 +1,5 @@
-﻿using DalFactory;
+﻿using System;
+using DalFactory;
 using Discord.WebSocket;
 using IDal.Interfaces.Database;
 using System.Threading.Tasks;
@@ -6,16 +7,18 @@ using Logic.Extensions;
 
 namespace Logic.Handlers
 {
-    public class WelcomeHandler
+    public class WelcomeHandler : BaseHandler
     {
-        private DiscordSocketClient _client;
         private IWelcomeMessage _welcome;
 
-        public async Task Initialize(DiscordSocketClient client)
+        public WelcomeHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
         {
-            _client = client;
             _welcome = DatabaseFactory.GenerateWelcomeMessage();
-            _client.UserJoined += OnUserJoined;
+        }
+
+        public override async Task Initialize()
+        {
+            Client.UserJoined += OnUserJoined;
         }
 
         private async Task OnUserJoined(SocketGuildUser user)

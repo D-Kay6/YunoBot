@@ -92,6 +92,7 @@
       <HintPath>..\packages\System.Collections.Immutable.1.6.0-preview8.19405.3\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Deployment" />
     <Reference Include="System.Interactive.Async, Version=3.2.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Interactive.Async.3.2.0\lib\net46\System.Interactive.Async.dll</HintPath>
     </Reference>
@@ -135,10 +136,9 @@
     <Compile Include="Handlers\CommandHandler.cs" />
     <Compile Include="Handlers\DatabaseHandler.cs" />
     <Compile Include="Handlers\DblHandler.cs" />
-    <Compile Include="Handlers\LogsHandler.cs" />
-    <Compile Include="Handlers\RestartHandler.cs" />
     <Compile Include="Handlers\RoleHandler.cs" />
     <Compile Include="Handlers\StatusHandler.cs" />
+    <Compile Include="Handlers\UpdateHandler.cs" />
     <Compile Include="Handlers\WelcomeHandler.cs" />
     <Compile Include="Localization\Localization.cs" />
     <Compile Include="Modules\LocalizationModule.cs" />
@@ -161,10 +161,12 @@
     <Compile Include="Modules\RestartModule.cs" />
     <Compile Include="Modules\WelcomeModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Logs\LogService.cs" />
-    <Compile Include="Services\Music\AudioService.cs" />
+    <Compile Include="Services\LogService.cs" />
+    <Compile Include="Services\AudioService.cs" />
     <Compile Include="Services\Music\IPlayable.cs" />
     <Compile Include="Services\Music\Song.cs" />
+    <Compile Include="Services\RestartService.cs" />
+    <Compile Include="Services\UpdateService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

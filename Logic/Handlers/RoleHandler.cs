@@ -6,19 +6,22 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Logic.Extensions;
+using Logic.Services;
 
 namespace Logic.Handlers
 {
-    public class RoleHandler
+    public class RoleHandler : BaseHandler
     {
-        private DiscordSocketClient _client;
         private IAutoRole _autoRole;
 
-        public async Task Initialize(DiscordSocketClient client, IServiceProvider services)
+        public RoleHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
         {
-            _client = client;
             _autoRole = DatabaseFactory.GenerateAutoRole();
-            _client.GuildMemberUpdated += GuildMemberUpdated;
+        }
+
+        public override async Task Initialize()
+        {
+            Client.GuildMemberUpdated += GuildMemberUpdated;
         }
 
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)
@@ -38,7 +41,7 @@ namespace Logic.Handlers
             foreach (var role in roles)
             {
                 await user.RemoveRoleAsync(role);
-                LogsHandler.Instance.Log("Roles", user.Guild, $"{user.Nickname()} lost role `{role.Name}`.");
+                LogService.Instance.Log("Roles", user.Guild, $"{user.Nickname()} lost role `{role.Name}`.");
             }
         }
 
@@ -55,7 +58,7 @@ namespace Logic.Handlers
                 if (!role.Name.StartsWith(roleData.AutoPrefix, StringComparison.OrdinalIgnoreCase) &&
                     !role.Name.StartsWith(roleData.PermaPrefix, StringComparison.OrdinalIgnoreCase)) continue;
                 await user.AddRoleAsync(role);
-                LogsHandler.Instance.Log("Roles", user.Guild, $"{user.Nickname()} got role `{role.Name}`.");
+                LogService.Instance.Log("Roles", user.Guild, $"{user.Nickname()} got role `{role.Name}`.");
             }
         }
     }
