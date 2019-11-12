@@ -211,8 +211,8 @@ I am constantly updated with new features so keep an eye on this page.",
 		"Help prefix title": "These are the commands for 'prefix'.",
 		"Help prefix": "{0}prefix - Show the command prefix for this server.
 {0}prefix set <new prefix> - Change the command prefix for this server.",
-		"Help prefix title": "These are the commands for 'prefix'.",
-		"Help prefix": "{0}language - Show the currently displayed language.
+		"Help language title": "These are the commands for 'prefix'.",
+		"Help language": "{0}language - Show the currently displayed language.
 {0}language set <language> - Change the command prefix for this server.",
 		"Help welcome title": "These are the commands for 'welcome'.",
 		"Help welcome": "{0}welcome <username, username, etc> - Send a welcome message to one or multiple users.
@@ -245,11 +245,8 @@ I am constantly updated with new features so keep an eye on this page.",
 		"Help permarole": "{0}permarole - Show information about permaroles.
 {0}permarole prefix - Show the current prefix for permaroles.
 {0}permarole prefix set <new prefix> - Change the prefix for permaroles.",
-		
-     
     "Help roleignore": "",     
-    "Help roleignore": "",     
-    "Help permarole": "",
+    "Help roleignore": "",
   },
 	"UserPraises": [
         "Good job, {0}. You deserve a :cookie:.",

@@ -4,6 +4,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System.Linq;
 using System.Threading.Tasks;
+using IDal.Interfaces.Database;
+using IDal.Structs.Database;
 using Logic.Extensions;
 using Logic.Services;
 
@@ -14,10 +16,14 @@ namespace Logic.Modules
     public class WelcomeModule : ModuleBase<SocketCommandContext>
     {
         private Localization.Localization _lang;
+        private IWelcomeMessage _connection;
+        private WelcomeData _settings;
 
         protected override void BeforeExecute(CommandInfo command)
         {
             _lang = new Localization.Localization(Context.Guild.Id);
+            _connection = DatabaseFactory.GenerateWelcomeMessage();
+            _settings = _connection.GetWelcomeMessage(Context.Guild.Id);
             base.BeforeExecute(command);
         }
 
@@ -26,6 +32,18 @@ namespace Logic.Modules
         public async Task DefaultWelcome([Remainder] string name)
         {
             await ReplyAsync(_lang.GetMessage("Unknown user", name));
+        }
+
+        [Priority(-1)]
+        [Command]
+        public async Task DefaultWelcome()
+        {
+            if (_settings == null)
+            {
+                await ReplyAsync(_lang.GetMessage("Welcome exception"));
+                return;
+            }
+            await ReplyAsync(_lang.GetMessage("Unknown user", ""));
         }
         
         [Command]

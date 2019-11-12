@@ -43,34 +43,6 @@ namespace Logic.Handlers
                 var argPos = 0;
                 if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
 
-                if (s.Author.Id.Equals(255453041531158538))
-                {
-                    var command = s.Content.Substring(argPos).ToLower();
-                    switch (command)
-                    {
-                        case "commands":
-                            var commands = "";
-                            _service.Commands.Foreach(async x =>
-                            {
-                                commands += x.Name;
-                                commands += "\n";
-                            });
-
-                            await s.Channel.SendMessageAsync(commands);
-                            return;
-                        case "modules":
-                            var modules = "";
-                            _service.Modules.Foreach(async x =>
-                            {
-                                modules += x.Name;
-                                if (x.Parent != null) modules += $", {x.Parent}";
-                                modules += "\n";
-                            });
-                            await s.Channel.SendMessageAsync(modules);
-                            return;
-                    }
-                }
-
                 LogService.Instance.Log("Commands", context.Guild, $"{context.User.Username} executed command '{context.Message}'.");
                 var result = await _service.ExecuteAsync(context, argPos, _serviceProvider);
                 if (result.IsSuccess) return;

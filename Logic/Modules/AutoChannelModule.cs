@@ -56,7 +56,7 @@ namespace Logic.Modules
                     return;
                 }
                 autoChannel.SetAutoPrefix(Context.Guild.Id, message);
-                await ReplyAsync(_lang.GetMessage("Autochannel prefix information", message));
+                await ReplyAsync(_lang.GetMessage("Autochannel prefix set", message));
             }
         }
         
