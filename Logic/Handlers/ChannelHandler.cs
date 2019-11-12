@@ -9,17 +9,19 @@ using System.Threading.Tasks;
 using Discord.Net;
 using Logic.Extensions;
 using Logic.Services;
-using Logic.Services.Music;
 
 namespace Logic.Handlers
 {
     public class ChannelHandler : BaseHandler
     {
+        private AudioService _audioService;
+
         private HashSet<ulong> _channels;
         private IAutoChannel _autoChannel;
         
-        public ChannelHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
+        public ChannelHandler(DiscordSocketClient client, AudioService audioService) : base(client)
         {
+            _audioService = audioService;
             _channels = new HashSet<ulong>();
             _autoChannel = DatabaseFactory.GenerateAutoChannel();
         }
@@ -44,10 +46,9 @@ namespace Logic.Handlers
                 if (channel.Users.Count > 0)
                 {
                     if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(Client.CurrentUser.Id)) return;
-                    var audioService = (AudioService)ServiceProvider.GetService(typeof(AudioService));
-                    audioService.BeforeExecute(channel.Guild.Id);
-                    await audioService.TextChannel.SendMessageAsync(lang.GetMessage("Channel musicplayer stopped"));
-                    await audioService.Stop();
+                    _audioService.BeforeExecute(channel.Guild);
+                    await _audioService.TextChannel.SendMessageAsync(lang.GetMessage("Channel musicplayer stopped"));
+                    await _audioService.Stop();
                     return;
                 }
 

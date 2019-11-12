@@ -8,7 +8,6 @@ namespace Logic.Modules
 {
     [Alias("ar")]
     [Group("autorole")]
-    [RequireUserPermission(GuildPermission.Administrator)]
     public class AutoRoleModule : ModuleBase<SocketCommandContext>
     {
         private Localization.Localization _lang;
@@ -20,12 +19,14 @@ namespace Logic.Modules
         }
 
         [Command]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DefaultAutoRole()
         {
             await ReplyAsync(_lang.GetMessage("Autorole default"));
         }
 
         [Group("prefix")]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public class AutoChannelPrefixModule : ModuleBase<SocketCommandContext>
         {
             private Localization.Localization _lang;
@@ -55,6 +56,54 @@ namespace Logic.Modules
                 }
                 autoRole.SetAutoPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_lang.GetMessage("Autorole prefix set", message));
+            }
+        }
+
+        [Group("ignore")]
+        public class AutoChannelIgnoreModule : ModuleBase<SocketCommandContext>
+        {
+            private Localization.Localization _lang;
+
+            protected override void BeforeExecute(CommandInfo command)
+            {
+                _lang = new Localization.Localization(Context.Guild.Id);
+                base.BeforeExecute(command);
+            }
+
+            [Command]
+            public async Task DefaultAutoRoleIgnore()
+            {
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                var activity = autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id) ? "on" : "off";
+                await ReplyAsync(_lang.GetMessage($"RoleIgnore default {activity}"));
+            }
+
+            [Command("on")]
+            public async Task AutoRoleIgnoreOn()
+            {
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                if (autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id))
+                {
+                    await ReplyAsync(_lang.GetMessage($"RoleIgnore is on"));
+                    return;
+                }
+
+                autoRole.AddRoleIgnore(Context.Guild.Id, Context.User.Id);
+                await ReplyAsync(_lang.GetMessage($"RoleIgnore turned on"));
+            }
+
+            [Command("off")]
+            public async Task AutoRoleIgnoreOff()
+            {
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                if (!autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id))
+                {
+                    await ReplyAsync(_lang.GetMessage($"RoleIgnore is off"));
+                    return;
+                }
+
+                autoRole.RemoveRoleIgnore(Context.Guild.Id, Context.User.Id);
+                await ReplyAsync(_lang.GetMessage($"RoleIgnore turned off"));
             }
         }
     }

@@ -11,5 +11,9 @@ namespace IDal.Interfaces.Database
         bool SetPermaPrefix(ulong serverId, string prefix);
 
         RoleData GetData(ulong serverId);
+
+        bool IsRoleIgnore(ulong serverId, ulong playerId);
+        bool AddRoleIgnore(ulong serverId, ulong playerId);
+        bool RemoveRoleIgnore(ulong serverId, ulong playerId);
     }
 }

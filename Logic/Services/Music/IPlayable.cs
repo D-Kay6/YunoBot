@@ -1,10 +1,10 @@
-﻿using Discord;
-using Victoria.Entities;
-using Victoria.Queue;
+﻿using System;
+using Discord;
+using Victoria;
 
 namespace Logic.Services.Music
 {
-    public interface IPlayable : IQueueObject
+    public interface IPlayable
     {
         LavaTrack Track { get; }
 

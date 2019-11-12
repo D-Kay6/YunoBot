@@ -11,7 +11,7 @@ namespace Logic.Handlers
         private Timer _timer;
         private Random _random;
 
-        public StatusHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
+        public StatusHandler(DiscordSocketClient client) : base(client)
         {
             _timer = new Timer { Interval = TimeSpan.FromMinutes(5).TotalMilliseconds };
             _random = new Random();
@@ -19,10 +19,14 @@ namespace Logic.Handlers
 
         public override async Task Initialize()
         {
+            Client.Ready += OnReady;
             _timer.Elapsed += OnTick;
-            _timer.Start();
+        }
 
+        private async Task OnReady()
+        {
             await RandomizeActivity();
+            _timer.Start();
         }
 
         private async void OnTick(object sender, ElapsedEventArgs e)

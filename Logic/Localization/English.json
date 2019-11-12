@@ -1,30 +1,30 @@
 {
-	"Messages": {
-		"Invalid user": "I could not find a user by the name of `{0}`.",
-		"Invalid role": "I could not find a role with the name `{0}`.",
-		"Invalid message": "I cannot send an empty message.",
-		"Invalid ac/pc prefix": "I am not able to use the same prefix for both autochannels and permachannels.",
-		"Invalid ar/pr prefix": "I am not able to use the same prefix for both autoroles and permaroles.",
+  "Messages": {
+    "Invalid user": "I could not find a user by the name of `{0}`.",
+    "Invalid role": "I could not find a role with the name `{0}`.",
+    "Invalid message": "I cannot send an empty message.",
+    "Invalid ac/pc prefix": "I am not able to use the same prefix for both autochannels and permachannels.",
+    "Invalid ar/pr prefix": "I am not able to use the same prefix for both autoroles and permaroles.",
 		
-		"Channel no permission": "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
-Either remove the prefix from `{1}` or give me the `Manage channels` permission.",
-		"Channel musicplayer stopped": "The music player was stopped.
-All users have left the voice channel.",
+    "Channel no permission": "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
+    Either remove the prefix from `{1}` or give me the `Manage channels` permission.",
+    "Channel musicplayer stopped": "The music player was stopped.
+    All users have left the voice channel.",
 
-		"Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
-		"Command invalid arguments": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
-		"Command invalid": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
+    "Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
+    "Command invalid arguments": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
+    "Command invalid": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
 		
-		"Autochannel default": "Autochannels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
-These autochannels are voice channels that have a prefix in their name, so I can recognize them.
-When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the autochannel is in.
-I will also give the user permission to modify the channel.
-Once everything's done I will move the user to the new channel.
-When all users have left the generated voice channel, I will remove it.
+    "Autochannel default": "Autochannels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
+    These autochannels are voice channels that have a prefix in their name, so I can recognize them.
+    When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the autochannel is in.
+    I will also give the user permission to modify the channel.
+    Once everything's done I will move the user to the new channel.
+    When all users have left the generated voice channel, I will remove it.
 
-When setting up an autochannel, you need to make sure I have at least the `manage channels` permission.
-If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
-Create a channel with the autochannel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
+    When setting up an autochannel, you need to make sure I have at least the `manage channels` permission.
+    If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
+    Create a channel with the autochannel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
 You can set-up your own prefix for autochannels with `/autochannel prefix set <prefix>`.
 
 You can customize the name generated channels have with `/autochannel name set <name>`.
@@ -80,13 +80,20 @@ Create a role with the permarole prefix (you can get this through `/permarole pr
 You can set-up your own prefix for permaroles with `/permarole prefix set <prefix>`.",
 		"Permarole prefix default": "The current permarole prefix for this server is `{0}`.
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
-		"Permarole prefix set": "The new permarole prefix is `{0}`.",
+    "Permarole prefix set": "The new permarole prefix is `{0}`.",
+
+		"RoleIgone default on": "You are not registered to gain either ",
+		"RoleIgone default off": "You are registered to be assigned both auto- and permaroles.",
+		"RoleIgone is on": "You already do not receive automated roles.",
+		"RoleIgone is off": "You do not receive automated roles.",
+		"RoleIgone turned on": "You no longer will be assigned automated roles.",
+		"RoleIgone turned off": "You are registered to receive automated roles.",
 		
 		"Birthday default": "Hooray! It's our little {0} birthday!
 
 Happy Birthday to You :notes:
 Happy Birthday to You
-Happy Birthday Dear {name} :notes:
+Happy Birthday Dear {1} :notes:
 Happy Birthday to You.
 
 From good friends and true, :notes:
@@ -124,6 +131,7 @@ If you want your language to be supported or help improve an already existing tr
 		"Music queue remaining": "There are {0} more songs in queue.",
 		"Music current empty": "I am not playing any music.",
 		"Music current item": "Now playing `{0}`.",
+		"Music skipped": "Skipped `{0}` song(s).",
 		"Music shuffle": "Shuffling...",
 		"Music shuffled": "The queue has been shuffled.",
 		"Music stop": "The music player was stopped.",
@@ -193,6 +201,7 @@ I am constantly updated with new features so keep an eye on this page.",
 {0}music volume <value> - Change my music volume. (admin only)
 {0}music shuffle - Shuffle all the songs in the queue.
 {0}music skip - Skip the song currently playing.
+{0}music skip <amount> - Skip the given amount of songs.
 {0}music clear - Remove all songs from the queue.
 {0}music stop - Stop playing music and remove all songs from the queue.",
 		"Help request title": "These are the commands for 'request'.",
@@ -228,12 +237,20 @@ I am constantly updated with new features so keep an eye on this page.",
 		"Help autorole title": "These are the commands for 'autorole'.",
 		"Help autorole": "{0}autorole - Show information about autoroles.
 {0}autorole prefix - Show the current prefix for autoroles.
-{0}autorole prefix set <new prefix> - Change the prefix for autoroles.",
+{0}autorole prefix set <new prefix> - Change the prefix for autoroles.
+{0}autorole ignore - Display your current status on ignoring automated roles.
+{0}autorole ignore on - Turn your current status to ignore automated roles.
+{0}autorole ignore off - Turn your current status to acceps automated roles.",
 		"Help permarole title": "These are the commands for 'permarole'.",
 		"Help permarole": "{0}permarole - Show information about permaroles.
 {0}permarole prefix - Show the current prefix for permaroles.
 {0}permarole prefix set <new prefix> - Change the prefix for permaroles.",
-	},
+		
+     
+    "Help roleignore": "",     
+    "Help roleignore": "",     
+    "Help permarole": "",
+  },
 	"UserPraises": [
         "Good job, {0}. You deserve a :cookie:.",
         "{0}, you’re off to great places, today is your day. Your mountain is waiting, so get on your way.",

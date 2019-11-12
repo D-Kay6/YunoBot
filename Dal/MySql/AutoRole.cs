@@ -149,5 +149,80 @@ namespace Dal.MySql
                 }
             }
         }
+
+        public bool IsRoleIgnore(ulong serverId, ulong playerId)
+        {
+            using (var con = _connection.CreateConnection())
+            {
+                try
+                {
+                    var command = new MySqlCommand("IsRoleIgnore", con);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ServerId", serverId);
+                    command.Parameters.AddWithValue("@PlayerId", playerId);
+                    con.Open();
+                    return (long)command.ExecuteScalar() > 0;
+                }
+                catch (MySqlException e)
+                {
+                    Console.WriteLine($"Could not check role ignore. {e}");
+                    return false;
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        public bool AddRoleIgnore(ulong serverId, ulong playerId)
+        {
+            using (var con = _connection.CreateConnection())
+            {
+                try
+                {
+                    var command = new MySqlCommand("AddRoleIgnore", con);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ServerId", serverId);
+                    command.Parameters.AddWithValue("@PlayerId", playerId);
+                    con.Open();
+                    return command.ExecuteNonQuery() > 0;
+                }
+                catch (MySqlException e)
+                {
+                    Console.WriteLine($"Could not add role ignore. {e}");
+                    return false;
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        public bool RemoveRoleIgnore(ulong serverId, ulong playerId)
+        {
+            using (var con = _connection.CreateConnection())
+            {
+                try
+                {
+                    var command = new MySqlCommand("RemoveRoleIgnore", con);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ServerId", serverId);
+                    command.Parameters.AddWithValue("@PlayerId", playerId);
+                    con.Open();
+                    return command.ExecuteNonQuery() > 0;
+                }
+                catch (MySqlException e)
+                {
+                    Console.WriteLine($"Could not remove role ignore. {e}");
+                    return false;
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
+        }
     }
 }

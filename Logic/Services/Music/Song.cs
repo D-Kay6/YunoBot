@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Victoria.Entities;
+using Victoria;
 
 namespace Logic.Services.Music
 {
@@ -13,7 +13,7 @@ namespace Logic.Services.Music
             Guild = context.Guild;
             Requester = (SocketGuildUser) context.User;
             TextChannel = context.Channel as ITextChannel;
-            DurationString = track.Length.ToString();
+            DurationString = track.Duration.ToString();
             Volume = volume;
         }
 

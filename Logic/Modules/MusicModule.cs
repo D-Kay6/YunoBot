@@ -6,25 +6,25 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Logic.Services.Music;
-using Victoria.Entities;
+using Victoria.Enums;
 
 namespace Logic.Modules
 {
     [Group("music")]
     public class MusicModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        private AudioService AudioService { get; }
+
         public MusicModule(AudioService audioService)
         {
             AudioService = audioService;
         }
 
-        private AudioService AudioService { get; }
-
-        private Localization.Localization _lang;
-
         protected override void BeforeExecute(CommandInfo command)
         {
-            AudioService.BeforeExecute(Context.Guild.Id);
+            AudioService.BeforeExecute(Context.Guild);
             _lang = new Localization.Localization(Context.Guild.Id);
             base.BeforeExecute(command);
         }
@@ -59,7 +59,7 @@ namespace Logic.Modules
                 case LoadType.PlaylistLoaded:
                     var user = (SocketGuildUser) Context.User;
                     await AudioService.Queue(result.Tracks.Select(t => new Song(t, Context)), user.VoiceChannel);
-                    await Context.Channel.SendMessageAsync(_lang.GetMessage("Music queued playlist", result.Tracks.Count()));
+                    await Context.Channel.SendMessageAsync(_lang.GetMessage("Music queued playlist", result.Tracks.Count));
                     break;
                 case LoadType.NoMatches:
                     await ReplyAsync(_lang.GetMessage("Music invalid song"));
@@ -99,6 +99,21 @@ namespace Logic.Modules
             if (!await CanPerform()) return;
 
             await AudioService.Skip();
+        }
+
+        [Command("skip")]
+        public async Task MusicSkip(int amount)
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync(_lang.GetMessage("Music not active"));
+                return;
+            }
+
+            if (!await CanPerform()) return;
+
+            await AudioService.Skip(amount);
+            await ReplyAsync(_lang.GetMessage("Music skipped", amount));
         }
 
         [Command("stop")]
@@ -157,7 +172,7 @@ namespace Logic.Modules
             var msg = "";
             foreach (var item in queue)
             {
-                msg += _lang.GetMessage("Music queue item", position, item.Track.Title, item.Track.Length);
+                msg += _lang.GetMessage("Music queue item", position, item.Track.Title, item.Track.Duration);
                 msg += "\n";
                 if (position >= 15) break;
                 position++;
@@ -196,7 +211,7 @@ namespace Logic.Modules
 
         [Command("volume")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task MusicVolume(int volume)
+        public async Task MusicVolume(ushort volume)
         {
             if (!AudioService.IsPlaying)
             {
@@ -206,7 +221,6 @@ namespace Logic.Modules
 
             if (!await CanPerform()) return;
             if (volume > 150) volume = 150;
-            if (volume < 0) volume = 0;
             await AudioService.ChangeVolume(volume);
 
             await ReplyAsync(_lang.GetMessage("Music volume", volume));

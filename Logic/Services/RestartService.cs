@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+//using System.Deployment.Application;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
-using Logic.Handlers;
 
 namespace Logic.Services
 {
@@ -18,6 +20,15 @@ namespace Logic.Services
         public void Restart()
         {
             _restartToken.Cancel();
+        }
+
+        public void HardRestart()
+        {
+            //var path = ApplicationDeployment.CurrentDeployment.UpdatedApplicationFullName.Split('#')[0];
+            //path = path.Remove(0, 8);
+            //Console.WriteLine(path);
+            //Process.Start(path);
+            //this.Shutdown();
         }
 
         public void Shutdown()

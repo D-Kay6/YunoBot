@@ -6,7 +6,7 @@ namespace Dal.Text
 {
     public class Logs : ILogs
     {
-        private const string Directory = "Logs";
+        private string Directory => Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents", "Yuno Bot", "Logs");
 
         private TextStream _stream = new TextStream();
 

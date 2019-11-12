@@ -26,6 +26,14 @@ namespace Logic.Modules
             Service.Restart();
         }
 
+        [Command("hardrestart")]
+        public async Task RestartHardCommand()
+        {
+            await Context.Message.DeleteAsync();
+            await ReplyAsync(_lang.GetMessage("Restart default"));
+            Service.HardRestart();
+        }
+
         [Command("shutdown")]
         public async Task ShutdownCommand()
         {

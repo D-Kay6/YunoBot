@@ -10,9 +10,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Logic.Services.Music;
-using Serilog;
-using Serilog.Core;
 
 namespace Logic
 {
@@ -22,7 +19,7 @@ namespace Logic
 
         private DiscordSocketClient _client;
 
-        private readonly UpdateHandler _updateHandler;
+        //private readonly UpdateHandler _updateHandler;
         private readonly StatusHandler _statusHandler;
         private readonly DatabaseHandler _databaseHandler;
         private readonly CommandHandler _commandHandler;
@@ -44,17 +41,19 @@ namespace Logic
             {
                 LogLevel = LogSeverity.Verbose
             });
+            _client.Log += Log;
+            _client.Ready += OnReady;
 
             _services = GenerateServiceProvider();
 
-            _updateHandler = new UpdateHandler(_client, _services);
-            _statusHandler = new StatusHandler(_client, _services);
-            _databaseHandler = new DatabaseHandler(_client, _services);
-            _commandHandler = new CommandHandler(_client, _services);
-            _dblHandler = new DblHandler(_client, _services, _config.Read());
-            _channelHandler = new ChannelHandler(_client, _services);
-            _roleHandler = new RoleHandler(_client, _services);
-            _welcomeHandler = new WelcomeHandler(_client, _services);
+            //_updateHandler = ActivatorUtilities.CreateInstance<UpdateHandler>(_services);
+            _statusHandler = ActivatorUtilities.CreateInstance<StatusHandler>(_services);
+            _databaseHandler = ActivatorUtilities.CreateInstance<DatabaseHandler>(_services);
+            _commandHandler = ActivatorUtilities.CreateInstance<CommandHandler>(_services);
+            _dblHandler = ActivatorUtilities.CreateInstance<DblHandler>(_services);
+            _channelHandler = ActivatorUtilities.CreateInstance<ChannelHandler>(_services);
+            _roleHandler = ActivatorUtilities.CreateInstance<RoleHandler>(_services);
+            _welcomeHandler = ActivatorUtilities.CreateInstance<WelcomeHandler>(_services);
         }
 
         /// <summary>
@@ -63,6 +62,7 @@ namespace Logic
         public async Task Start()
         {
             var restartService = _services.GetService<RestartService>();
+            await PrepareHandlers();
 
             while (restartService.KeepAlive)
             {
@@ -71,9 +71,6 @@ namespace Logic
                     DownloadPrerequisites();
                     var config = _config.Read();
                     if (string.IsNullOrWhiteSpace(config.Token)) return;
-
-                    _client.Log += Log;
-                    _client.Ready += OnReady;
                     
                     await _client.LoginAsync(TokenType.Bot, config.Token);
                     await _client.StartAsync();
@@ -94,13 +91,19 @@ namespace Logic
         private ServiceProvider GenerateServiceProvider()
         {
             var serviceCollection = new ServiceCollection();
+
             var log = new LogService();
             var restart = new RestartService();
+            //var update = new UpdateService(log, restart);
+            var audio = new AudioService(_client);
+
+            serviceCollection.AddSingleton(_client);
+            serviceCollection.AddSingleton(_config.Read());
 
             serviceCollection.AddSingleton(log);
             serviceCollection.AddSingleton(restart);
-            serviceCollection.AddSingleton(new UpdateService(log, restart));
-            serviceCollection.AddSingleton(new AudioService(_client));
+            //serviceCollection.AddSingleton(update);
+            serviceCollection.AddSingleton(audio);
 
             return serviceCollection.BuildServiceProvider();
         }
@@ -117,12 +120,9 @@ namespace Logic
             }
         }
 
-        private async Task OnReady()
+        private async Task PrepareHandlers()
         {
-            var shartCount = await _client.GetRecommendedShardCountAsync();
-            if (shartCount > 1) LogService.Instance.Log("Main", $"Probably time to think about creating shards. {shartCount}");
-            
-            await _updateHandler.Initialize();
+            //await _updateHandler.Initialize();
             await _statusHandler.Initialize();
             await _databaseHandler.Initialize();
             await _commandHandler.Initialize();
@@ -130,6 +130,12 @@ namespace Logic
             await _channelHandler.Initialize();
             await _roleHandler.Initialize();
             await _welcomeHandler.Initialize();
+        }
+
+        private async Task OnReady()
+        {
+            var shartCount = await _client.GetRecommendedShardCountAsync();
+            if (shartCount > 1) LogService.Instance.Log("Main", $"Probably time to think about creating shards. {shartCount}");
         }
 
         private async Task Log(LogMessage msg)

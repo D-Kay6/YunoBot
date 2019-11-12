@@ -86,7 +86,7 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 
 Happy Birthday to You :notes:
 Happy Birthday to You
-Happy Birthday Dear {name} :notes:
+Happy Birthday Dear {1} :notes:
 Happy Birthday to You.
 
 From good friends and true, :notes:
@@ -123,6 +123,7 @@ If you want your language to be supported, come to my support server.",
 		"Music queue remaining": "Er zijn nog {0} meer liederen in de wachtrij.",
 		"Music current empty": "Ik speel nu geen muziek af.",
 		"Music current item": "`{0}` is nu aan het afspelen.",
+		"Music skipped": "`{0}` lied(eren) overgeslagen.",
 		"Music shuffle": "Mixen...",
 		"Music shuffled": "De wachtrij is door elkaar gehaald.",
 		"Music stop": "De muziekspeler is stopgezet.",
@@ -192,6 +193,7 @@ I am constantly updated with new features so keep an eye on this page.",
 {0}music volume <value> - Change my music volume. (admin only)
 {0}music shuffle - Shuffle all the songs in the queue.
 {0}music skip - Skip the song currently playing.
+{0}music skip <amount> - Skip the given amount of songs.
 {0}music clear - Remove all songs from the queue.
 {0}music stop - Stop playing music and remove all songs from the queue.",
 		"Help request title": "These are the commands for 'request'.",

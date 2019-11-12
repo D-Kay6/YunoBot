@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace IDal.Structs.Database
+﻿namespace IDal.Structs.Database
 {
     public class RoleData
     {

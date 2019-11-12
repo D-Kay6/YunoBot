@@ -14,7 +14,7 @@ namespace Logic.Handlers
     {
         private IAutoRole _autoRole;
 
-        public RoleHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
+        public RoleHandler(DiscordSocketClient client) : base(client)
         {
             _autoRole = DatabaseFactory.GenerateAutoRole();
         }
@@ -34,7 +34,6 @@ namespace Logic.Handlers
         private async Task RemoveRole(SocketGuildUser user)
         {
             if (user.Activity == null) return;
-            if (user.Activity.Type != ActivityType.Playing) return;
             var roleData = _autoRole.GetData(user.Guild.Id);
             var game = user.Activity.Name;
             var roles = user.Roles.Where(r => r.Name.StartsWith(roleData.AutoPrefix, StringComparison.OrdinalIgnoreCase) && r.Name.ContainsIgnoreCase(game));
@@ -47,6 +46,7 @@ namespace Logic.Handlers
 
         private async Task AddRole(SocketGuildUser user)
         {
+            if (_autoRole.IsRoleIgnore(user.Guild.Id, user.Id)) return;
             if (user.Activity == null) return;
             if (user.Activity.Type != ActivityType.Playing) return;
             var roleData = _autoRole.GetData(user.Guild.Id);

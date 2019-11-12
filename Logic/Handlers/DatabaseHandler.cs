@@ -13,20 +13,24 @@ namespace Logic.Handlers
         private readonly IAutoChannel _autoChannel;
         private readonly IAutoRole _autoRole;
 
-        public DatabaseHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
+        public DatabaseHandler(DiscordSocketClient client) : base(client)
         {
-            this.Client = client;
-            this._settings = DatabaseFactory.GenerateServerSettings();
-            this._autoChannel = DatabaseFactory.GenerateAutoChannel();
-            this._autoRole = DatabaseFactory.GenerateAutoRole();
+            Client = client;
+            _settings = DatabaseFactory.GenerateServerSettings();
+            _autoChannel = DatabaseFactory.GenerateAutoChannel();
+            _autoRole = DatabaseFactory.GenerateAutoRole();
         }
 
         public override async Task Initialize()
         {
-            this.Client.JoinedGuild += OnGuildJoined;
-            this.Client.LeftGuild += OnGuildLeft;
-            this.Client.GuildUpdated += OnGuildUpdated;
+            Client.Ready += OnReady;
+            Client.JoinedGuild += OnGuildJoined;
+            Client.LeftGuild += OnGuildLeft;
+            Client.GuildUpdated += OnGuildUpdated;
+        }
 
+        private async Task OnReady()
+        {
             await UpdateServers();
         }
 

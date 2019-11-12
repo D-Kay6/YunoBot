@@ -11,7 +11,7 @@ namespace Logic.Handlers
     {
         private IWelcomeMessage _welcome;
 
-        public WelcomeHandler(DiscordSocketClient client, IServiceProvider serviceProvider) : base(client, serviceProvider)
+        public WelcomeHandler(DiscordSocketClient client) : base(client)
         {
             _welcome = DatabaseFactory.GenerateWelcomeMessage();
         }

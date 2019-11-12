@@ -10,12 +10,10 @@ namespace Logic.Handlers
     public abstract class BaseHandler
     {
         protected DiscordSocketClient Client;
-        protected IServiceProvider ServiceProvider;
 
-        protected BaseHandler(DiscordSocketClient client, IServiceProvider serviceProvider)
+        protected BaseHandler(DiscordSocketClient client)
         {
             this.Client = client;
-            this.ServiceProvider = serviceProvider;
         }
 
         public abstract Task Initialize();

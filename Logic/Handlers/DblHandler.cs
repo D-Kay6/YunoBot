@@ -11,17 +11,33 @@ namespace Logic.Handlers
     {
         public AuthDiscordBotListApi DblApi { get; private set; }
 
-        public DblHandler(DiscordSocketClient client, IServiceProvider serviceProvider, ConfigData config) : base(client, serviceProvider)
+        public DblHandler(DiscordSocketClient client, ConfigData config) : base(client)
         {
             DblApi = new AuthDiscordBotListApi(config.ClientId, config.DiscordBotsToken);
         }
 
         public override async Task Initialize()
         {
+            Client.Ready += OnReady;
             Client.JoinedGuild += OnGuildJoined;
             Client.LeftGuild += OnGuildLeft;
+        }
 
+        private async Task OnReady()
+        {
             await UpdateGuilds();
+        }
+
+        private async Task OnGuildJoined(SocketGuild guild)
+        {
+            await UpdateGuilds();
+            LogService.Instance.Log("Connections", guild, "Joined.");
+        }
+
+        private async Task OnGuildLeft(SocketGuild guild)
+        {
+            await UpdateGuilds();
+            LogService.Instance.Log("Connections", guild, "Left.");
         }
 
         private async Task UpdateGuilds()
@@ -37,18 +53,6 @@ namespace Logic.Handlers
             {
                 Console.WriteLine($"Could not update guild count. {e.Message}");
             }
-        }
-
-        private async Task OnGuildJoined(SocketGuild guild)
-        {
-            await UpdateGuilds();
-            LogService.Instance.Log("Connections", guild, "Joined.");
-        }
-
-        private async Task OnGuildLeft(SocketGuild guild)
-        {
-            await UpdateGuilds();
-            LogService.Instance.Log("Connections", guild, "Left.");
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Logic.Modules
         [Command]
         public async Task DefaultBirthday([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync(_lang.GetMessage("Invalid user", name));
+            await ReplyAsync(_lang.GetMessage("Invalid user", name));
         }
 
         [Command]
@@ -28,12 +28,12 @@ namespace Logic.Modules
         {
             if (user == null)
             {
-                await Context.Channel.SendMessageAsync(_lang.GetMessage("Invalid user", Context.Message));
+                await ReplyAsync(_lang.GetMessage("Invalid user", Context.Message));
                 return;
             }
 
             var name = user.Nickname();
-            await Context.Channel.SendMessageAsync(_lang.GetMessage("Birthday default", name.ToPossessive()));
+            await ReplyAsync(_lang.GetMessage("Birthday default", name.ToPossessive(), name));
         }
     }
 }
