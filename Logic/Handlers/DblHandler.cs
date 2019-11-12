@@ -1,23 +1,43 @@
 ﻿using Discord.WebSocket;
 using DiscordBotsList.Api;
+using IDal.Structs.Configuration;
 using System;
 using System.Threading.Tasks;
-using IDal.Structs.Configuration;
+using Logic.Services;
 
 namespace Logic.Handlers
 {
-    public class DblHandler
+    public class DblHandler : BaseHandler
     {
-        private DiscordSocketClient _client;
         public AuthDiscordBotListApi DblApi { get; private set; }
 
-        public async Task Initialize(DiscordSocketClient client, ConfigData config)
+        public DblHandler(DiscordSocketClient client, ConfigData config) : base(client)
         {
-            _client = client;
             DblApi = new AuthDiscordBotListApi(config.ClientId, config.DiscordBotsToken);
-            client.Ready += OnClientReady;
-            client.JoinedGuild += OnGuildJoined;
-            client.LeftGuild += OnGuildLeft;
+        }
+
+        public override async Task Initialize()
+        {
+            Client.Ready += OnReady;
+            Client.JoinedGuild += OnGuildJoined;
+            Client.LeftGuild += OnGuildLeft;
+        }
+
+        private async Task OnReady()
+        {
+            await UpdateGuilds();
+        }
+
+        private async Task OnGuildJoined(SocketGuild guild)
+        {
+            await UpdateGuilds();
+            LogService.Instance.Log("Connections", guild, "Joined.");
+        }
+
+        private async Task OnGuildLeft(SocketGuild guild)
+        {
+            await UpdateGuilds();
+            LogService.Instance.Log("Connections", guild, "Left.");
         }
 
         private async Task UpdateGuilds()
@@ -25,29 +45,14 @@ namespace Logic.Handlers
             try
             {
                 var me = await DblApi.GetMeAsync();
-                await me.UpdateStatsAsync(_client.Guilds.Count);
-                await DblApi.UpdateStats(_client.Guilds.Count);
-                Console.WriteLine($"Updating guilds to {_client.Guilds.Count}");
+                await me.UpdateStatsAsync(Client.Guilds.Count);
+                await DblApi.UpdateStats(Client.Guilds.Count);
+                Console.WriteLine($"Updating guilds to {Client.Guilds.Count}");
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Could not update guild count. {e.Message}");
             }
-        }
-
-        private async Task OnClientReady()
-        {
-            await UpdateGuilds();
-        }
-
-        private async Task OnGuildJoined(SocketGuild arg)
-        {
-            await UpdateGuilds();
-        }
-
-        private async Task OnGuildLeft(SocketGuild arg)
-        {
-            await UpdateGuilds();
         }
     }
 }

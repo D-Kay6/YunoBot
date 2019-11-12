@@ -1,34 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Logic.Handlers;
+using System.Threading.Tasks;
+using Logic.Services;
 
 namespace Logic.Modules
 {
     [Group("request")]
     public class RequestModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Command]
         public async Task DefaultRequest()
         {
-            await ReplyAsync("Send some information to me about your idea for a new feature or if you think something needs to be changed.");
+            await ReplyAsync(_lang.GetMessage("Request default"));
         }
 
         [Command("feature")]
         public async Task RequestFeature([Remainder] string message)
         {
-            LogsHandler.Instance.Log("Features", message);
-            await ReplyAsync("Thanks for your submission.");
+            LogService.Instance.Log("Features", message);
+            await ReplyAsync(_lang.GetMessage("Request feature"));
         }
 
         [Command("change")]
         public async Task RequestChange([Remainder] string message)
         {
-            LogsHandler.Instance.Log("Changes", message);
-            await ReplyAsync("Thanks for your submission.");
+            LogService.Instance.Log("Changes", message);
+            await ReplyAsync(_lang.GetMessage("Request change"));
         }
     }
 }

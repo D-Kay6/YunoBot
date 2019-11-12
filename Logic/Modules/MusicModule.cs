@@ -1,29 +1,31 @@
-﻿using System;
-using System.Linq;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Logic.Services;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using Logic.Extentions;
-using Victoria.Entities;
-using SearchResult = Victoria.Entities.SearchResult;
+using Logic.Services.Music;
+using Victoria.Enums;
 
 namespace Logic.Modules
 {
     [Group("music")]
     public class MusicModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        private AudioService AudioService { get; }
+
         public MusicModule(AudioService audioService)
         {
             AudioService = audioService;
         }
 
-        private AudioService AudioService { get; }
-
         protected override void BeforeExecute(CommandInfo command)
         {
-            AudioService.BeforeExecute(Context.Guild.Id);
+            AudioService.BeforeExecute(Context.Guild);
+            _lang = new Localization.Localization(Context.Guild.Id);
             base.BeforeExecute(command);
         }
 
@@ -41,7 +43,7 @@ namespace Logic.Modules
         {
             if (!await CanPerform()) return;
             if (query.Contains("&list=")) query = query.Substring(0, query.IndexOf("&list=", StringComparison.CurrentCulture));
-            var message = await ReplyAsync($"Searching for `{query}`...");
+            var message = await ReplyAsync(_lang.GetMessage("Music search", query));
             var result = await AudioService.GetTracks(query);
             await message.DeleteAsync();
             switch (result.LoadType)
@@ -57,13 +59,13 @@ namespace Logic.Modules
                 case LoadType.PlaylistLoaded:
                     var user = (SocketGuildUser) Context.User;
                     await AudioService.Queue(result.Tracks.Select(t => new Song(t, Context)), user.VoiceChannel);
-                    await Context.Channel.SendMessageAsync($"Queued {result.Tracks.Count()} songs.");
-                    break;
-                case LoadType.LoadFailed:
-                    await ReplyAsync("Something went wrong. Come to the support server if this problem persists.");
+                    await Context.Channel.SendMessageAsync(_lang.GetMessage("Music queued playlist", result.Tracks.Count));
                     break;
                 case LoadType.NoMatches:
-                    await ReplyAsync("I could not find a valid song to play.");
+                    await ReplyAsync(_lang.GetMessage("Music invalid song"));
+                    break;
+                case LoadType.LoadFailed:
+                    await ReplyAsync(_lang.GetMessage("Music exception"));
                     break;
             }
         }
@@ -73,16 +75,16 @@ namespace Logic.Modules
         {
             if (!AudioService.IsPlaying)
             {
-                await ReplyAsync("I'm currently not playing music.");
+                await ReplyAsync(_lang.GetMessage("Music not active"));
                 return;
             }
 
             if (!await CanPerform()) return;
             
-            var notice = await ReplyAsync("Shuffling...");
+            var notice = await ReplyAsync(_lang.GetMessage("Music shuffle"));
             AudioService.Shuffle();
             await notice.DeleteAsync();
-            await ReplyAsync("The queue has been shuffled.");
+            await ReplyAsync(_lang.GetMessage("Music shuffled"));
         }
 
         [Command("skip")]
@@ -90,7 +92,7 @@ namespace Logic.Modules
         {
             if (!AudioService.IsPlaying)
             {
-                await ReplyAsync("I'm currently not playing music.");
+                await ReplyAsync(_lang.GetMessage("Music not active"));
                 return;
             }
 
@@ -99,17 +101,32 @@ namespace Logic.Modules
             await AudioService.Skip();
         }
 
+        [Command("skip")]
+        public async Task MusicSkip(int amount)
+        {
+            if (!AudioService.IsPlaying)
+            {
+                await ReplyAsync(_lang.GetMessage("Music not active"));
+                return;
+            }
+
+            if (!await CanPerform()) return;
+
+            await AudioService.Skip(amount);
+            await ReplyAsync(_lang.GetMessage("Music skipped", amount));
+        }
+
         [Command("stop")]
         public async Task MusicStop()
         {
             if (!AudioService.IsPlaying)
             {
-                await ReplyAsync("I'm currently not playing music.");
+                await ReplyAsync(_lang.GetMessage("Music not active"));
                 return;
             }
 
             if (!await CanPerform()) return;
-            await AudioService.TextChannel.SendMessageAsync("The music player was stopped.");
+            await AudioService.TextChannel.SendMessageAsync(_lang.GetMessage("Music stop"));
             await AudioService.Stop();
         }
 
@@ -118,13 +135,13 @@ namespace Logic.Modules
         {
             if (!AudioService.IsPlaying)
             {
-                await ReplyAsync("I'm currently not playing music.");
+                await ReplyAsync(_lang.GetMessage("Music not active"));
                 return;
             }
 
             if (!await CanPerform()) return;
             AudioService.Clear();
-            await ReplyAsync("Queue cleared :ok_hand:.");
+            await ReplyAsync(_lang.GetMessage("Music clear"));
         }
 
         [Alias("now")]
@@ -132,10 +149,8 @@ namespace Logic.Modules
         public async Task MusicPlaying()
         {
             var currentSong = AudioService.CurrentTrack;
-            if (currentSong == null)
-                await ReplyAsync($"{Context.User.Mention} current queue is empty");
-            else
-                await ReplyAsync($"{Context.User.Mention} now playing `{currentSong.Title}`.");
+            if (currentSong == null) await ReplyAsync(_lang.GetMessage("Music current empty"));
+            else await ReplyAsync(_lang.GetMessage("Music current item", currentSong.Title));
         }
         
         [Command("queue")]
@@ -143,26 +158,27 @@ namespace Logic.Modules
         {
             if (!AudioService.IsPlaying)
             {
-                await ReplyAsync("I'm currently not playing music.");
+                await ReplyAsync(_lang.GetMessage("Music not active"));
                 return;
             }
 
             var queue = AudioService.GetQueue();
             if (!queue.Any())
             {
-                await ReplyAsync("There is no music in the queue. Use /music play to add some music.");
+                await ReplyAsync(_lang.GetMessage("Music queue empty"));
                 return;
             }
             var position = 1;
             var msg = "";
             foreach (var item in queue)
             {
-                msg += $"#{position}  **{item.Track.Title}** (`{item.Track.Length}`).\n";
+                msg += _lang.GetMessage("Music queue item", position, item.Track.Title, item.Track.Duration);
+                msg += "\n";
                 if (position >= 15) break;
                 position++;
             }
             await ReplyAsync(msg);
-            await ReplyAsync($"\nThere are {queue.Count - 15} more songs in queue.");
+            if (queue.Count - 15 > 0) await ReplyAsync(_lang.GetMessage("Music queue remaining", queue.Count - 15));
         }
 
         [Command("pause")]
@@ -170,14 +186,13 @@ namespace Logic.Modules
         {
             if (!AudioService.IsPlaying)
             {
-                await ReplyAsync("I'm currently not playing music.");
+                await ReplyAsync(_lang.GetMessage("Music not active"));
                 return;
             }
 
             if (!await CanPerform()) return;
 
-            if (await AudioService.Pause()) await ReplyAsync("Music player is paused.");
-            else await ReplyAsync("The music player is already paused.");
+            await ReplyAsync(_lang.GetMessage(await AudioService.Pause() ? "Music paused" : "Music is paused"));
         }
 
         [Command("unpause")]
@@ -185,32 +200,30 @@ namespace Logic.Modules
         {
             if (!AudioService.IsPlaying)
             {
-                await ReplyAsync("I'm currently not playing music.");
+                await ReplyAsync(_lang.GetMessage("Music not active"));
                 return;
             }
 
             if (!await CanPerform()) return;
 
-            if (await AudioService.Play()) await ReplyAsync("Music player is un-paused.");
-            else await ReplyAsync("The music player is not paused.");
+            await ReplyAsync(_lang.GetMessage(await AudioService.Play() ? "Music unpaused" : "Music is paused"));
         }
 
         [Command("volume")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task MusicVolume(int volume)
+        public async Task MusicVolume(ushort volume)
         {
             if (!AudioService.IsPlaying)
             {
-                await ReplyAsync("I'm currently not playing music.");
+                await ReplyAsync(_lang.GetMessage("Music not active"));
                 return;
             }
 
             if (!await CanPerform()) return;
-            if (volume > 100) volume = 100;
-            if (volume < 0) volume = 0;
+            if (volume > 150) volume = 150;
             await AudioService.ChangeVolume(volume);
 
-            await ReplyAsync($"Music volume was changed to {volume}.");
+            await ReplyAsync(_lang.GetMessage("Music volume", volume));
         }
 
         private async Task<bool> CanPerform()
@@ -220,12 +233,12 @@ namespace Logic.Modules
             if (voiceChannel != null)
             {
                 if (user?.VoiceChannel != null && voiceChannel.Id.Equals(user.VoiceChannel.Id)) return true;
-                await ReplyAsync("You must be in the same voice channel as me to be able to do this.");
+                await ReplyAsync(_lang.GetMessage("Music channel same"));
                 return false;
             }
 
             if (user?.VoiceChannel != null) return true;
-            await ReplyAsync("You must be in a voice channel to listen to music.");
+            await ReplyAsync(_lang.GetMessage("Music channel none"));
             return false;
         }
     }

@@ -1,14 +1,23 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
-using Logic.Extentions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Modules
 {
     [Group("praise")]
     public class PraiseModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
+        // source: https://www.happier.com/blog/nice-things-to-say-100-compliments/
         private readonly List<string> _groupMessages = new List<string>
         {
             "{0}, you are awesome!",
@@ -43,7 +52,6 @@ namespace Logic.Modules
             "Hanging out with you is always a blast, {0}."*/
         };
 
-        // source: https://www.happier.com/blog/nice-things-to-say-100-compliments/
         private readonly List<string> _soloMessages = new List<string>
         {
             "Good job, {0}. You deserve a :cookie:.",
@@ -157,7 +165,7 @@ namespace Logic.Modules
         [Command]
         public async Task DefaultPraise([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync($"Wait, who do you mean? I cannot find `{name}`.");
+            await Context.Channel.SendMessageAsync(_lang.GetMessage("Invalid user", name));
         }
 
         [Command]
@@ -169,7 +177,7 @@ namespace Logic.Modules
         [Command("role")]
         private async Task PraiseRole([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync($"Wait, who do you mean? I cannot find {name}.");
+            await Context.Channel.SendMessageAsync(_lang.GetMessage("Invalid role", name));
         }
 
         [Command("role")]
@@ -193,16 +201,14 @@ namespace Logic.Modules
                     await PraiseJim();
                     return;
                 default:
-                    var msg = string.Format(_soloMessages.GetRandomItem(), user.Mention);
-                    await ReplyAsync(msg);
+                    await ReplyAsync(string.Format(_lang.GetRandomUserPraise(), user.Mention));
                     return;
             }
         }
 
         private async Task PraiseGroup(SocketRole role)
         {
-            var msg = string.Format(_groupMessages.GetRandomItem(), role.Mention);
-            await ReplyAsync(msg);
+            await ReplyAsync(string.Format(_lang.GetRandomGroupPraise(), role.Mention));
         }
 
         [Command("everyone")]
@@ -218,31 +224,23 @@ namespace Logic.Modules
             await PraiseUser(user);
         }
 
-        [Command("child")]
-        public async Task PraiseChild()
-        {
-            await ReplyAsync("I am not gonna do that. Are you sure you did not mean /kill child?");
-        }
-
-        [Command("satan")]
+        [Command("creator")]
+        [Alias("D-Kay")]
         public async Task PraiseDKay()
         {
-            await ReplyAsync("All hail the bringer of pain and destruction *(and my future husband)*, D-Kay :heart:.",
-                false);
+            await ReplyAsync(_lang.GetMessage("Praise creator"));
         }
 
         [Command("god")]
         public async Task PraiseDemanicus()
         {
-            await ReplyAsync("Wait, are you sure you mean him? Ok then. \nAll hail our lord and savior, Demanicus.",
-                false);
+            await ReplyAsync("Wait, are you sure you mean him? Ok then. \nAll hail our lord and savior, Demanicus.");
         }
 
         [Command("wizard")]
         public async Task PraiseJim()
         {
-            await ReplyAsync(
-                "I cannot imagine he deserves it but, \nAll hail our powerful and destructive wizard, jim.", false);
+            await ReplyAsync("I cannot imagine he deserves it but, \nAll hail our powerful and destructive wizard, jim.");
         }
     }
 }

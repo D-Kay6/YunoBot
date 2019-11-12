@@ -1,6 +1,6 @@
-﻿using Discord;
+﻿using DalFactory;
+using Discord;
 using Discord.Commands;
-using Logic.Data;
 using System.Threading.Tasks;
 
 namespace Logic.Modules
@@ -9,20 +9,27 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class PrefixModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Command]
         public async Task DefaultPrefix()
         {
-            await ReplyAsync(
-                $"The prefix for {Context.Guild.Name} is '{CommandSettings.Load(Context.Guild.Id).Prefix}'.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            await ReplyAsync(_lang.GetMessage("Prefix default", settings.GetCommandPrefix(Context.Guild.Id), Context.Guild.Name));
         }
 
         [Command("set")]
         public async Task PrefixSet([Remainder] string message)
         {
-            var persistence = CommandSettings.Load(Context.Guild.Id);
-            persistence.ChangePrefix(message);
-            await ReplyAsync($"The prefix for {Context.Guild.Name} was changed to '{message}'.");
-            persistence.Save();
+            var settings = DatabaseFactory.GenerateServerSettings();
+            settings.SetCommandPrefix(Context.Guild.Id, message);
+            await ReplyAsync(_lang.GetMessage("Prefix set", message, Context.Guild.Name));
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using System;
-using DalFactory;
+﻿using DalFactory;
 using IDal.Interfaces;
+using System;
 
 namespace Logic.Data
 {

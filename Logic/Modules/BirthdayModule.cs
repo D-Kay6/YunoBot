@@ -1,17 +1,26 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
 using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Modules
 {
     [Group("birthday")]
     public class BirthdayModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Priority(-1)]
         [Command]
         public async Task DefaultBirthday([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync($"Wait, who do you mean? I cannot find `{name}`.");
+            await ReplyAsync(_lang.GetMessage("Invalid user", name));
         }
 
         [Command]
@@ -19,23 +28,12 @@ namespace Logic.Modules
         {
             if (user == null)
             {
-                await Context.Channel.SendMessageAsync($"Wait, who do you mean? I cannot find {Context.Message}.");
+                await ReplyAsync(_lang.GetMessage("Invalid user", Context.Message));
                 return;
             }
 
-            var name = user.Nickname ?? user.Username;
-            var s = name.EndsWith("s") ? "" : "s";
-            await Context.Channel.SendMessageAsync($@"Hooray! It's our little {name}'{s} birthday!
-
-Happy Birthday to You :notes:
-Happy Birthday to You
-Happy Birthday Dear {name} :notes:
-Happy Birthday to You.
-
-From good friends and true, :notes:
-From old friends and new,
-May good luck go with you, :notes:
-And happiness too.");
+            var name = user.Nickname();
+            await ReplyAsync(_lang.GetMessage("Birthday default", name.ToPossessive(), name));
         }
     }
 }

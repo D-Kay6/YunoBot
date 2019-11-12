@@ -1,0 +1,281 @@
+{
+	"Messages": {
+		"Invalid user": "Ik kan geen gebruiker vinden met de naam `{0}`.",
+		"Invalid role": "Ik kan geen rol vinden met de naam `{0}`.",
+		"Invalid message": "Ik kan geen lege berichten sturen.",
+		"Invalid ac/pc prefix": "ik kan niet dezelfde prefix gebruiken voor zowel autochannels als permachannels",
+		"Invalid ar/pr prefix": "ik kan niet dezelfde prefix gebruiken voor zowel autoroles als permaroles.",
+		
+		"Channel no permission": "Het lijkt erop dat je mijn Autochannel of Permachannel feature probeert te gebruiken op je server `{0}`, maar je hebt me niet de rechten gegeven om kanalen te kunnen bewerken.
+Verwijder de prefix van `{1}` of geef me het recht `Manage channels`.",
+		"Channel musicplayer stopped": "De muziekspeler is gestopt.
+Alle gebruikers hebben het spraak kanaal verlaten.",
+		
+		"Command invalid permissions": "Dat kan ik niet doen. Je hebt hier niet de juiste rechten voor.",
+		"Command invalid arguments": "Ehmm... Ik denk dat je ergens een fout hebt gemaakt. Gebruik `{0}help` als je de syntax vergeten bent.",
+		"Command invalid": "Sorry, ik weet niet wat ik daarmee moet doen. Gebruik `{0}help` als je een lijst van mijn commando's nodig hebt.",
+		
+		"Autochannel default": "Auto channels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
+These auto channels are voice channels that have a prefix in their name, so I can recognize them.
+When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the auto channel is in.
+I will also give the user permission to modify the channel.
+Once everything's done I will move the user to the new channel.
+When all users have left the generated voice channel, I will remove it.
+
+When setting up an auto channel, you need to make sure I have at least the `manage channels` permission.
+If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
+Create a channel with the auto channel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
+You can set-up your own prefix for auto channels with `/autochannel prefix set <prefix>`.
+
+You can customize the name generated channels have with `/autochannel name set <name>`.
+You can add `{0}` to fill in the possessive form of the user's name.
+Example:
+/autochannel name set {0} channel
+Result -> D-Kay's channel",
+		"Autochannel prefix default": "The current auto channel prefix is `{0}`.
+You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
+		"Autochannel prefix set": "The new auto channel prefix is `{0}`.",
+		"Autochannel name default": "The current name for auto generated channels is `{0}`.",
+		"Autochannel name set": "The new name for auto generated channels is '{0}'.",
+		"Autochannel delete": "I have removed any voice channels I could find on your server that had `{0}` as name.",
+		
+		"Permachannel default": "Perma channels are for when you want users to be able to have their own channels without having to bother admins.
+These perma channels are voice channels that have a prefix in their name, so I can recognize them.
+When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the perma channel is in.
+I will also give the user permission to modify the channel.
+Once everything's done I will move the user to the new channel.
+Though, unlike auto channels, I will not remove these channels.
+
+When setting up a perma channel, you need to make sure I have at least the `manage channels` permission.
+If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
+Create a channel with the perma channel prefix (you can get this through `/permachannel prefix`) followed by a name of your choosing.
+You can set-up your own prefix for perma channels with `/permachannel prefix set <prefix>`.
+
+You can customize the name generated channels have with `/permachannel name set <name>`.
+You can add `{0}` to fill in the possessive form of the user's name.
+Example:
+/permachannel name set {0} channel
+Result -> D-Kay's channel",
+		"Permachannel prefix default": "The current perma channel prefix for this server is '{0}'.
+You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
+		"Permachannel prefix set": "The new perma channel prefix is '{0}'.",
+		"Permachannel name default": "The current name for perma generated channels is `{0}`.",
+		"Permachannel name set": "The new name for perma generated channels is '{0}'.",
+		
+		"Autorole default": "Auto roles are roles that are temporary granted when a user starts playing a game, and removed when the user stops playing that game.
+
+When setting up auto roles, you need to make sure I have at least the `manage roles` permission.
+If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
+Create a role with the auto role prefix (you can get this through `/autorole prefix`) followed by the exact name of the game as it would appear in the status of a user.
+You can set-up your own prefix for auto roles with `/autorole prefix set <prefix>`.",
+		"Autorole prefix default": "The current auto role prefix is `{0}`.
+You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
+		"Autorole prefix set": "The new auto role prefix is `{0}`.",
+		
+		"Permarole default": "Perma roles are roles that are permanently granted when a user starts playing a game.
+
+When setting up perma roles, you need to make sure I have at least the `manage roles` permission.
+If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
+Create a role with the perma role prefix (you can get this through `/permarole prefix`) followed by the exact name of the game as it would appear in the status of a user.
+You can set-up your own prefix for perma roles with `/permarole prefix set <prefix>`.",
+		"Permarole prefix default": "The current perma role prefix for this server is `{0}`.
+You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
+		"Permarole prefix set": "The new perma role prefix is `{0}`.",
+		
+		"Birthday default": "Hooray! It's our little {0} birthday!
+
+Happy Birthday to You :notes:
+Happy Birthday to You
+Happy Birthday Dear {1} :notes:
+Happy Birthday to You.
+
+From good friends and true, :notes:
+From old friends and new,
+May good luck go with you, :notes:
+And happiness too.",
+		
+		"Invite default": "You can invite me to your server with this link: https://discordapp.com/oauth2/authorize?client_id=286972781273546762&scope=bot&permissions=8.
+For more info on me, go take a look at https://discordbots.org/bot/286972781273546762, or use /help in any of the discord servers I'm in.
+If you're in need of support, come join my support server at 'https://discord.gg/YFqUMDT'.",
+		
+		"Kill default": "Come here {0}. We're gonna have some fun...",
+		"Kill self": "Why would I kill myself?",
+		"Kill creator": "How dare you to order me to kill {0}!
+I should kill YOU for even thinking of something like that!",
+		
+		"Language default": "{1} is currently set to `{0}`.
+These are the languages I currently support: {2}.
+If you want your language to be supported, come to my support server.",
+		"Language unsupported": "`{0}` is not a supported language.",
+		"Language set": "The language for {1} was set to `{0}`.",
+		
+		"Music now playing": "Nu `{0}` aan het afspelen. Aangevraagt door {1}",
+		"Music not active": "Op het moment speel ik geen muziek af.",
+		"Music search": "Zoeken naar `{0}`...",
+		"Music channel none": "Je moet in een spraak kanaal zijn om naar muziek te luisteren.",
+		"Music channel same": "Je moet in dezelfde spraak kanaal als mij zitten om naar muziek te luisteren.",
+		"Music invalid song": "Ik kon geen speelbaar lied vinden.",
+		"Music exception": "Er is iets fout gegaan. Kom naar mijn ondersteuningsserver als je dit blijft ondervinden.",
+		"Music queued song": "#{0} **{1}** (`{2}`) in de wachtrij geplaatst.",
+		"Music queued playlist": "{0} liederen in de wachtrij geplaatst.",
+		"Music queue empty": "Er bevinden zich geen liederen in de wachtrij. Voeg een lied toe om naar muziek te luisteren.",
+		"Music queue item": "#{0}  **{1}** (`{2}`).",
+		"Music queue remaining": "Er zijn nog {0} meer liederen in de wachtrij.",
+		"Music current empty": "Ik speel nu geen muziek af.",
+		"Music current item": "`{0}` is nu aan het afspelen.",
+		"Music skipped": "`{0}` lied(eren) overgeslagen.",
+		"Music shuffle": "Mixen...",
+		"Music shuffled": "De wachtrij is door elkaar gehaald.",
+		"Music stop": "De muziekspeler is stopgezet.",
+		"Music clear": "Wachtrij geleegd :ok_hand:.",
+		"Music paused": "Muziekspeler is gepauzeerd.",
+		"Music is paused": "De muziekspeler is al gepauzeerd.",
+		"Music unpaused": "Muziekspeler is gehervat.",
+		"Music not paused": "De muziekspeler is niet gepauzeerd.",
+		"Music volume": "Het volume van de muziek is verandert naar {volume}.",
+		
+		"Pick default": "Choice for {0}",
+		
+		"Praise creator": "Please raise your hands for my wonderful creator *(and my future husband)*, D-Kay :heart:.",
+		
+		"Prefix default": "The prefix for {1} is `{0}`.",
+		"Prefix set": "The prefix for {1} was changed to `{0}`.",
+		
+		"Request default": "Send some information to me about your idea for a new feature or if you think something needs to be changed.",
+		"Request feature": "Thanks for your submission.",
+		"Request change": "Thanks for your submission.",
+		
+		"Restart default": "Restarting...",
+		"Shutdown default": "Shutting down...",
+		
+		"Support default": "I'm sorry to hear you have problems with me. Come join my support server 'https://discord.gg/YFqUMDT'. Maybe someone there can help you.",
+		
+		"Welcome exception": "No welcome settings could be found. Please go to my support discord to have this fixed.",
+		"Welcome enable": "I will now welcome any new member in `{0}`.",
+		"Welcome disable": "The welcome message has now been disabled. You can still send a welcome message with my normal command.",
+		"Welcome message default": "The welcome message for {2} is 
+```
+{1}
+```.
+When setting your custom welcome message, you can use `{0}` as a variable where the mention of the user is placed.",
+		"Welcome message set": "The welcome for {1} was changed to:
+```
+{0}
+```.",
+		"Welcome image default": "I am currently set to {0} the standard welcome image.",
+		"Welcome image use": "use",
+		"Welcome image use not": "not use",
+		"Welcome image enable": "The welcome image for {0} will be shown in welcome messages.",
+		"Welcome image disable": "The welcome image for {0} will not be shown in welcome messages.",
+		
+		"Help no info": "I have no advanced information for that command (yet).",
+		"Help title": "Here is a list of commands you can use.
+I am constantly updated with new features so keep an eye on this page.",
+		"Help general": "{0}help <command> - Show advanced help for a command.
+{0}invite - Ask me for my invite link.
+{0}support - Join this discord if you experience problems with me.
+{0}pick <option1|option2|etc> - Select a random item from the options that are separated with |.
+{0}birthday <username> - Sing a song for a happy fellow.
+{0}kill <username> - Make me kill that user.",
+		"Help praise title": "These are the commands for 'praise'.",
+		"Help praise": "{0}praise <username> - Send a positive message to that user.
+{0}praise someone - Send a positive message to a random person.
+{0}praise everyone - Send a positive message to everyone.
+{0}praise role <rolename> - Send a positive message to a group.",
+		"Help music title": "These are the commands for 'music'.",
+		"Help music": "{0}music play <name> - Search for a song by it's name and add it to the queue.
+{0}music play <video url> - Add a song to the queue.
+{0}music play <playlist url> - Add an entire playlist to the queue.
+{0}music pause - Pause the currently playing song.
+{0}music unpause - Un-pause the currently playing song.
+{0}music playing - Show what song is currently playing.
+{0}music queue - List all the songs in the queue.
+{0}music volume <value> - Change my music volume. (admin only)
+{0}music shuffle - Shuffle all the songs in the queue.
+{0}music skip - Skip the song currently playing.
+{0}music skip <amount> - Skip the given amount of songs.
+{0}music clear - Remove all songs from the queue.
+{0}music stop - Stop playing music and remove all songs from the queue.",
+		"Help request title": "These are the commands for 'request'.",
+		"Help request": "{0}request feature <message> - Send a message to my developer with the request for a new feature.
+{0}request change <message> - Send a message to my developer with the request for a change of an already existing feature.",
+		"Help admin": "{0}announce <message> - Announce a message to all members of your server.",
+		"Help prefix title": "These are the commands for 'prefix'.",
+		"Help prefix": "{0}prefix - Show the command prefix for this server.
+{0}prefix set <new prefix> - Change the command prefix for this server.",
+		"Help prefix title": "These are the commands for 'prefix'.",
+		"Help prefix": "{0}language - Show the currently displayed language.
+{0}language set <language> - Change the command prefix for this server.",
+		"Help welcome title": "These are the commands for 'welcome'.",
+		"Help welcome": "{0}welcome <username, username, etc> - Send a welcome message to one or multiple users.
+{0}welcome enable/on <textchannel> - Turn automated welcome messages on. Messages will be send in the provided text channel.
+{0}welcome disable/off - Turn the automated welcome messages off.
+{0}welcome message - Display the current welcome message.
+{0}welcome message set <message> - Set a custom welcome message.
+{0}welcome image - Display if the default image is being shown in welcome messages.
+{0}welcome image enable/on - Set the default image to be shown in welcome messages.
+{0}welcome image disable/off - Set the default image to not be shown in welcome messages.",
+		"Help autochannel title": "These are the commands for 'autochannel'.",
+		"Help autochannel": "{0}autochannel - Show information about auto channels.
+{0}autochannel prefix - Show the current prefix for auto channels.
+{0}autochannel prefix set <new prefix> - Change the prefix for auto channels.
+{0}autochannel name - Show the current name for auto generated channels.
+{0}autochannel name set <new name> - Change the name for auto  generated channels.
+{0}autochannel delete - Deletes all voice channels that still have the name for auto generated channels.",
+		"Help permachannel title": "These are the commands for 'permachannel'.",
+		"Help permachannel": "{0}permachannel - Show information about perma channels.
+{0}permachannel prefix - Show the current prefix for perma channels.
+{0}permachannel prefix set <new prefix> - Change the prefix for perma channels.",
+		"Help autorole title": "These are the commands for 'autorole'.",
+		"Help autorole": "{0}autorole - Show information about auto roles.
+{0}autorole prefix - Show the current prefix for auto roles.
+{0}autorole prefix set <new prefix> - Change the prefix for auto roles.",
+		"Help permarole title": "These are the commands for 'permarole'.",
+		"Help permarole": "{0}permarole - Show information about perma roles.
+{0}permarole prefix - Show the current prefix for perma roles.
+{0}permarole prefix set <new prefix> - Change the prefix for perma roles.",
+	},
+	"UserPraises": [
+        "Good job, {0}. You deserve a :cookie:.",
+        "{0}, you’re off to great places, today is your day. Your mountain is waiting, so get on your way.",
+        "{0}, you’re braver than you believe, and stronger than you seem, and smarter than you think.",
+        "If the world had more people like you {0}, it would be a better place. You do make a difference.",
+        "you're a gift to those around you, {0}.",
+        "{0}, you're a smart cookie.",
+        "{0}, you are awesome!",
+        "{0}, you have impeccable manners.",
+        "{0}, you are the most perfect you there is.",
+        "Your perspective is refreshing, {0}.",
+        "{0}, you light up the room.",
+        "{0}, you deserve a hug right now.",
+        "You should be proud of yourself, {0}.",
+        "{0}, you're more helpful than you realize.",
+        "{0}, your kindness is a balm to all who encounter it.",
+        "{0}, you're all that and a super-size bag of chips.",
+        "On a scale from 1 to 10, you're an 11, {0}.",
+        "{0}, you're even more beautiful on the inside than you are on the outside.",
+        "{0}, you have the courage of your convictions.",
+        "I'm inspired by you, {0}.",
+        "{0}, you're like a ray of sunshine on a really dreary day.",
+        "You are making a difference, {0}.",
+        "{0}, your ability to recall random factoids at just the right time is impressive.",
+        "You're a great listener, {0}.",
+        "How is it that you always look great, even in sweatpants, {0}?",
+        "Everything would be better if more people were like you, {0}!",
+        "{0}, I bet you sweat glitter.",
+        "You were cool way before hipsters were cool, {0}.",
+        "That color is perfect on you, {0}.",
+        "Hanging out with you is always a blast, {0}."
+	],
+	"GroupPraises": [
+		"{0}, you are awesome!",
+        "{0}, you're all smart cookies.",
+        "{0}, you all deserve a hug right now.",
+        "{0}, you're more helpful than you all realize.",
+        "{0}, you all light up the room.",
+        "I'm inspired by you all, {0}.",
+        "Everything would be better if more people were like you all, {0}!",
+        "You're all making a difference, {0}.",
+        "You all should be proud of yourself, {0}."
+	]
+}

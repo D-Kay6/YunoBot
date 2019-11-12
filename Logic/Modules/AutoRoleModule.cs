@@ -1,53 +1,109 @@
-﻿using Discord;
+﻿using DalFactory;
+using Discord;
 using Discord.Commands;
-using Logic.Data;
+using System;
 using System.Threading.Tasks;
-using IDal.Interfaces;
 
 namespace Logic.Modules
 {
     [Alias("ar")]
     [Group("autorole")]
-    [RequireUserPermission(GuildPermission.Administrator)]
     public class AutoRoleModule : ModuleBase<SocketCommandContext>
     {
-        public ISerializer Persistence { get; set; }
-        
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Command]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DefaultAutoRole()
         {
-            await ReplyAsync(
-@"Auto roles are roles that are temporary granted when a user starts playing a game, and removed when the user stops playing that game.
-
-When setting up auto roles, you need to make sure I have at least the `manage roles` permission.
-If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
-Create a role with the auto role prefix (you can get this through `/autorole prefix`) followed by the exact name of the game as it would appear in the status of a user.
-You can set-up your own prefix for auto roles with `/autorole prefix set <prefix>`.");
+            await ReplyAsync(_lang.GetMessage("Autorole default"));
         }
 
         [Group("prefix")]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public class AutoChannelPrefixModule : ModuleBase<SocketCommandContext>
         {
+            private Localization.Localization _lang;
+
+            protected override void BeforeExecute(CommandInfo command)
+            {
+                _lang = new Localization.Localization(Context.Guild.Id);
+                base.BeforeExecute(command);
+            }
+
             [Command]
             public async Task DefaultAutoRolePrefix()
             {
-                var autoRole = AutoRole.Load(Context.Guild.Id);
-                await ReplyAsync(
-$@"The current auto role prefix is `{autoRole.AutoPrefix}`.
-You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.");
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                await ReplyAsync(_lang.GetMessage("Autorole prefix default", autoRole.GetData(Context.Guild.Id).AutoPrefix));
             }
 
             [Command("set")]
             public async Task AutoRolePrefixSet([Remainder] string message)
             {
-                var autoRole = AutoRole.Load(Context.Guild.Id);
-                if (autoRole.SetAutoRoleIcon(message))
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                var data = autoRole.GetData(Context.Guild.Id);
+                if (message.Equals(data.PermaPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    await ReplyAsync("I am not able to use the same prefix for both auto roles and perma roles.");
+                    await ReplyAsync(_lang.GetMessage("Invalid ar/pr prefix"));
                     return;
                 }
-                autoRole.Save();
-                await ReplyAsync($"The new auto role prefix is `{autoRole.AutoPrefix}`.");
+                autoRole.SetAutoPrefix(Context.Guild.Id, message);
+                await ReplyAsync(_lang.GetMessage("Autorole prefix set", message));
+            }
+        }
+
+        [Group("ignore")]
+        public class AutoChannelIgnoreModule : ModuleBase<SocketCommandContext>
+        {
+            private Localization.Localization _lang;
+
+            protected override void BeforeExecute(CommandInfo command)
+            {
+                _lang = new Localization.Localization(Context.Guild.Id);
+                base.BeforeExecute(command);
+            }
+
+            [Command]
+            public async Task DefaultAutoRoleIgnore()
+            {
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                var activity = autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id) ? "on" : "off";
+                await ReplyAsync(_lang.GetMessage($"RoleIgnore default {activity}"));
+            }
+
+            [Command("on")]
+            public async Task AutoRoleIgnoreOn()
+            {
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                if (autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id))
+                {
+                    await ReplyAsync(_lang.GetMessage($"RoleIgnore is on"));
+                    return;
+                }
+
+                autoRole.AddRoleIgnore(Context.Guild.Id, Context.User.Id);
+                await ReplyAsync(_lang.GetMessage($"RoleIgnore turned on"));
+            }
+
+            [Command("off")]
+            public async Task AutoRoleIgnoreOff()
+            {
+                var autoRole = DatabaseFactory.GenerateAutoRole();
+                if (!autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id))
+                {
+                    await ReplyAsync(_lang.GetMessage($"RoleIgnore is off"));
+                    return;
+                }
+
+                autoRole.RemoveRoleIgnore(Context.Guild.Id, Context.User.Id);
+                await ReplyAsync(_lang.GetMessage($"RoleIgnore turned off"));
             }
         }
     }

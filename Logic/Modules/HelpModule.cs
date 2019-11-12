@@ -1,195 +1,146 @@
-﻿using Discord.Commands;
-using Logic.Data;
-using Logic.Extentions;
-using System.Threading.Tasks;
+﻿using DalFactory;
 using Discord;
+using Discord.Commands;
+using System.Threading.Tasks;
+using Logic.Extensions;
 
 namespace Logic.Modules
 {
     [Group("help")]
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
+        private Localization.Localization _lang;
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            _lang = new Localization.Localization(Context.Guild.Id);
+            base.BeforeExecute(command);
+        }
+
         [Priority(-1)]
         [Command]
         public async Task DefaultHelp([Remainder] string message = null)
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
             if (!string.IsNullOrEmpty(message))
             {
-                await ReplyAsync("There is no advanced information for that command (yet).");
+                await ReplyAsync(_lang.GetMessage("Help no info"));
                 return;
             }
-
             var embed = new EmbedBuilder();
-            embed.AddField("Help", @"Here is a list of commands you can use.
-I am constantly updated with new features so keep an eye on this page.");
-
-            embed.AddField("__General Commands__", $@"{prefix}help <command> - Show advanced help for a command.
-{prefix}invite - Ask me for my invite link.
-{prefix}support - Join this discord if you experience problems with me.
-{prefix}pick <option1|option2|etc> - Select a random item from the options that are separated with |.
-{prefix}birthday <username> - Sing a song for a happy fellow.
-{prefix}kill <username> - Make me kill that user.");
-
-            embed.AddField("Praise", $@"{prefix}praise <username> - Send a positive message to that user.
-{prefix}praise someone - Send a positive message to a random person.
-{prefix}praise everyone - Send a positive message to everyone.
-{prefix}praise role <rolename> - Send a positive message to a group.");
-
-            embed.AddField("music", $@"{prefix}music play <name> - Search for a song by it's name and add it to the queue.
-{prefix}music play <video url> - Add a song to the queue.
-{prefix}music play <playlist url> - Add an entire playlist to the queue.
-{prefix}music pause - Pause the currently playing song.
-{prefix}music unpause - Un-pause the currently playing song.
-{prefix}music playing - Show what song is currently playing.
-{prefix}music queue - List all the songs in the queue.
-{prefix}music volume <value> - Change my music volume. (admin only)
-{prefix}music shuffle - Shuffle all the songs in the queue.
-{prefix}music skip - Skip the song currently playing.
-{prefix}music clear - Remove all songs from the queue.
-{prefix}music stop - Stop playing music and remove all songs from the queue.");
-
-            embed.AddField("request", $@"{prefix}request feature <message> - Send a message to my developer with the request for a new feature.
-{prefix}request change <message> - Send a message to my developer with the request for a change of an already existing feature.");
-
-            embed.AddField("__Admin Commands__", $@"{prefix}welcome <username> - Send a welcome message to that user.
-{prefix}announce <message> - Announce a message to all members of your server.");
-
-            embed.AddField("prefix", $@"{prefix}prefix - Show the command prefix for this server.
-{prefix}prefix set <new prefix> - Change the command prefix for this server.");
-
-            embed.AddField("autochannel (ac)", $@"{prefix}autochannel - Show information about auto channels.
-{prefix}autochannel prefix - Show the current prefix for auto channels.
-{prefix}autochannel prefix set <new prefix> - Change the prefix for auto channels.
-{prefix}autochannel name - Show the current name for auto generated channels.
-{prefix}autochannel name set <new name> - Change the name for auto  generated channels.
-{prefix}autochannel fix - Fixes the problem where I am unable to remove auto generates channels.
-{prefix}autochannel delete - Deletes all voice channels that still have the name for auto generated channels.");
-
-            embed.AddField("permachannel (pc)", $@"{prefix}permachannel - Show information about perma channels.
-{prefix}permachannel prefix - Show the current prefix for perma channels.
-{prefix}permachannel prefix set <new prefix> - Change the prefix for perma channels.");
-
-            embed.AddField("autorole (ar)", $@"{prefix}autorole - Show information about auto roles.
-{prefix}autorole prefix - Show the current prefix for auto roles.
-{prefix}autorole prefix set <new prefix> - Change the prefix for auto roles.");
-
-            embed.AddField("permarole (pr)", $@"{prefix}permarole - Show information about perma roles.
-{prefix}permarole prefix - Show the current prefix for perma roles.
-{prefix}permarole prefix set <new prefix> - Change the prefix for perma roles.");
-
+            embed.AddField("Help", _lang.GetMessage("Help title"));
+            embed.AddField("__General Commands__", _lang.GetMessage("Help general", prefix));
+            embed.AddField("Praise", _lang.GetMessage("Help praise", prefix));
+            embed.AddField("music", _lang.GetMessage("Help music", prefix));
+            embed.AddField("request", _lang.GetMessage("Help request", prefix));
+            embed.AddField("__Admin Commands__", _lang.GetMessage("Help admin", prefix));
+            embed.AddField("prefix", _lang.GetMessage("Help prefix", prefix));
+            embed.AddField("language", _lang.GetMessage("Help language", prefix));
+            embed.AddField("welcome", _lang.GetMessage("Help welcome", prefix));
+            embed.AddField("autochannel (ac)", _lang.GetMessage("Help autochannel", prefix));
+            embed.AddField("permachannel (pc)", _lang.GetMessage("Help permachannel", prefix));
+            embed.AddField("autorole (ar)", _lang.GetMessage("Help autorole", prefix));
+            embed.AddField("permarole (pr)", _lang.GetMessage("Help permachannel", prefix));
             await ReplyAsync("", false, embed.Build());
         }
 
         [Command("praise")]
         public async Task HelpPraise()
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help praise", $@"Here is more information about 'praise'.
-
-{prefix}praise <username> - Send a positive message to that user.
-{prefix}praise someone - Send a positive message to a random person.
-{prefix}praise everyone - Send a positive message to everyone.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help praise", _lang.GetMessage("Help praise title") + "\n\n" + _lang.GetMessage("Help praise", prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Command("music")]
         public async Task HelpMusic()
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help music", $@"Here is more information about 'music'.
-
-{prefix}music play <name> - Search for a song by it's name and add it to the queue.
-{prefix}music play <video url> - Add a song to the queue.
-{prefix}music play <playlist url> - Add an entire playlist to the queue.
-{prefix}music pause - Pause the currently playing song.
-{prefix}music unpause - Un-pause the currently playing song.
-{prefix}music playing - Show what song is currently playing.
-{prefix}music queue - List all the songs in the queue.
-{prefix}music volume <value> - Change my music volume. (admin only)
-{prefix}music shuffle - Shuffle all the songs in the queue.
-{prefix}music skip - Skip the song currently playing.
-{prefix}music clear - Remove all songs from the queue.
-{prefix}music stop - Stop playing music and remove all songs from the queue.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help music", _lang.GetMessage("Help music title") + "\n\n" + _lang.GetMessage("Help music", prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Command("request")]
         public async Task HelpRequest()
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help request", $@"Here is more information about 'request'.
-
-{prefix}request feature <message> - Send a message to my developer with the request for a new feature.
-{prefix}request change <message> - Send a message to my developer with the request for a change of an already existing feature.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help request", _lang.GetMessage("Help request title") + "\n\n" + _lang.GetMessage("Help request", prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Command("prefix")]
         public async Task HelpPrefix()
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help prefix", $@"Here is more information about 'prefix'.
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help prefix", _lang.GetMessage("Help prefix title") + "\n\n" + _lang.GetMessage("Help prefix", prefix));
+            await ReplyAsync("", false, embed);
+        }
 
-{prefix}prefix - Show the command prefix for this server.
-{prefix}prefix set <new prefix> - Change the command prefix for this server.");
+        [Command("language")]
+        public async Task HelpLanguage()
+        {
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help language", _lang.GetMessage("Help language title") + "\n\n" + _lang.GetMessage("Help language", prefix));
+            await ReplyAsync("", false, embed);
+        }
+
+        [Command("welcome")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task HelpWelcome()
+        {
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help welcome", _lang.GetMessage("Help welcome title") + "\n\n" + _lang.GetMessage("Help welcome", prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Alias("ac")]
         [Command("autochannel")]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpAutoChannel()
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help autochannel", $@"Here is more information about 'autochannel'.
-
-{prefix}autochannel - Show information about auto channels.
-{prefix}autochannel prefix - Show the current prefix for auto channels.
-{prefix}autochannel prefix set <new prefix> - Change the prefix for auto channels.
-{prefix}autochannel name - Show the current name for auto generated channels.
-{prefix}autochannel name set <new name> - Change the name for auto  generated channels.
-{prefix}autochannel fix - Fixes the problem where I am unable to remove auto generates channels.
-{prefix}autochannel delete - Deletes all voice channels that still have the name for auto generated channels.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help autochannel", _lang.GetMessage("Help autochannel title") + "\n\n" + _lang.GetMessage("Help autochannel", prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Alias("pc")]
         [Command("permachannel")]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpPermaChannel()
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help permachannel",
-                $@"Here is more information about 'permachannel'.
-
-{prefix}permachannel - Show information about perma channels.
-{prefix}permachannel prefix - Show the current prefix for perma channels.
-{prefix}permachannel prefix set <new prefix> - Change the prefix for perma channels.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help permachannel", _lang.GetMessage("Help permachannel title") + "\n\n" + _lang.GetMessage("Help permachannel", prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Alias("ar")]
         [Command("autorole")]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpAutoRole()
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help autorole", $@"Here is more information about 'autorole'.
-
-{prefix}autorole - Show information about auto roles.
-{prefix}autorole prefix - Show the current prefix for auto roles.
-{prefix}autorole prefix set <new prefix> - Change the prefix for auto roles.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help autorole", _lang.GetMessage("Help autorole title") + "\n\n" + _lang.GetMessage("Help autorole", prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Alias("pr")]
         [Command("permarole")]
+        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpPermaRole()
         {
-            var prefix = CommandSettings.Load(Context.Guild.Id).Prefix;
-            var embed = EmbedExtentions.CreateEmbed("Help permarole", $@"Here is more information about 'permarole'.
-
-{prefix}permarole - Show information about perma roles.
-{prefix}permarole prefix - Show the current prefix for perma roles.
-{prefix}permarole prefix set <new prefix> - Change the prefix for perma roles.");
+            var settings = DatabaseFactory.GenerateServerSettings();
+            var prefix = settings.GetCommandPrefix(Context.Guild.Id);
+            var embed = EmbedExtensions.CreateEmbed("Help permarole", _lang.GetMessage("Help permarole title") + "\n\n" + _lang.GetMessage("Help permarole", prefix));
             await ReplyAsync("", false, embed);
         }
     }
