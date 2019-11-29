@@ -41,7 +41,7 @@ namespace Logic.Modules
             embed.AddField("autochannel (ac)", _lang.GetMessage("Help autochannel", prefix));
             embed.AddField("permachannel (pc)", _lang.GetMessage("Help permachannel", prefix));
             embed.AddField("autorole (ar)", _lang.GetMessage("Help autorole", prefix));
-            embed.AddField("permarole (pr)", _lang.GetMessage("Help permachannel", prefix));
+            embed.AddField("permarole (pr)", _lang.GetMessage("Help permarole", prefix));
             await ReplyAsync("", false, embed.Build());
         }
 
