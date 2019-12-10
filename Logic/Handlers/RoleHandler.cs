@@ -1,7 +1,4 @@
-﻿using DalFactory;
-using Discord;
-using Discord.WebSocket;
-using IDal.Interfaces.Database;
+﻿using Discord.WebSocket;
 using Logic.Extensions;
 using Logic.Services;
 using System;
@@ -27,11 +24,9 @@ namespace Logic.Handlers
 
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)
         {
-            var game = oldState.Activity as CustomStatusGame;
-            if (game != null) RemoveRole(oldState);
-
-            game = newState.Activity as CustomStatusGame;
-            if (game != null) AddRole(newState);
+            if (oldState.Activity == newState.Activity) return;
+            RemoveRole(oldState);
+            AddRole(newState);
         }
 
         private async Task RemoveRole(SocketGuildUser user)
