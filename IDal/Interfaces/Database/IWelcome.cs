@@ -1,13 +1,13 @@
-﻿using IDal.Structs.Database;
+﻿using Entity;
 
 namespace IDal.Interfaces.Database
 {
-    public interface IWelcomeMessage
+    public interface IWelcome
     {
         bool Enable(ulong serverId, ulong channelId);
         bool Disable(ulong serverId);
         bool UseImage(ulong serverId, bool value);
         bool SetWelcomeMessage(ulong serverId, string message);
-        WelcomeData GetWelcomeMessage(ulong serverId);
+        WelcomeMessage GetWelcomeSettings(ulong serverId);
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace IDal.Structs.Localization
+﻿namespace Entity
 {
     public enum Language
     {
         English,
         Dutch,
-        //Portuguese
     }
 }

@@ -13,9 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DalFactory", "DalFactory\Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogic", "ILogic\ILogic.csproj", "{481197D3-29E9-4129-AE4B-895809C08B77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IDal", "IDal\IDal.csproj", "{D424E80D-E0D2-418B-8157-5206D343D557}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IDal", "IDal\IDal.csproj", "{D424E80D-E0D2-418B-8157-5206D343D557}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dal", "Dal\Dal.csproj", "{612480A4-E0EF-43B1-82A8-F37F79ADCE4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dal", "Dal\Dal.csproj", "{612480A4-E0EF-43B1-82A8-F37F79ADCE4E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entity", "Entitiy\Entity.csproj", "{205FFF12-3EAB-45E3-8018-947B60E55E56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,14 @@ Global
 		{612480A4-E0EF-43B1-82A8-F37F79ADCE4E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{612480A4-E0EF-43B1-82A8-F37F79ADCE4E}.Release|x64.ActiveCfg = Release|Any CPU
 		{612480A4-E0EF-43B1-82A8-F37F79ADCE4E}.Release|x64.Build.0 = Release|Any CPU
+		{205FFF12-3EAB-45E3-8018-947B60E55E56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{205FFF12-3EAB-45E3-8018-947B60E55E56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{205FFF12-3EAB-45E3-8018-947B60E55E56}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{205FFF12-3EAB-45E3-8018-947B60E55E56}.Debug|x64.Build.0 = Debug|Any CPU
+		{205FFF12-3EAB-45E3-8018-947B60E55E56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{205FFF12-3EAB-45E3-8018-947B60E55E56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{205FFF12-3EAB-45E3-8018-947B60E55E56}.Release|x64.ActiveCfg = Release|Any CPU
+		{205FFF12-3EAB-45E3-8018-947B60E55E56}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

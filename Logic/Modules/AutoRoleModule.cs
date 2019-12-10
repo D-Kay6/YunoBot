@@ -1,8 +1,8 @@
-﻿using DalFactory;
-using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using System;
 using System.Threading.Tasks;
+using Discord;
+using IRole = IDal.Interfaces.Database.IRole;
 
 namespace Logic.Modules
 {
@@ -27,9 +27,15 @@ namespace Logic.Modules
 
         [Group("prefix")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public class AutoChannelPrefixModule : ModuleBase<SocketCommandContext>
+        public class AutoRolePrefixModule : ModuleBase<SocketCommandContext>
         {
+            private IRole _role;
             private Localization.Localization _lang;
+
+            public AutoRolePrefixModule(IRole role)
+            {
+                _role = role;
+            }
 
             protected override void BeforeExecute(CommandInfo command)
             {
@@ -40,29 +46,32 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultAutoRolePrefix()
             {
-                var autoRole = DatabaseFactory.GenerateAutoRole();
-                await ReplyAsync(_lang.GetMessage("Autorole prefix default", autoRole.GetData(Context.Guild.Id).AutoPrefix));
+                await ReplyAsync(_lang.GetMessage("Autorole prefix default", _role.GetAutoPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
             public async Task AutoRolePrefixSet([Remainder] string message)
             {
-                var autoRole = DatabaseFactory.GenerateAutoRole();
-                var data = autoRole.GetData(Context.Guild.Id);
-                if (message.Equals(data.PermaPrefix, StringComparison.OrdinalIgnoreCase))
+                if (message.Equals(_role.GetAutoPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
                 {
                     await ReplyAsync(_lang.GetMessage("Invalid ar/pr prefix"));
                     return;
                 }
-                autoRole.SetAutoPrefix(Context.Guild.Id, message);
+                _role.SetAutoPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_lang.GetMessage("Autorole prefix set", message));
             }
         }
 
         [Group("ignore")]
-        public class AutoChannelIgnoreModule : ModuleBase<SocketCommandContext>
+        public class AutoRoleIgnoreModule : ModuleBase<SocketCommandContext>
         {
+            private IRole _role;
             private Localization.Localization _lang;
+
+            public AutoRoleIgnoreModule(IRole role)
+            {
+                _role = role;
+            }
 
             protected override void BeforeExecute(CommandInfo command)
             {
@@ -73,36 +82,33 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultAutoRoleIgnore()
             {
-                var autoRole = DatabaseFactory.GenerateAutoRole();
-                var activity = autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id) ? "on" : "off";
+                var activity = _role.IsIgnoringRoles(Context.Guild.Id, Context.User.Id) ? "on" : "off";
                 await ReplyAsync(_lang.GetMessage($"RoleIgnore default {activity}"));
             }
 
             [Command("on")]
             public async Task AutoRoleIgnoreOn()
             {
-                var autoRole = DatabaseFactory.GenerateAutoRole();
-                if (autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id))
+                if (_role.IsIgnoringRoles(Context.Guild.Id, Context.User.Id))
                 {
                     await ReplyAsync(_lang.GetMessage($"RoleIgnore is on"));
                     return;
                 }
 
-                autoRole.AddRoleIgnore(Context.Guild.Id, Context.User.Id);
+                _role.AddIgnoringRoles(Context.Guild.Id, Context.User.Id);
                 await ReplyAsync(_lang.GetMessage($"RoleIgnore turned on"));
             }
 
             [Command("off")]
             public async Task AutoRoleIgnoreOff()
             {
-                var autoRole = DatabaseFactory.GenerateAutoRole();
-                if (!autoRole.IsRoleIgnore(Context.Guild.Id, Context.User.Id))
+                if (!_role.IsIgnoringRoles(Context.Guild.Id, Context.User.Id))
                 {
                     await ReplyAsync(_lang.GetMessage($"RoleIgnore is off"));
                     return;
                 }
 
-                autoRole.RemoveRoleIgnore(Context.Guild.Id, Context.User.Id);
+                _role.RemoveIgnoringRoles(Context.Guild.Id, Context.User.Id);
                 await ReplyAsync(_lang.GetMessage($"RoleIgnore turned off"));
             }
         }

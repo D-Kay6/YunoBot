@@ -1,9 +1,10 @@
-﻿using DalFactory;
-using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
+using IDal.Interfaces.Database;
+using IChannel = IDal.Interfaces.Database.IChannel;
 
 namespace Logic.Modules
 {
@@ -12,11 +13,19 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class AutoChannelModule : ModuleBase<SocketCommandContext>
     {
+        private ILanguage _language;
+        private IChannel _channel;
         private Localization.Localization _lang;
+
+        public AutoChannelModule(ILanguage language, IChannel channel)
+        {
+            _language = language;
+            _channel = channel;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
             base.BeforeExecute(command);
         }
 
@@ -30,32 +39,37 @@ namespace Logic.Modules
         [Group("prefix")]
         public class AutoChannelPrefixModule : ModuleBase<SocketCommandContext>
         {
+            private ILanguage _language;
+            private IChannel _channel;
             private Localization.Localization _lang;
+
+            public AutoChannelPrefixModule(ILanguage language, IChannel channel)
+            {
+                _language = language;
+                _channel = channel;
+            }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                _lang = new Localization.Localization(Context.Guild.Id);
+                _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
                 base.BeforeExecute(command);
             }
 
             [Command]
             public async Task DefaultAutoChannelPrefix()
             {
-                var autoChannel = DatabaseFactory.GenerateAutoChannel();
-                await ReplyAsync(_lang.GetMessage("Autochannel prefix default", autoChannel.GetData(Context.Guild.Id).AutoPrefix));
+                await ReplyAsync(_lang.GetMessage("Autochannel prefix default", _channel.GetAutoPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
             public async Task AutoChannelPrefixSet([Remainder] string message)
             {
-                var autoChannel = DatabaseFactory.GenerateAutoChannel();
-                var data = autoChannel.GetData(Context.Guild.Id);
-                if (message.Equals(data.PermaPrefix, StringComparison.OrdinalIgnoreCase))
+                if (message.Equals(_channel.GetAutoPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
                 {
                     await ReplyAsync(_lang.GetMessage("Invalid ac/pc prefix"));
                     return;
                 }
-                autoChannel.SetAutoPrefix(Context.Guild.Id, message);
+                _channel.SetAutoPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_lang.GetMessage("Autochannel prefix set", message));
             }
         }
@@ -63,26 +77,32 @@ namespace Logic.Modules
         [Group("name")]
         public class AutoChannelNameModule : ModuleBase<SocketCommandContext>
         {
+            private ILanguage _language;
+            private IChannel _channel;
             private Localization.Localization _lang;
+
+            public AutoChannelNameModule(ILanguage language, IChannel channel)
+            {
+                _language = language;
+                _channel = channel;
+            }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                _lang = new Localization.Localization(Context.Guild.Id);
+                _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
                 base.BeforeExecute(command);
             }
 
             [Command]
             public async Task DefaultAutoChannelName()
             {
-                var autoChannel = DatabaseFactory.GenerateAutoChannel();
-                await ReplyAsync(_lang.GetMessage("Autochannel name default", autoChannel.GetData(Context.Guild.Id).AutoName));
+                await ReplyAsync(_lang.GetMessage("Autochannel name default", _channel.GetAutoName(Context.Guild.Id)));
             }
 
             [Command("set")]
             public async Task AutoChannelNameSet([Remainder] string message)
             {
-                var autoChannel = DatabaseFactory.GenerateAutoChannel();
-                autoChannel.SetAutoName(Context.Guild.Id, message);
+                _channel.SetAutoName(Context.Guild.Id, message);
                 await ReplyAsync(_lang.GetMessage("Autochannel name set", message));
             }
         }
@@ -90,15 +110,14 @@ namespace Logic.Modules
         [Command("delete")]
         public async Task AutoChannelDelete()
         {
-            var autoChannel = DatabaseFactory.GenerateAutoChannel();
-            var data = autoChannel.GetData(Context.Guild.Id);
-            var channels = Context.Guild.VoiceChannels.Where(c => c.Name.StartsWith(data.AutoName));
+            var data = _channel.GetAutoChannel(Context.Guild.Id);
+            var channels = Context.Guild.VoiceChannels.Where(c => c.Name.StartsWith(data.Name));
             foreach (var channel in channels)
             {
-                if (autoChannel.IsGeneratedChannel(Context.Guild.Id, channel.Id)) autoChannel.RemoveGeneratedChannel(Context.Guild.Id, channel.Id);
+                if (_channel.IsGeneratedChannel(Context.Guild.Id, channel.Id)) _channel.RemoveGeneratedChannel(Context.Guild.Id, channel.Id);
                 await channel.DeleteAsync();
             }
-            await ReplyAsync(_lang.GetMessage("Autochannel delete", data.AutoName));
+            await ReplyAsync(_lang.GetMessage("Autochannel delete", data.Name));
         }
     }
 }

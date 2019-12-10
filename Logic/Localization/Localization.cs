@@ -1,6 +1,6 @@
 ﻿using DalFactory;
+using Entity;
 using IDal.Interfaces;
-using IDal.Interfaces.Database;
 using IDal.Structs.Localization;
 using Logic.Extensions;
 
@@ -8,16 +8,19 @@ namespace Logic.Localization
 {
     public class Localization
     {
-        private IServerSettings _settings;
         private ILocalization _lang;
         private LanguageData _data;
 
         public Localization(ulong serverId)
         {
-            _settings = DatabaseFactory.GenerateServerSettings();
+            var language = DatabaseFactory.GenerateLanguage().GetLanguage(serverId);
             _lang = LocalizationFactory.GenerateLocalization();
+            _data = _lang.Read(language.ToString());
+        }
 
-            var language = _settings.GetLanguage(serverId);
+        public Localization(Language language)
+        {
+            _lang = LocalizationFactory.GenerateLocalization();
             _data = _lang.Read(language.ToString());
         }
 

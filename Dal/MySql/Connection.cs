@@ -1,6 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-
-namespace Dal.MySql
+﻿namespace Dal.MySql
 {
     internal class Connection
     {
@@ -19,9 +17,9 @@ namespace Dal.MySql
             this.Password = "";
         }
 
-        public MySqlConnection CreateConnection()
+        public string CreateConnectionString()
         {
-            return new MySqlConnection($"Server={Ip}; Database={Database}; Uid={Username}; Pwd={Password}; charset=utf8mb4;");
+            return $"Server={Ip}; Database={Database}; Uid={Username}; Pwd={Password}; charset=utf8mb4;";
         }
     }
 }

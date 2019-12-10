@@ -5,6 +5,7 @@ using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using IDal.Interfaces.Database;
 using Logic.Services.Music;
 using Victoria.Enums;
 
@@ -13,19 +14,21 @@ namespace Logic.Modules
     [Group("music")]
     public class MusicModule : ModuleBase<SocketCommandContext>
     {
+        private ILanguage _language;
         private Localization.Localization _lang;
 
         private AudioService AudioService { get; }
 
-        public MusicModule(AudioService audioService)
+        public MusicModule(AudioService audioService, ILanguage language)
         {
             AudioService = audioService;
+            _language = language;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
             AudioService.BeforeExecute(Context.Guild);
-            _lang = new Localization.Localization(Context.Guild.Id);
+            _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
             base.BeforeExecute(command);
         }
 
