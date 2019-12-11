@@ -24,7 +24,7 @@ namespace Logic.Handlers
 
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)
         {
-            if (oldState.Activity == newState.Activity) return;
+            if (oldState.Activity?.Name == newState.Activity?.Name) return;
             RemoveRole(oldState);
             AddRole(newState);
         }
