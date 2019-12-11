@@ -1,8 +1,8 @@
-﻿using DalFactory;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using System;
 using System.Threading.Tasks;
+using IChannel = IDal.Interfaces.Database.IChannel;
 
 namespace Logic.Modules
 {
@@ -28,7 +28,13 @@ namespace Logic.Modules
         [Group("prefix")]
         public class PermaChannelPrefixModule : ModuleBase<SocketCommandContext>
         {
+            private IChannel _channel;
             private Localization.Localization _lang;
+
+            public PermaChannelPrefixModule(IChannel channel)
+            {
+                _channel = channel;
+            }
 
             protected override void BeforeExecute(CommandInfo command)
             {
@@ -39,21 +45,18 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultPermaChannelPrefix()
             {
-                var autoChannel = DatabaseFactory.GenerateAutoChannel();
-                await ReplyAsync(_lang.GetMessage("Permachannel prefix default", autoChannel.GetData(Context.Guild.Id).PermaPrefix));
+                await ReplyAsync(_lang.GetMessage("Permachannel prefix default", _channel.GetPermaPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
             public async Task PermaChannelPrefixSet([Remainder] string message)
             {
-                var autoChannel = DatabaseFactory.GenerateAutoChannel();
-                var data = autoChannel.GetData(Context.Guild.Id);
-                if (message.Equals(data.AutoPrefix, StringComparison.OrdinalIgnoreCase))
+                if (message.Equals(_channel.GetPermaPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
                 {
                     await ReplyAsync(_lang.GetMessage("Invalid ac/pc prefic"));
                     return;
                 }
-                autoChannel.SetPermaPrefix(Context.Guild.Id, message);
+                _channel.SetPermaPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_lang.GetMessage("Permachannel prefix set", message));
             }
         }
@@ -61,7 +64,13 @@ namespace Logic.Modules
         [Group("name")]
         public class PermaChannelNameModule : ModuleBase<SocketCommandContext>
         {
+            private IChannel _channel;
             private Localization.Localization _lang;
+
+            public PermaChannelNameModule(IChannel channel)
+            {
+                _channel = channel;
+            }
 
             protected override void BeforeExecute(CommandInfo command)
             {
@@ -72,15 +81,13 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultPermaChannelName()
             {
-                var autoChannel = DatabaseFactory.GenerateAutoChannel();
-                await ReplyAsync(_lang.GetMessage("Permachannel name default", autoChannel.GetData(Context.Guild.Id).PermaName));
+                await ReplyAsync(_lang.GetMessage("Permachannel name default", _channel.GetPermaName(Context.Guild.Id)));
             }
 
             [Command("set")]
             public async Task PermaChannelNameSet([Remainder] string message)
             {
-                var autoChannel = DatabaseFactory.GenerateAutoChannel();
-                autoChannel.SetPermaName(Context.Guild.Id, message);
+                _channel.SetPermaName(Context.Guild.Id, message);
                 await ReplyAsync(_lang.GetMessage("Permachannel name set", message));
             }
         }

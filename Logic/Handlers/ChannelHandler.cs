@@ -1,29 +1,31 @@
-﻿using DalFactory;
-using Discord;
+﻿using Discord;
+using Discord.Net;
 using Discord.WebSocket;
-using IDal.Interfaces.Database;
+using Logic.Extensions;
+using Logic.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord.Net;
-using Logic.Extensions;
-using Logic.Services;
+using IDal.Interfaces.Database;
+using IChannel = IDal.Interfaces.Database.IChannel;
 
 namespace Logic.Handlers
 {
     public class ChannelHandler : BaseHandler
     {
+        private ILanguage _language;
+        private IChannel _channel;
         private AudioService _audioService;
 
         private HashSet<ulong> _channels;
-        private IAutoChannel _autoChannel;
         
-        public ChannelHandler(DiscordSocketClient client, AudioService audioService) : base(client)
+        public ChannelHandler(DiscordSocketClient client, ILanguage language, IChannel channel, AudioService audioService) : base(client)
         {
+            _language = language;
+            _channel = channel;
             _audioService = audioService;
             _channels = new HashSet<ulong>();
-            _autoChannel = DatabaseFactory.GenerateAutoChannel();
         }
 
         public override async Task Initialize()
@@ -40,7 +42,7 @@ namespace Logic.Handlers
         private async Task LeaveChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
             if (channel == null) return;
-            var lang = new Localization.Localization(channel.Guild.Id);
+            var lang = new Localization.Localization(_language.GetLanguage(channel.Guild.Id));
             try
             {
                 if (channel.Users.Count > 0)
@@ -54,11 +56,11 @@ namespace Logic.Handlers
 
                 while (_channels.Contains(channel.Id)) await Task.Delay(100);
                 
-                if (!_autoChannel.IsGeneratedChannel(channel.Guild.Id, channel.Id)) return;
+                if (!_channel.IsGeneratedChannel(channel.Guild.Id, channel.Id)) return;
                 LogService.Instance.Log("Channels", channel.Guild, $"{user.Nickname()} left channel '{channel.Name}'.");
                 if (channel.Guild.GetChannel(channel.Id) == null) return;
                 await channel.DeleteAsync();
-                _autoChannel.RemoveGeneratedChannel(channel.Guild.Id, channel.Id);
+                _channel.RemoveGeneratedChannel(channel.Guild.Id, channel.Id);
             }
             catch (Exception e)
             {
@@ -70,19 +72,22 @@ namespace Logic.Handlers
         private async Task JoinChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
             if (channel == null || user == null) return;
-            var lang = new Localization.Localization(channel.Guild.Id);
+            var lang = new Localization.Localization(_language.GetLanguage(channel.Guild.Id));
             try
             {
-                var channelData = _autoChannel.GetData(channel.Guild.Id);
-                if (channel.Name.StartsWith(channelData.PermaPrefix, StringComparison.OrdinalIgnoreCase))
+                var auto = _channel.GetAutoChannel(channel.Guild.Id);
+                if (channel.Name.StartsWith(auto.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    var channelId = await DuplicateChannel(channel, user, channelData.PermaName);
+                    var channelId = await DuplicateChannel(channel, user, auto.Name);
+                    _channel.AddGeneratedChannel(channel.Guild.Id, channelId);
                     _channels.Remove(channelId);
+                    return;
                 }
-                else if (channel.Name.StartsWith(channelData.AutoPrefix, StringComparison.OrdinalIgnoreCase))
+
+                var perma = _channel.GetPermaChannel(channel.Guild.Id);
+                if (channel.Name.StartsWith(perma.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    var channelId = await DuplicateChannel(channel, user, channelData.AutoName);
-                    _autoChannel.AddGeneratedChannel(channel.Guild.Id, channelId);
+                    var channelId = await DuplicateChannel(channel, user, perma.Name);
                     _channels.Remove(channelId);
                 }
             }

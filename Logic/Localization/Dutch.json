@@ -81,6 +81,13 @@ You can set-up your own prefix for perma roles with `/permarole prefix set <pref
 		"Permarole prefix default": "The current perma role prefix for this server is `{0}`.
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
 		"Permarole prefix set": "The new perma role prefix is `{0}`.",
+
+		"RoleIgone default on": "You are not registered to gain either ",
+		"RoleIgone default off": "You are registered to be assigned both auto- and permaroles.",
+		"RoleIgone is on": "You already do not receive automated roles.",
+		"RoleIgone is off": "You do not receive automated roles.",
+		"RoleIgone turned on": "You no longer will be assigned automated roles.",
+		"RoleIgone turned off": "You are registered to receive automated roles.",
 		
 		"Birthday default": "Hooray! It's our little {0} birthday!
 
@@ -153,15 +160,15 @@ If you want your language to be supported, come to my support server.",
 		"Welcome exception": "No welcome settings could be found. Please go to my support discord to have this fixed.",
 		"Welcome enable": "I will now welcome any new member in `{0}`.",
 		"Welcome disable": "The welcome message has now been disabled. You can still send a welcome message with my normal command.",
-		"Welcome message default": "The welcome message for {2} is 
+		"Welcome message default": "The welcome message for {2} is:
 ```
 {1}
-```.
+```
 When setting your custom welcome message, you can use `{0}` as a variable where the mention of the user is placed.",
 		"Welcome message set": "The welcome for {1} was changed to:
 ```
 {0}
-```.",
+```",
 		"Welcome image default": "I am currently set to {0} the standard welcome image.",
 		"Welcome image use": "use",
 		"Welcome image use not": "not use",
@@ -230,6 +237,9 @@ I am constantly updated with new features so keep an eye on this page.",
 		"Help autorole": "{0}autorole - Show information about auto roles.
 {0}autorole prefix - Show the current prefix for auto roles.
 {0}autorole prefix set <new prefix> - Change the prefix for auto roles.",
+{0}autorole ignore - Display your current status on ignoring automated roles.
+{0}autorole ignore on - Turn your current status to ignore automated roles.
+{0}autorole ignore off - Turn your current status to acceps automated roles.",
 		"Help permarole title": "These are the commands for 'permarole'.",
 		"Help permarole": "{0}permarole - Show information about perma roles.
 {0}permarole prefix - Show the current prefix for perma roles.

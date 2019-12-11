@@ -19,7 +19,6 @@ namespace Logic
 
         private DiscordSocketClient _client;
 
-        //private readonly UpdateHandler _updateHandler;
         private readonly StatusHandler _statusHandler;
         private readonly DatabaseHandler _databaseHandler;
         private readonly CommandHandler _commandHandler;
@@ -46,7 +45,6 @@ namespace Logic
 
             _services = GenerateServiceProvider();
 
-            //_updateHandler = ActivatorUtilities.CreateInstance<UpdateHandler>(_services);
             _statusHandler = ActivatorUtilities.CreateInstance<StatusHandler>(_services);
             _databaseHandler = ActivatorUtilities.CreateInstance<DatabaseHandler>(_services);
             _commandHandler = ActivatorUtilities.CreateInstance<CommandHandler>(_services);
@@ -94,15 +92,20 @@ namespace Logic
 
             var log = new LogService();
             var restart = new RestartService();
-            //var update = new UpdateService(log, restart);
             var audio = new AudioService(_client);
 
             serviceCollection.AddSingleton(_client);
             serviceCollection.AddSingleton(_config.Read());
 
+            serviceCollection.AddSingleton(DatabaseFactory.GenerateServer());
+            serviceCollection.AddSingleton(DatabaseFactory.GenerateLanguage());
+            serviceCollection.AddSingleton(DatabaseFactory.GenerateCommand());
+            serviceCollection.AddSingleton(DatabaseFactory.GenerateWelcome());
+            serviceCollection.AddSingleton(DatabaseFactory.GenerateChannel());
+            serviceCollection.AddSingleton(DatabaseFactory.GenerateRole());
+
             serviceCollection.AddSingleton(log);
             serviceCollection.AddSingleton(restart);
-            //serviceCollection.AddSingleton(update);
             serviceCollection.AddSingleton(audio);
 
             return serviceCollection.BuildServiceProvider();
@@ -122,7 +125,6 @@ namespace Logic
 
         private async Task PrepareHandlers()
         {
-            //await _updateHandler.Initialize();
             await _statusHandler.Initialize();
             await _databaseHandler.Initialize();
             await _commandHandler.Initialize();

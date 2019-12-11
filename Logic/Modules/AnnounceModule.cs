@@ -1,23 +1,29 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Net;
+using IDal.Interfaces.Database;
 using Logic.Extensions;
-using Logic.Handlers;
+using Logic.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Logic.Services;
 
 namespace Logic.Modules
 {
     [Group("announce")]
     public class AnnounceModule : ModuleBase<SocketCommandContext>
     {
+        private ILanguage _language;
         private Localization.Localization _lang;
+
+        public AnnounceModule(ILanguage language)
+        {
+            _language = language;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
             base.BeforeExecute(command);
         }
 

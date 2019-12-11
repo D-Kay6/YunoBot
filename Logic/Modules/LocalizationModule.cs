@@ -1,11 +1,10 @@
-﻿using System;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
-using System.Threading.Tasks;
-using DalFactory;
+using Entity;
 using IDal.Interfaces.Database;
-using IDal.Structs.Localization;
 using Logic.Extensions;
+using System;
+using System.Threading.Tasks;
 
 namespace Logic.Modules
 {
@@ -14,12 +13,16 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class LocalizationModule : ModuleBase<SocketCommandContext>
     {
-        private IServerSettings _settings;
+        private ILanguage _language;
         private Localization.Localization _lang;
+
+        public LocalizationModule(ILanguage language)
+        {
+            _language = language;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _settings = DatabaseFactory.GenerateServerSettings();
             _lang = new Localization.Localization(Context.Guild.Id);
             base.BeforeExecute(command);
         }
@@ -27,7 +30,7 @@ namespace Logic.Modules
         [Command]
         public async Task DefaultLanguage()
         {
-            var language = _settings.GetLanguage(Context.Guild.Id);
+            var language = _language.GetLanguage(Context.Guild.Id);
             await ReplyAsync(_lang.GetMessage("Language default", language, Context.Guild.Name, string.Join(", ", Enum.GetNames(typeof(Language)))));
         }
 
@@ -40,7 +43,7 @@ namespace Logic.Modules
                 return;
             }
 
-            _settings.SetLanguage(Context.Guild.Id, language);
+            _language.SetLanguage(Context.Guild.Id, language);
             _lang = new Localization.Localization(Context.Guild.Id);
             await ReplyAsync(_lang.GetMessage("Language set", language, Context.Guild.Name));
         }

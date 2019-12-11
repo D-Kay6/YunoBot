@@ -1,8 +1,8 @@
-﻿using DalFactory;
-using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using System;
 using System.Threading.Tasks;
+using Discord;
+using IRole = IDal.Interfaces.Database.IRole;
 
 namespace Logic.Modules
 {
@@ -26,9 +26,15 @@ namespace Logic.Modules
         }
 
         [Group("prefix")]
-        public class PermaChannelPrefixModule : ModuleBase<SocketCommandContext>
+        public class PermaRolePrefixModule : ModuleBase<SocketCommandContext>
         {
+            private IRole _role;
             private Localization.Localization _lang;
+
+            public PermaRolePrefixModule(IRole role)
+            {
+                _role = role;
+            }
 
             protected override void BeforeExecute(CommandInfo command)
             {
@@ -39,21 +45,18 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultPermaRolePrefix()
             {
-                var autoRole = DatabaseFactory.GenerateAutoRole();
-                await ReplyAsync(_lang.GetMessage("Permarole prefix default", autoRole.GetData(Context.Guild.Id).PermaPrefix));
+                await ReplyAsync(_lang.GetMessage("Permarole prefix default", _role.GetPermaPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
             public async Task PermaRolePrefixSet([Remainder] string message)
             {
-                var autoRole = DatabaseFactory.GenerateAutoRole();
-                var data = autoRole.GetData(Context.Guild.Id);
-                if (message.Equals(data.AutoPrefix, StringComparison.OrdinalIgnoreCase))
+                if (message.Equals(_role.GetPermaPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
                 {
                     await ReplyAsync(_lang.GetMessage("Invalid ar/pr prefix"));
                     return;
                 }
-                autoRole.SetPermaPrefix(Context.Guild.Id, message);
+                _role.SetPermaPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_lang.GetMessage("Permarole prefix set", message));
             }
         }

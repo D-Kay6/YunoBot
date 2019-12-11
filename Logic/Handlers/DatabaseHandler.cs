@@ -1,24 +1,19 @@
-﻿using System;
-using DalFactory;
+﻿using DalFactory;
 using Discord.WebSocket;
+using Entity;
 using IDal.Interfaces.Database;
-using System.Threading.Tasks;
 using Logic.Extensions;
+using System.Threading.Tasks;
 
 namespace Logic.Handlers
 {
     public class DatabaseHandler : BaseHandler
     {
-        private readonly IServerSettings _settings;
-        private readonly IAutoChannel _autoChannel;
-        private readonly IAutoRole _autoRole;
+        private readonly IServer _server;
 
-        public DatabaseHandler(DiscordSocketClient client) : base(client)
+        public DatabaseHandler(DiscordSocketClient client, IServer server) : base(client)
         {
-            Client = client;
-            _settings = DatabaseFactory.GenerateServerSettings();
-            _autoChannel = DatabaseFactory.GenerateAutoChannel();
-            _autoRole = DatabaseFactory.GenerateAutoRole();
+            _server = server;
         }
 
         public override async Task Initialize()
@@ -36,23 +31,23 @@ namespace Logic.Handlers
 
         private async Task OnGuildJoined(SocketGuild guild)
         {
-            _settings.RegisterServer(guild.Id, guild.Name);
+            _server.AddServer(guild.Id, guild.Name);
         }
 
         private async Task OnGuildLeft(SocketGuild guild)
         {
-            _settings.DeleteServer(guild.Id);
+            _server.DeleteServer(guild.Id);
         }
 
         private async Task OnGuildUpdated(SocketGuild oldGuild, SocketGuild newGuild)
         {
             if (oldGuild.Name.Equals(newGuild.Name)) return;
-            _settings.UpdateServer(newGuild.Id, newGuild.Name);
+            _server.UpdateServer(newGuild.Id, newGuild.Name);
         }
 
         private async Task UpdateServers()
         {
-            Client.Guilds.Foreach(g => _settings.UpdateServer(g.Id, g.Name));
+            Client.Guilds.Foreach(g => _server.UpdateServer(g.Id, g.Name));
         }
     }
 }

@@ -1,28 +1,39 @@
-﻿using Dal.MySql;
+﻿using Dal.EF;
+using Dal.MySql;
 using IDal.Interfaces.Database;
 
 namespace DalFactory
 {
     public class DatabaseFactory
     {
-        public static IServerSettings GenerateServerSettings()
+        public static IServer GenerateServer()
         {
-            return new ServerSettings();
+            return new ServerRepository();
         }
 
-        public static IAutoChannel GenerateAutoChannel()
+        public static ILanguage GenerateLanguage()
         {
-            return new AutoChannel();
+            return new LanguageRepository();
         }
 
-        public static IAutoRole GenerateAutoRole()
+        public static ICommand GenerateCommand()
         {
-            return new AutoRole();
+            return new CommandRepository();
         }
 
-        public static IWelcomeMessage GenerateWelcomeMessage()
+        public static IWelcome GenerateWelcome()
         {
-            return new WelcomeMessage();
+            return new WelcomeSettingsRepository();
+        }
+
+        public static IChannel GenerateChannel()
+        {
+            return new ChannelRepository();
+        }
+
+        public static IRole GenerateRole()
+        {
+            return new RoleRepository();
         }
     }
 }

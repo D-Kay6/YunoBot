@@ -161,15 +161,15 @@ If you want your language to be supported or help improve an already existing tr
 		"Welcome exception": "No welcome settings could be found. Please go to my support discord to have this fixed.",
 		"Welcome enable": "I will now welcome any new member in `{0}`.",
 		"Welcome disable": "The welcome message has now been disabled. You can still send a welcome message with my normal command.",
-		"Welcome message default": "The welcome message for {2} is 
+		"Welcome message default": "The welcome message for {2} is:
 ```
 {1}
-```.
+```
 When setting your custom welcome message, you can use `{0}` as a variable where the mention of the user is placed.",
 		"Welcome message set": "The welcome for {1} was changed to:
 ```
 {0}
-```.",
+```",
 		"Welcome image default": "I am currently set to {0} the standard welcome image.",
 		"Welcome image use": "use",
 		"Welcome image use not": "not use",
@@ -245,8 +245,6 @@ I am constantly updated with new features so keep an eye on this page.",
 		"Help permarole": "{0}permarole - Show information about permaroles.
 {0}permarole prefix - Show the current prefix for permaroles.
 {0}permarole prefix set <new prefix> - Change the prefix for permaroles.",
-    "Help roleignore": "",     
-    "Help roleignore": "",
   },
 	"UserPraises": [
         "Good job, {0}. You deserve a :cookie:.",
