@@ -20,7 +20,7 @@ namespace Logic.Modules
         [Command]
         public async Task DefaultCommand([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync(_lang.GetMessage("Invalid user", name));
+            await ReplyAsync(_lang.GetMessage("Invalid user", name));
         }
 
         [Command]
