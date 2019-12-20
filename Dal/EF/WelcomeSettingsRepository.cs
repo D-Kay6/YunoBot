@@ -1,10 +1,11 @@
-﻿using Entity;
+﻿using System.Threading.Tasks;
+using Entity;
 using IDal.Interfaces.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dal.EF
 {
-    public class WelcomeSettingsRepository : IWelcome
+    public class WelcomeSettingsRepository : IDbWelcome
     {
         private DataContext _context;
 
@@ -13,14 +14,14 @@ namespace Dal.EF
             _context = new DataContext();
         }
 
-        public bool Enable(ulong serverId, ulong channelId)
+        public async Task<bool> Enable(ulong serverId, ulong channelId)
         {
-            var settings = _context.WelcomeMessages.Find(serverId);
+            var settings = await _context.WelcomeMessages.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.ChannelId = channelId;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -29,14 +30,14 @@ namespace Dal.EF
             }
         }
 
-        public bool Disable(ulong serverId)
+        public async Task<bool> Disable(ulong serverId)
         {
-            var settings = _context.WelcomeMessages.Find(serverId);
+            var settings = await _context.WelcomeMessages.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.ChannelId = null;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -45,14 +46,14 @@ namespace Dal.EF
             }
         }
 
-        public bool UseImage(ulong serverId, bool value)
+        public async Task<bool> UseImage(ulong serverId, bool value)
         {
-            var settings = _context.WelcomeMessages.Find(serverId);
+            var settings = await _context.WelcomeMessages.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.UseImage = value;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -61,14 +62,14 @@ namespace Dal.EF
             }
         }
 
-        public bool SetWelcomeMessage(ulong serverId, string message)
+        public async Task<bool> SetWelcomeMessage(ulong serverId, string message)
         {
-            var settings = _context.WelcomeMessages.Find(serverId);
+            var settings = await _context.WelcomeMessages.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.Message = message;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -77,9 +78,9 @@ namespace Dal.EF
             }
         }
 
-        public WelcomeMessage GetWelcomeSettings(ulong serverId)
+        public async Task<WelcomeMessage> GetWelcomeSettings(ulong serverId)
         {
-            return _context.WelcomeMessages.Find(serverId);
+            return await _context.WelcomeMessages.FindAsync(serverId);
         }
     }
 }

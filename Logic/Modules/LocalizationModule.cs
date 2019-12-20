@@ -13,24 +13,29 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class LocalizationModule : ModuleBase<SocketCommandContext>
     {
-        private ILanguage _language;
+        private IDbLanguage _language;
         private Localization.Localization _lang;
 
-        public LocalizationModule(ILanguage language)
+        public LocalizationModule(IDbLanguage language)
         {
             _language = language;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            Task.WaitAll(LoadLanguage());
             base.BeforeExecute(command);
+        }
+
+        private async Task LoadLanguage()
+        {
+            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         public async Task DefaultLanguage()
         {
-            var language = _language.GetLanguage(Context.Guild.Id);
+            var language = await _language.GetLanguage(Context.Guild.Id);
             await ReplyAsync(_lang.GetMessage("Language default", language, Context.Guild.Name, string.Join(", ", Enum.GetNames(typeof(Language)))));
         }
 
@@ -43,8 +48,8 @@ namespace Logic.Modules
                 return;
             }
 
-            _language.SetLanguage(Context.Guild.Id, language);
-            _lang = new Localization.Localization(Context.Guild.Id);
+            await _language.SetLanguage(Context.Guild.Id, language);
+            await LoadLanguage();
             await ReplyAsync(_lang.GetMessage("Language set", language, Context.Guild.Name));
         }
     }

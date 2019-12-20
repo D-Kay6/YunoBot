@@ -14,7 +14,7 @@ namespace Dal.EF.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.1")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Entity.AutoChannel", b =>
@@ -58,6 +58,27 @@ namespace Dal.EF.Migrations
                     b.ToTable("AutoRole");
                 });
 
+            modelBuilder.Entity("Entity.Ban", b =>
+                {
+                    b.Property<ulong>("UserId")
+                        .HasColumnType("bigint unsigned");
+
+                    b.Property<ulong>("ServerId")
+                        .HasColumnType("bigint unsigned");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("UserId", "ServerId");
+
+                    b.HasIndex("ServerId");
+
+                    b.ToTable("Ban");
+                });
+
             modelBuilder.Entity("Entity.CommandSetting", b =>
                 {
                     b.Property<ulong>("ServerId")
@@ -73,6 +94,24 @@ namespace Dal.EF.Migrations
                     b.ToTable("CommandSetting");
                 });
 
+            modelBuilder.Entity("Entity.CustomCommand", b =>
+                {
+                    b.Property<ulong>("ServerId")
+                        .HasColumnType("bigint unsigned");
+
+                    b.Property<string>("Command")
+                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("Response")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("ServerId", "Command");
+
+                    b.ToTable("CustomCommand");
+                });
+
             modelBuilder.Entity("Entity.GeneratedChannel", b =>
                 {
                     b.Property<ulong>("ServerId")
@@ -82,8 +121,6 @@ namespace Dal.EF.Migrations
                         .HasColumnType("bigint unsigned");
 
                     b.HasKey("ServerId", "ChannelId");
-
-                    b.HasAlternateKey("ChannelId", "ServerId");
 
                     b.ToTable("GeneratedChannel");
                 });
@@ -152,6 +189,8 @@ namespace Dal.EF.Migrations
 
                     b.HasKey("ServerId", "UserId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("RoleIgnore");
                 });
 
@@ -169,6 +208,21 @@ namespace Dal.EF.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Server");
+                });
+
+            modelBuilder.Entity("Entity.User", b =>
+                {
+                    b.Property<ulong>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint unsigned");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasMaxLength(32);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Entity.WelcomeMessage", b =>
@@ -210,11 +264,35 @@ namespace Dal.EF.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Entity.Ban", b =>
+                {
+                    b.HasOne("Entity.Server", "Server")
+                        .WithMany()
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entity.User", "User")
+                        .WithMany("Bans")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Entity.CommandSetting", b =>
                 {
                     b.HasOne("Entity.Server", "Server")
                         .WithOne("CommandSetting")
                         .HasForeignKey("Entity.CommandSetting", "ServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Entity.CustomCommand", b =>
+                {
+                    b.HasOne("Entity.Server", "Server")
+                        .WithMany("CustomCommands")
+                        .HasForeignKey("ServerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -266,6 +344,12 @@ namespace Dal.EF.Migrations
                     b.HasOne("Entity.Server", "Server")
                         .WithMany("IgnoredUsers")
                         .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entity.User", "User")
+                        .WithMany("IgnoredRoles")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

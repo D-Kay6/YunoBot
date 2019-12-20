@@ -1,6 +1,7 @@
 ﻿using Discord.Commands;
 using Logic.Handlers;
 using System.Threading.Tasks;
+using IDal.Interfaces.Database;
 using Logic.Services;
 
 namespace Logic.Modules
@@ -8,14 +9,25 @@ namespace Logic.Modules
     [RequireOwner]
     public class RestartModule : ModuleBase<SocketCommandContext>
     {
+        private IDbLanguage _language;
+        private RestartService _service;
         private Localization.Localization _lang;
 
-        public RestartService Service { get; set; }
+        public RestartModule(IDbLanguage language, RestartService service)
+        {
+            _language = language;
+            _service = service;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            Task.WaitAll(LoadLanguage());
             base.BeforeExecute(command);
+        }
+
+        private async Task LoadLanguage()
+        {
+            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command("restart")]
@@ -23,7 +35,7 @@ namespace Logic.Modules
         {
             await Context.Message.DeleteAsync();
             await ReplyAsync(_lang.GetMessage("Restart default"));
-            Service.Restart();
+            _service.Restart();
         }
 
         [Command("hardrestart")]
@@ -31,7 +43,7 @@ namespace Logic.Modules
         {
             await Context.Message.DeleteAsync();
             await ReplyAsync(_lang.GetMessage("Restart default"));
-            Service.HardRestart();
+            _service.HardRestart();
         }
 
         [Command("shutdown")]
@@ -39,7 +51,7 @@ namespace Logic.Modules
         {
             await Context.Message.DeleteAsync();
             await ReplyAsync(_lang.GetMessage("Shutdown default"));
-            Service.Shutdown();
+            _service.Shutdown();
         }
     }
 }

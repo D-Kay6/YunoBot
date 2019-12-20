@@ -1,10 +1,11 @@
-﻿using Entity;
+﻿using System.Threading.Tasks;
+using Entity;
 using IDal.Interfaces.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dal.EF
 {
-    public class ChannelRepository : IChannel
+    public class ChannelRepository : IDbChannel
     {
         private DataContext _context;
 
@@ -14,20 +15,20 @@ namespace Dal.EF
         }
 
 
-        public bool IsAutoEnabled(ulong serverId)
+        public async Task<bool> IsAutoEnabled(ulong serverId)
         {
-            var ac = _context.AutoChannels.Find(serverId);
+            var ac = await _context.AutoChannels.FindAsync(serverId);
             return ac != null && ac.Enabled;
         }
 
-        public bool SetAutoEnabled(ulong serverId, bool enabled)
+        public async Task<bool> SetAutoEnabled(ulong serverId, bool enabled)
         {
-            var ac = _context.AutoChannels.Find(serverId);
+            var ac = await _context.AutoChannels.FindAsync(serverId);
             if (ac == null) return false;
             try
             {
                 ac.Enabled = enabled;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -36,20 +37,20 @@ namespace Dal.EF
             }
         }
 
-        public string GetAutoPrefix(ulong serverId)
+        public async Task<string> GetAutoPrefix(ulong serverId)
         {
-            var ac = _context.AutoChannels.Find(serverId);
+            var ac = await _context.AutoChannels.FindAsync(serverId);
             return ac?.Prefix;
         }
 
-        public bool SetAutoPrefix(ulong serverId, string prefix)
+        public async Task<bool> SetAutoPrefix(ulong serverId, string prefix)
         {
-            var ac = _context.AutoChannels.Find(serverId);
+            var ac = await _context.AutoChannels.FindAsync(serverId);
             if (ac == null) return false;
             try
             {
                 ac.Prefix = prefix;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -58,20 +59,20 @@ namespace Dal.EF
             }
         }
 
-        public string GetAutoName(ulong serverId)
+        public async Task<string> GetAutoName(ulong serverId)
         {
-            var ac = _context.AutoChannels.Find(serverId);
+            var ac = await _context.AutoChannels.FindAsync(serverId);
             return ac?.Name;
         }
 
-        public bool SetAutoName(ulong serverId, string name)
+        public async Task<bool> SetAutoName(ulong serverId, string name)
         {
-            var ac = _context.AutoChannels.Find(serverId);
+            var ac = await _context.AutoChannels.FindAsync(serverId);
             if (ac == null) return false;
             try
             {
                 ac.Name = name;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -81,21 +82,21 @@ namespace Dal.EF
         }
 
 
-        public bool IsPermaEnabled(ulong serverId)
+        public async Task<bool> IsPermaEnabled(ulong serverId)
         {
-            var pc = _context.PermaChannels.Find(serverId);
+            var pc = await _context.PermaChannels.FindAsync(serverId);
             if (pc == null) return false;
             return pc.Enabled;
         }
 
-        public bool SetPermaEnabled(ulong serverId, bool enabled)
+        public async Task<bool> SetPermaEnabled(ulong serverId, bool enabled)
         {
-            var pc = _context.PermaChannels.Find(serverId);
+            var pc = await _context.PermaChannels.FindAsync(serverId);
             if (pc == null) return false;
             try
             {
                 pc.Enabled = enabled;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -104,20 +105,20 @@ namespace Dal.EF
             }
         }
 
-        public string GetPermaPrefix(ulong serverId)
+        public async Task<string> GetPermaPrefix(ulong serverId)
         {
-            var pc = _context.PermaChannels.Find(serverId);
+            var pc = await _context.PermaChannels.FindAsync(serverId);
             return pc?.Prefix;
         }
 
-        public bool SetPermaPrefix(ulong serverId, string prefix)
+        public async Task<bool> SetPermaPrefix(ulong serverId, string prefix)
         {
-            var pc = _context.PermaChannels.Find(serverId);
+            var pc = await _context.PermaChannels.FindAsync(serverId);
             if (pc == null) return false;
             try
             {
                 pc.Prefix = prefix;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -126,20 +127,20 @@ namespace Dal.EF
             }
         }
 
-        public string GetPermaName(ulong serverId)
+        public async Task<string> GetPermaName(ulong serverId)
         {
-            var pc = _context.PermaChannels.Find(serverId);
+            var pc = await _context.PermaChannels.FindAsync(serverId);
             return pc?.Name;
         }
 
-        public bool SetPermaName(ulong serverId, string name)
+        public async Task<bool> SetPermaName(ulong serverId, string name)
         {
-            var pc = _context.PermaChannels.Find(serverId);
+            var pc = await _context.PermaChannels.FindAsync(serverId);
             if (pc == null) return false;
             try
             {
                 pc.Name = name;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -149,13 +150,13 @@ namespace Dal.EF
         }
 
 
-        public bool IsGeneratedChannel(ulong serverId, ulong channelId)
+        public async Task<bool> IsGeneratedChannel(ulong serverId, ulong channelId)
         {
-            var channel = _context.GeneratedChannels.Find(serverId, channelId);
+            var channel = await _context.GeneratedChannels.FindAsync(serverId, channelId);
             return channel != null;
         }
 
-        public bool AddGeneratedChannel(ulong serverId, ulong channelId)
+        public async Task<bool> AddGeneratedChannel(ulong serverId, ulong channelId)
         {
             try
             {
@@ -164,7 +165,7 @@ namespace Dal.EF
                     ServerId = serverId,
                     ChannelId = channelId
                 });
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -173,14 +174,14 @@ namespace Dal.EF
             }
         }
 
-        public bool RemoveGeneratedChannel(ulong serverId, ulong channelId)
+        public async Task<bool> RemoveGeneratedChannel(ulong serverId, ulong channelId)
         {
-            var channel = _context.GeneratedChannels.Find(serverId, channelId);
+            var channel = await _context.GeneratedChannels.FindAsync(serverId, channelId);
             if (channel == null) return false;
             try
             {
                 _context.GeneratedChannels.Remove(channel);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -190,14 +191,14 @@ namespace Dal.EF
         }
 
 
-        public AutoChannel GetAutoChannel(ulong serverId)
+        public async Task<AutoChannel> GetAutoChannel(ulong serverId)
         {
-            return _context.AutoChannels.Find(serverId);
+            return await _context.AutoChannels.FindAsync(serverId);
         }
 
-        public PermaChannel GetPermaChannel(ulong serverId)
+        public async Task<PermaChannel> GetPermaChannel(ulong serverId)
         {
-            return _context.PermaChannels.Find(serverId);
+            return await _context.PermaChannels.FindAsync(serverId);
         }
     }
 }

@@ -1,10 +1,11 @@
-﻿using Entity;
+﻿using System.Threading.Tasks;
+using Entity;
 using IDal.Interfaces.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dal.EF
 {
-    public class LanguageRepository : ILanguage
+    public class LanguageRepository : IDbLanguage
     {
         private DataContext _context;
 
@@ -13,14 +14,14 @@ namespace Dal.EF
             _context = new DataContext();
         }
 
-        public bool SetLanguage(ulong serverId, Language language)
+        public async Task<bool> SetLanguage(ulong serverId, Language language)
         {
-            var settings = _context.LanguageSettings.Find(serverId);
+            var settings = await _context.LanguageSettings.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.Language = language;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -29,9 +30,10 @@ namespace Dal.EF
             }
         }
 
-        public Language GetLanguage(ulong serverId)
+        public async Task<Language> GetLanguage(ulong serverId)
         {
-            return _context.LanguageSettings.Find(serverId).Language;
+            var settings = await _context.LanguageSettings.FindAsync(serverId);
+            return settings.Language;
         }
     }
 }

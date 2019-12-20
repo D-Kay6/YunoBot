@@ -8,9 +8,10 @@ namespace Entity
 {
     public class Ban
     {
-        [Key]
+        [Key, Column(Order = 0)]
         public ulong UserId { get; set; }
 
+        [Key, Column(Order = 1)]
         public ulong ServerId { get; set; }
 
         public DateTime? EndDate { get; set; }

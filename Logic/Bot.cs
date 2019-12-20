@@ -19,13 +19,7 @@ namespace Logic
 
         private DiscordSocketClient _client;
 
-        private readonly StatusHandler _statusHandler;
-        private readonly DatabaseHandler _databaseHandler;
-        private readonly CommandHandler _commandHandler;
-        private readonly DblHandler _dblHandler;
-        private readonly ChannelHandler _channelHandler;
-        private readonly RoleHandler _roleHandler;
-        private readonly WelcomeHandler _welcomeHandler;
+        private readonly HandlerCollection _handlers;
 
         private IServiceProvider _services;
 
@@ -45,13 +39,7 @@ namespace Logic
 
             _services = GenerateServiceProvider();
 
-            _statusHandler = ActivatorUtilities.CreateInstance<StatusHandler>(_services);
-            _databaseHandler = ActivatorUtilities.CreateInstance<DatabaseHandler>(_services);
-            _commandHandler = ActivatorUtilities.CreateInstance<CommandHandler>(_services);
-            _dblHandler = ActivatorUtilities.CreateInstance<DblHandler>(_services);
-            _channelHandler = ActivatorUtilities.CreateInstance<ChannelHandler>(_services);
-            _roleHandler = ActivatorUtilities.CreateInstance<RoleHandler>(_services);
-            _welcomeHandler = ActivatorUtilities.CreateInstance<WelcomeHandler>(_services);
+            _handlers = new HandlerCollection(_services);
         }
 
         /// <summary>
@@ -60,7 +48,7 @@ namespace Logic
         public async Task Start()
         {
             var restartService = _services.GetService<RestartService>();
-            await PrepareHandlers();
+            await _handlers.Initialize();
 
             while (restartService.KeepAlive)
             {
@@ -90,25 +78,32 @@ namespace Logic
         {
             var serviceCollection = new ServiceCollection();
 
-            var log = new LogService();
-            var restart = new RestartService();
-            var audio = new AudioService(_client);
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateServer());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateUser());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateBan());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateLanguage());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommand());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateWelcome());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateChannel());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRole());
 
             serviceCollection.AddSingleton(_client);
             serviceCollection.AddSingleton(_config.Read());
 
-            serviceCollection.AddSingleton(DatabaseFactory.GenerateServer());
-            serviceCollection.AddSingleton(DatabaseFactory.GenerateLanguage());
-            serviceCollection.AddSingleton(DatabaseFactory.GenerateCommand());
-            serviceCollection.AddSingleton(DatabaseFactory.GenerateWelcome());
-            serviceCollection.AddSingleton(DatabaseFactory.GenerateChannel());
-            serviceCollection.AddSingleton(DatabaseFactory.GenerateRole());
-
-            serviceCollection.AddSingleton(log);
-            serviceCollection.AddSingleton(restart);
-            serviceCollection.AddSingleton(audio);
+            serviceCollection.AddSingleton(new LogService());
+            serviceCollection.AddSingleton(new RestartService());
+            serviceCollection.AddSingleton(new AudioService(_client, DatabaseFactory.GenerateLanguage()));
 
             return serviceCollection.BuildServiceProvider();
+
+            //serviceCollection.AddSingleton(DatabaseFactory.GenerateServer());
+            //serviceCollection.AddSingleton(DatabaseFactory.GenerateUser());
+            //serviceCollection.AddSingleton(DatabaseFactory.GenerateBan());
+            //serviceCollection.AddSingleton(DatabaseFactory.GenerateLanguage());
+            //serviceCollection.AddSingleton(DatabaseFactory.GenerateCommand());
+            //serviceCollection.AddSingleton(DatabaseFactory.GenerateWelcome());
+            //serviceCollection.AddSingleton(DatabaseFactory.GenerateChannel());
+            //serviceCollection.AddSingleton(DatabaseFactory.GenerateRole());
         }
 
         private void DownloadPrerequisites()
@@ -121,17 +116,6 @@ namespace Logic
                 file = "opus.dll";
                 if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
             }
-        }
-
-        private async Task PrepareHandlers()
-        {
-            await _statusHandler.Initialize();
-            await _databaseHandler.Initialize();
-            await _commandHandler.Initialize();
-            await _dblHandler.Initialize();
-            await _channelHandler.Initialize();
-            await _roleHandler.Initialize();
-            await _welcomeHandler.Initialize();
         }
 
         private async Task OnReady()

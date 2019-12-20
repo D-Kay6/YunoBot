@@ -10,12 +10,12 @@ namespace Logic.Handlers
 {
     public class CommandHandler : BaseHandler
     {
-        private ILanguage _language;
-        private ICommand _command;
+        private IDbLanguage _language;
+        private IDbCommand _command;
         private IServiceProvider _serviceProvider;
         private CommandService _service;
 
-        public CommandHandler(DiscordSocketClient client, ILanguage language, ICommand command, IServiceProvider serviceProvider) : base(client)
+        public CommandHandler(DiscordSocketClient client, IDbLanguage language, IDbCommand command, IServiceProvider serviceProvider) : base(client)
         {
             _language = language;
             _command = command;
@@ -39,7 +39,7 @@ namespace Logic.Handlers
                 if (s.Author.IsBot) return;
                 if (!(s is SocketUserMessage msg)) return;
                 var context = new SocketCommandContext(Client, msg);
-                var prefix = _command.GetPrefix(context.Guild.Id);
+                var prefix = await _command.GetPrefix(context.Guild.Id);
                 var argPos = 0;
                 if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
 
@@ -47,7 +47,7 @@ namespace Logic.Handlers
                 var result = await _service.ExecuteAsync(context, argPos, _serviceProvider);
                 if (result.IsSuccess) return;
                 LogService.Instance.Log("Commands", context.Guild, $"Execution failed. Error code: {result.ErrorReason}.");
-                var lang = new Localization.Localization(_language.GetLanguage(context.Guild.Id));
+                var lang = new Localization.Localization(await _language.GetLanguage(context.Guild.Id));
                 switch (result.Error)
                 {
                     case CommandError.UnmetPrecondition:
@@ -57,6 +57,7 @@ namespace Logic.Handlers
                         await context.Channel.SendMessageAsync(lang.GetMessage("Command invalid arguments", prefix));
                         break;
                     default:
+                        if (await SendCustomCommand(context, argPos)) return;
                         await context.Channel.SendMessageAsync(lang.GetMessage("Command invalid", prefix));
                         break;
                 }
@@ -66,6 +67,15 @@ namespace Logic.Handlers
                 if ((s.Channel as SocketGuildChannel).Guild.Id.Equals(264445053596991498)) return;
                 LogService.Instance.Log("Crashes", $"CommandHandler crashed. Stacktrace: {e}");
             }
+        }
+
+        private async Task<bool> SendCustomCommand(SocketCommandContext context, int argPos)
+        {
+            var message = context.Message.Content.Substring(argPos);
+            var command = await _command.GetCustomCommand(context.Guild.Id, message);
+            if (command == null) return false;
+            await context.Channel.SendMessageAsync(command.Response);
+            return true;
         }
     }
 }

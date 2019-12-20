@@ -13,6 +13,14 @@
     <Compile Remove="EF\Migrations\20191203102854_InitialCreate.Designer.cs" />
     <Compile Remove="EF\Migrations\20191203104557_InitialCreate.cs" />
     <Compile Remove="EF\Migrations\20191203104557_InitialCreate.Designer.cs" />
+    <Compile Remove="EF\Migrations\20191213093828_BanAddition.cs" />
+    <Compile Remove="EF\Migrations\20191213093828_BanAddition.Designer.cs" />
+    <Compile Remove="EF\Migrations\20191213094512_BanAddition.cs" />
+    <Compile Remove="EF\Migrations\20191213094512_BanAddition.Designer.cs" />
+    <Compile Remove="EF\Migrations\20191213094828_BanAddition.cs" />
+    <Compile Remove="EF\Migrations\20191213094828_BanAddition.Designer.cs" />
+    <Compile Remove="EF\Migrations\20191220110413_CustomCommands.cs" />
+    <Compile Remove="EF\Migrations\20191220110413_CustomCommands.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,7 +37,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0-rc1.final" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>

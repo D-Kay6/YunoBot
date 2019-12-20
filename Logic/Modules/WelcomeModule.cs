@@ -1,4 +1,5 @@
-﻿using DalFactory;
+﻿using System;
+using DalFactory;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -14,44 +15,64 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class WelcomeModule : ModuleBase<SocketCommandContext>
     {
-        private IWelcome _welcome;
+        private IDbWelcome _welcome;
+        private IDbLanguage _language;
         private Localization.Localization _lang;
         private WelcomeMessage _settings;
 
-        public WelcomeModule(IWelcome welcome)
+        public WelcomeModule(IDbWelcome welcome, IDbLanguage language)
         {
             _welcome = welcome;
+            _language = language;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
-            _settings = _welcome.GetWelcomeSettings(Context.Guild.Id);
+            Task.WaitAll(LoadLanguage());
             base.BeforeExecute(command);
+        }
+
+        private async Task LoadLanguage()
+        {
+            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Priority(-1)]
         [Command]
         public async Task DefaultWelcome([Remainder] string name)
         {
-            await ReplyAsync(_lang.GetMessage("Unknown user", name));
-        }
-
-        [Priority(-1)]
-        [Command]
-        public async Task DefaultWelcome()
-        {
             if (_settings == null)
             {
                 await ReplyAsync(_lang.GetMessage("Welcome exception"));
                 return;
             }
-            await ReplyAsync(_lang.GetMessage("Unknown user", ""));
+
+            if (string.IsNullOrWhiteSpace(name)) name = string.Empty;
+            await ReplyAsync(_lang.GetMessage("Invalid user", name));
         }
+
+        //[Priority(-1)]
+        //[Command]
+        //public async Task DefaultWelcome()
+        //{
+        //    if (_settings == null)
+        //    {
+        //        await ReplyAsync(_lang.GetMessage("Welcome exception"));
+        //        return;
+        //    }
+        //    await ReplyAsync(_lang.GetMessage("Invalid user", ""));
+        //}
         
         [Command]
         public async Task DefaultWelcome(params SocketGuildUser[] users)
         {
+            if (!users.Any())
+            {
+                var index = Context.Message.Content.IndexOf("welcome", StringComparison.OrdinalIgnoreCase);
+                var param = Context.Message.Content.Substring(index + 7);
+                await DefaultWelcome(param);
+                return;
+            }
             if (_settings == null)
             {
                 await ReplyAsync(_lang.GetMessage("Welcome exception"));
@@ -68,7 +89,7 @@ namespace Logic.Modules
         [Alias("on")]
         public async Task WelcomeEnable(SocketTextChannel channel)
         {
-            _welcome.Enable(Context.Guild.Id, channel.Id);
+            await _welcome.Enable(Context.Guild.Id, channel.Id);
             await ReplyAsync(_lang.GetMessage("Welcome enable", channel.Mention));
         }
         
@@ -76,27 +97,33 @@ namespace Logic.Modules
         [Alias("off")]
         public async Task WelcomeDisable()
         {
-            _welcome.Disable(Context.Guild.Id);
+            await _welcome.Disable(Context.Guild.Id);
             await ReplyAsync(_lang.GetMessage("Welcome disable"));
         }
 
         [Group("message")]
         public class WelcomeMessageModule : ModuleBase<SocketCommandContext>
         {
-            private IWelcome _welcome;
+            private IDbWelcome _welcome;
+            private IDbLanguage _language;
             private Localization.Localization _lang;
             private WelcomeMessage _settings;
 
-            public WelcomeMessageModule(IWelcome welcome)
+            public WelcomeMessageModule(IDbWelcome welcome, IDbLanguage language)
             {
                 _welcome = welcome;
+                _language = language;
             }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                _lang = new Localization.Localization(Context.Guild.Id);
-                _settings = _welcome.GetWelcomeSettings(Context.Guild.Id);
+                Task.WaitAll(LoadLanguage());
                 base.BeforeExecute(command);
+            }
+
+            private async Task LoadLanguage()
+            {
+                _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
             }
 
             [Command]
@@ -113,7 +140,7 @@ namespace Logic.Modules
             [Command("set")]
             public async Task WelcomeMessageSet([Remainder] string message)
             {
-                _welcome.SetWelcomeMessage(Context.Guild.Id, message);
+                await _welcome.SetWelcomeMessage(Context.Guild.Id, message);
                 await ReplyAsync(_lang.GetMessage("Welcome message set", message, Context.Guild.Name));
             }
         }
@@ -121,20 +148,26 @@ namespace Logic.Modules
         [Group("image")]
         public class WelcomeImageModule : ModuleBase<SocketCommandContext>
         {
-            private IWelcome _welcome;
+            private IDbWelcome _welcome;
+            private IDbLanguage _language;
             private Localization.Localization _lang;
             private WelcomeMessage _settings;
 
-            public WelcomeImageModule(IWelcome welcome)
+            public WelcomeImageModule(IDbWelcome welcome, IDbLanguage language)
             {
                 _welcome = welcome;
+                _language = language;
             }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                _lang = new Localization.Localization(Context.Guild.Id);
-                _settings = _welcome.GetWelcomeSettings(Context.Guild.Id);
+                Task.WaitAll(LoadLanguage());
                 base.BeforeExecute(command);
+            }
+
+            private async Task LoadLanguage()
+            {
+                _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
             }
 
             [Command]
@@ -153,7 +186,7 @@ namespace Logic.Modules
             [Alias("on")]
             public async Task WelcomeImageEnable()
             {
-                _welcome.UseImage(Context.Guild.Id, true);
+                await _welcome.UseImage(Context.Guild.Id, true);
                 await ReplyAsync(_lang.GetMessage("Welcome image enable", Context.Guild.Name));
             }
 
@@ -161,7 +194,7 @@ namespace Logic.Modules
             [Alias("off")]
             public async Task WelcomeImageDisable()
             {
-                _welcome.UseImage(Context.Guild.Id, false);
+                await _welcome.UseImage(Context.Guild.Id, false);
                 await ReplyAsync(_lang.GetMessage("Welcome image disable", Context.Guild.Name));
             }
         }

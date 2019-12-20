@@ -6,6 +6,7 @@ using Logic.Services.Music;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IDal.Interfaces.Database;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
@@ -22,6 +23,7 @@ namespace Logic.Services
 
         private LavaPlayer _player;
         private Queue<IPlayable> _queue;
+        private IDbLanguage _language;
         private Localization.Localization _lang;
 
         public bool IsPlaying => _player != null && _player.PlayerState == PlayerState.Playing || _player.PlayerState == PlayerState.Paused;
@@ -31,15 +33,21 @@ namespace Logic.Services
         public ITextChannel TextChannel => _player?.TextChannel;
         public LavaTrack CurrentTrack => _player?.Track;
         
-        public AudioService(DiscordSocketClient client)
+        public AudioService(DiscordSocketClient client, IDbLanguage language)
         {
             _client = client;
+            _language = language;
             _lavaConfig = new LavaConfig();
             _lavaNode = new LavaNode(_client, _lavaConfig);
             _queues = new Dictionary<ulong, Queue<IPlayable>>();
             _client.Ready += OnReady;
         }
-        
+
+        private async Task LoadLanguage(ulong serverId)
+        {
+            _lang = new Localization.Localization(await _language.GetLanguage(serverId));
+        }
+
 
         private async Task OnReady()
         {
@@ -67,7 +75,7 @@ namespace Logic.Services
         private async Task OnTrackEnded(TrackEndedEventArgs e)
         {
             _player = e.Player;
-            _lang = new Localization.Localization(_player.VoiceChannel.GuildId);
+            await LoadLanguage(_player.VoiceChannel.GuildId);
             switch (e.Reason)
             {
                 case TrackEndReason.Finished:
@@ -110,7 +118,7 @@ namespace Logic.Services
         }
 
 
-        public void BeforeExecute(IGuild guild)
+        public async Task BeforeExecute(IGuild guild)
         {
             _player = _lavaNode.HasPlayer(guild) ? _lavaNode.GetPlayer(guild) : null;
             if (_queues.ContainsKey(guild.Id)) _queue = _queues[guild.Id];
@@ -119,7 +127,8 @@ namespace Logic.Services
                 _queue = new Queue<IPlayable>();
                 _queues.Add(guild.Id, _queue);
             }
-            _lang = new Localization.Localization(guild.Id);
+
+            await LoadLanguage(guild.Id);
         }
 
 

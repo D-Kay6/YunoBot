@@ -1,6 +1,7 @@
 ﻿using Discord.Commands;
 using Logic.Handlers;
 using System.Threading.Tasks;
+using IDal.Interfaces.Database;
 using Logic.Services;
 
 namespace Logic.Modules
@@ -8,12 +9,23 @@ namespace Logic.Modules
     [Group("request")]
     public class RequestModule : ModuleBase<SocketCommandContext>
     {
+        private IDbLanguage _language;
         private Localization.Localization _lang;
+
+        public RequestModule(IDbLanguage language)
+        {
+            _language = language;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            Task.WaitAll(LoadLanguage());
             base.BeforeExecute(command);
+        }
+
+        private async Task LoadLanguage()
+        {
+            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]

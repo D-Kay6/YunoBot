@@ -14,12 +14,12 @@ namespace Logic.Modules
     [Group("music")]
     public class MusicModule : ModuleBase<SocketCommandContext>
     {
-        private ILanguage _language;
+        private IDbLanguage _language;
         private Localization.Localization _lang;
 
         private AudioService AudioService { get; }
 
-        public MusicModule(AudioService audioService, ILanguage language)
+        public MusicModule(AudioService audioService, IDbLanguage language)
         {
             AudioService = audioService;
             _language = language;
@@ -27,9 +27,13 @@ namespace Logic.Modules
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            AudioService.BeforeExecute(Context.Guild);
-            _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
+            Task.WaitAll(LoadLanguage(), AudioService.BeforeExecute(Context.Guild));
             base.BeforeExecute(command);
+        }
+
+        private async Task LoadLanguage()
+        {
+            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Priority(-1)]

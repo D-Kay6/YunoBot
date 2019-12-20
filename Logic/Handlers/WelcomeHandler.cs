@@ -7,10 +7,10 @@ namespace Logic.Handlers
 {
     public class WelcomeHandler : BaseHandler
     {
-        private ICommand _command;
-        private IWelcome _welcome;
+        private IDbCommand _command;
+        private IDbWelcome _welcome;
 
-        public WelcomeHandler(DiscordSocketClient client, ICommand command, IWelcome welcome) : base(client)
+        public WelcomeHandler(DiscordSocketClient client, IDbCommand command, IDbWelcome welcome) : base(client)
         {
             _command = command;
             _welcome = welcome;
@@ -23,7 +23,7 @@ namespace Logic.Handlers
 
         private async Task OnUserJoined(SocketGuildUser user)
         {
-            var welcome = _welcome.GetWelcomeSettings(user.Guild.Id);
+            var welcome = await _welcome.GetWelcomeSettings(user.Guild.Id);
             if (welcome.ChannelId == null) return;
             if (!(user.Guild.GetChannel((ulong) welcome.ChannelId) is ISocketMessageChannel channel))
             {
@@ -38,7 +38,7 @@ namespace Logic.Handlers
 
         private async Task DisableWelcomeMessage(SocketGuild guild)
         {
-            _welcome.Disable(guild.Id);
+            await _welcome.Disable(guild.Id);
 
             var owner = guild.Owner;
             await owner.SendDM($@"I'm sorry to bother you, but it seems like something went wrong with the welcome message for `{guild.Name}`.

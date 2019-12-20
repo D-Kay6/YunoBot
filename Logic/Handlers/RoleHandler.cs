@@ -4,15 +4,15 @@ using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using IRole = IDal.Interfaces.Database.IRole;
+using IDbRole = IDal.Interfaces.Database.IDbRole;
 
 namespace Logic.Handlers
 {
     public class RoleHandler : BaseHandler
     {
-        private IRole _role;
+        private IDbRole _role;
 
-        public RoleHandler(DiscordSocketClient client, IRole role) : base(client)
+        public RoleHandler(DiscordSocketClient client, IDbRole role) : base(client)
         {
             _role = role;
         }
@@ -25,37 +25,51 @@ namespace Logic.Handlers
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)
         {
             if (oldState.Activity?.Name == newState.Activity?.Name) return;
-            RemoveRole(oldState);
-            AddRole(newState);
+            await RemoveRole(oldState);
+            await AddRole(newState);
         }
 
         private async Task RemoveRole(SocketGuildUser user)
         {
-            if (user.Activity == null) return;
-            var roleData = _role.GetAutoChannel(user.Guild.Id);
-            var roles = user.Roles.Where(r => r.Name.StartsWith(roleData.Prefix, StringComparison.OrdinalIgnoreCase) && r.Name.ContainsIgnoreCase(user.Activity.Name));
-            foreach (var role in roles)
+            try
             {
-                await user.RemoveRoleAsync(role);
-                LogService.Instance.Log("Roles", user.Guild, $"{user.Nickname()} lost role `{role.Name}`.");
+                if (user.Activity == null) return;
+                var roleData = await _role.GetAutoChannel(user.Guild.Id);
+                var roles = user.Roles.Where(r => r.Name.StartsWith(roleData.Prefix, StringComparison.OrdinalIgnoreCase) && r.Name.ContainsIgnoreCase(user.Activity.Name));
+                foreach (var role in roles)
+                {
+                    await user.RemoveRoleAsync(role);
+                    LogService.Instance.Log("Roles", user.Guild, $"{user.Nickname()} lost role `{role.Name}`.");
+                }
+            }
+            catch (Exception e)
+            {
+                LogService.Instance.Log("Crashes", $"Removing a role broke. {e.Message}");
             }
         }
 
         private async Task AddRole(SocketGuildUser user)
         {
-            if (_role.IsIgnoringRoles(user.Guild.Id, user.Id)) return;
-            if (user.Activity == null) return;
-
-            var autoPrefix = _role.GetAutoPrefix(user.Guild.Id);
-            var permaPrefix = _role.GetPermaPrefix(user.Guild.Id);
-            foreach (var role in user.Guild.Roles)
+            try
             {
-                if (!role.Name.ContainsIgnoreCase(user.Activity.Name)) continue;
-                if (user.Roles.Contains(role)) continue;
-                if (!role.Name.StartsWith(autoPrefix, StringComparison.OrdinalIgnoreCase) &&
-                    !role.Name.StartsWith(permaPrefix, StringComparison.OrdinalIgnoreCase)) continue;
-                await user.AddRoleAsync(role);
-                LogService.Instance.Log("Roles", user.Guild, $"{user.Nickname()} got role `{role.Name}`.");
+                if (await _role.IsIgnoringRoles(user.Guild.Id, user.Id)) return;
+                if (user.Activity == null) return;
+
+                var autoPrefix = await _role.GetAutoPrefix(user.Guild.Id);
+                var permaPrefix = await _role.GetPermaPrefix(user.Guild.Id);
+                foreach (var role in user.Guild.Roles)
+                {
+                    if (!role.Name.ContainsIgnoreCase(user.Activity.Name)) continue;
+                    if (user.Roles.Contains(role)) continue;
+                    if (!role.Name.StartsWith(autoPrefix, StringComparison.OrdinalIgnoreCase) &&
+                        !role.Name.StartsWith(permaPrefix, StringComparison.OrdinalIgnoreCase)) continue;
+                    await user.AddRoleAsync(role);
+                    LogService.Instance.Log("Roles", user.Guild, $"{user.Nickname()} got role `{role.Name}`.");
+                }
+            }
+            catch (Exception e)
+            {
+                LogService.Instance.Log("Crashes", $"Adding a role broke. {e.Message}");
             }
         }
     }

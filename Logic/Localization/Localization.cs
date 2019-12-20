@@ -11,13 +11,6 @@ namespace Logic.Localization
         private ILocalization _lang;
         private LanguageData _data;
 
-        public Localization(ulong serverId)
-        {
-            var language = DatabaseFactory.GenerateLanguage().GetLanguage(serverId);
-            _lang = LocalizationFactory.GenerateLocalization();
-            _data = _lang.Read(language.ToString());
-        }
-
         public Localization(Language language)
         {
             _lang = LocalizationFactory.GenerateLocalization();

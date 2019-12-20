@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Discord;
@@ -36,7 +37,7 @@ namespace Logic.Handlers
 
         private async Task RandomizeActivity()
         {
-            var i = _random.Next(1, 4);
+            var i = _random.Next(1, 5);
             IActivity activity = null;
             switch (i)
             {
@@ -52,8 +53,12 @@ namespace Logic.Handlers
                 case 4:
                     activity = new Game("with her knife", ActivityType.Playing);
                     break;
+                case 5:
+                    var userCount = Client.Guilds.Sum(guild => guild.MemberCount);
+                    activity = new Game($"{userCount} users", ActivityType.Watching);
+                    break;
             }
-            await this.Client.SetActivityAsync(activity);
+            await Client.SetActivityAsync(activity);
         }
     }
 }

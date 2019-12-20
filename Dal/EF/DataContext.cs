@@ -7,9 +7,13 @@ namespace Dal.EF
     public class DataContext : DbContext
     {
         public DbSet<Server> Servers { get; set; }
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<Ban> Bans { get; set; }
 
         public DbSet<LanguageSetting> LanguageSettings { get; set; }
         public DbSet<CommandSetting> CommandSettings { get; set; }
+        public DbSet<CustomCommand> CustomCommands { get; set; }
         public DbSet<WelcomeMessage> WelcomeMessages { get; set; }
 
         public DbSet<AutoChannel> AutoChannels { get; set; }
@@ -31,6 +35,8 @@ namespace Dal.EF
         {
             modelBuilder.RemovePluralizingTableNameConvention();
 
+            modelBuilder.Entity<CustomCommand>().HasKey(x => new { x.ServerId, x.Command });
+            modelBuilder.Entity<Ban>().HasKey(x => new { x.UserId, x.ServerId });
             modelBuilder.Entity<GeneratedChannel>().HasKey(x => new { x.ServerId, x.ChannelId });
             modelBuilder.Entity<RoleIgnore>().HasKey(x => new { x.ServerId, x.UserId });
         }

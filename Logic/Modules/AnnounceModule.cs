@@ -13,18 +13,23 @@ namespace Logic.Modules
     [Group("announce")]
     public class AnnounceModule : ModuleBase<SocketCommandContext>
     {
-        private ILanguage _language;
+        private IDbLanguage _language;
         private Localization.Localization _lang;
 
-        public AnnounceModule(ILanguage language)
+        public AnnounceModule(IDbLanguage language)
         {
             _language = language;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
+            Task.WaitAll(LoadLanguage());
             base.BeforeExecute(command);
+        }
+
+        private async Task LoadLanguage()
+        {
+            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Priority(-1)]
@@ -38,7 +43,7 @@ namespace Logic.Modules
                 return;
             }
 
-            SendAnnouncement(Context.Guild.Users, message, Context.Guild.Name);
+            await SendAnnouncement(Context.Guild.Users, message, Context.Guild.Name);
         }
 
         [Command("global")]
@@ -58,12 +63,16 @@ namespace Logic.Modules
                 if (users.Any(u => u.Id.Equals(guild.OwnerId))) continue;
                 users.Add(guild.Owner);
             }
-            SendAnnouncement(users, message, "Update notice");
+            await SendAnnouncement(users, message, "Update notice");
         }
 
         private async Task SendAnnouncement(IReadOnlyCollection<IUser> users, string message, string title = "")
         {
-            users.Foreach(async u => await SendDM(u, message, title));
+            foreach (var user in users)
+            {
+                await SendDM(user, message, title);
+                await Task.Delay(1000);
+            }
         }
 
         private async Task SendDM(IUser user, string message, string title = "")

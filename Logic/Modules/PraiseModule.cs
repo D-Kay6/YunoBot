@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IDal.Interfaces.Database;
 using Logic.Extensions;
 
 namespace Logic.Modules
@@ -9,12 +10,23 @@ namespace Logic.Modules
     [Group("praise")]
     public class PraiseModule : ModuleBase<SocketCommandContext>
     {
+        private IDbLanguage _language;
         private Localization.Localization _lang;
+
+        public PraiseModule(IDbLanguage language)
+        {
+            _language = language;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            Task.WaitAll(LoadLanguage());
             base.BeforeExecute(command);
+        }
+
+        private async Task LoadLanguage()
+        {
+            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
         }
 
         // source: https://www.happier.com/blog/nice-things-to-say-100-compliments/
