@@ -1,41 +1,42 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Dal.Text
 {
-    class TextStream
+    internal class TextStream
     {
-        public void Write<T>(string path, T data)
+        public async Task WriteAsync(string path, string data)
         {
             using (var stream = new StreamWriter(path))
             {
-                stream.Write(data);
+                await stream.WriteAsync(data);
             }
         }
 
-        public void WriteLine<T>(string path, T data)
+        public async Task WriteLineAsync(string path, string data)
         {
-            Write(path, data, true);
+            await WriteAsync(path, data, true);
         }
 
-        public void Overwrite<T>(string path, T data)
+        public async Task OverwriteAsync(string path, string data)
         {
-            Write(path, data, false);
+            await WriteAsync(path, data, false);
         }
 
-        private void Write<T>(string path, T data, bool append)
+        private async Task WriteAsync(string path, string data, bool append)
         {
             using (var stream = new StreamWriter(path, append))
             {
-                stream.WriteLine(data);
+                await stream.WriteLineAsync(data);
             }
         }
 
-        public T Read<T>(string path)
+        public async Task<T> ReadAsync<T>(string path)
         {
             using (var stream = new StreamReader(path))
             {
-                var text = stream.ReadToEnd();
+                var text = await stream.ReadToEndAsync();
                 return (T)Convert.ChangeType(text, typeof(T));
             }
         }
