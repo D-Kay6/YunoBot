@@ -1,7 +1,8 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using IDal.Interfaces.Database;
+using IDal.Database;
+using Logic.Services;
 using System.Threading.Tasks;
 
 namespace Logic.Modules
@@ -11,35 +12,36 @@ namespace Logic.Modules
     public class KickModule : ModuleBase<SocketCommandContext>
     {
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public KickModule(IDbLanguage language)
+        public KickModule(IDbLanguage language, LocalizationService localization)
         {
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         public async Task DefaultKick()
         {
-            await ReplyAsync(_lang.GetMessage("Kick default"));
+            await ReplyAsync(_localization.GetMessage("Kick default"));
         }
 
         [Priority(-1)]
         [Command]
         public async Task KickUser([Remainder] string name)
         {
-            await ReplyAsync(_lang.GetMessage("Invalid user", name));
+            await ReplyAsync(_localization.GetMessage("Invalid user", name));
         }
 
         [Command]
@@ -48,10 +50,10 @@ namespace Logic.Modules
             if (string.IsNullOrEmpty(message)) message = null;
 
             var builder = new EmbedBuilder();
-            builder.AddField(_lang.GetMessage("Kick user"), user.Mention);
+            builder.AddField(_localization.GetMessage("Kick user"), user.Mention);
 
-            var reason = message ?? _lang.GetMessage("Kick reason none");
-            builder.AddField(_lang.GetMessage("Kick user"), reason);
+            var reason = message ?? _localization.GetMessage("Kick reason none");
+            builder.AddField(_localization.GetMessage("Kick user"), reason);
 
             await ReplyAsync(null, false, builder.Build());
             await user.KickAsync(message);

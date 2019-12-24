@@ -1,38 +1,40 @@
 ﻿using Discord;
 using Discord.Commands;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
 using System;
 using System.Threading.Tasks;
-using IDal.Interfaces.Database;
-using Logic.Extensions;
 
 namespace Logic.Modules
 {
     public class PickModule : ModuleBase<SocketCommandContext>
     {
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public PickModule(IDbLanguage language)
+        public PickModule(IDbLanguage language, LocalizationService localization)
         {
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command("pick")]
         public async Task PickCommand([Remainder] string message)
         {
             var options = message.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
-            var embed = EmbedExtensions.CreateEmbed(_lang.GetMessage("Pick default", Context.User.Username),
+            var embed = EmbedExtensions.CreateEmbed(_localization.GetMessage("Pick default", Context.User.Username),
                 options.GetRandomItem(),
                 new Color(255, 255, 0));
 

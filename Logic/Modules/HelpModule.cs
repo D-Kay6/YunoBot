@@ -1,10 +1,10 @@
-﻿using System;
-using DalFactory;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
-using System.Threading.Tasks;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Extensions;
+using Logic.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace Logic.Modules
 {
@@ -15,17 +15,18 @@ namespace Logic.Modules
         private IDbLanguage _language;
 
         private string _prefix;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public HelpModule(IDbCommand command, IDbLanguage language)
+        public HelpModule(IDbCommand command, IDbLanguage language, LocalizationService localization)
         {
             _command = command;
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadPrefix(), LoadLanguage());
+            Task.WaitAll(LoadPrefix(), Prepare());
             base.BeforeExecute(command);
         }
 
@@ -34,9 +35,9 @@ namespace Logic.Modules
             _prefix = await _command.GetPrefix(Context.Guild.Id);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Priority(-1)]
@@ -45,33 +46,32 @@ namespace Logic.Modules
         {
             if (!string.IsNullOrEmpty(message))
             {
-                await ReplyAsync(_lang.GetMessage("Help no info"));
+                await ReplyAsync(_localization.GetMessage("Help no info"));
                 return;
             }
 
             try
             {
-
                 var embed = new EmbedBuilder();
-                embed.AddField("Help", _lang.GetMessage("Help title"));
-                embed.AddField("__General Commands__", _lang.GetMessage("Help general", _prefix));
-                embed.AddField("Praise", _lang.GetMessage("Help praise", _prefix));
-                embed.AddField("music", _lang.GetMessage("Help music", _prefix));
-                embed.AddField("request", _lang.GetMessage("Help request", _prefix));
-                embed.AddField("command", _lang.GetMessage("Help command", _prefix));
-                embed.AddField("__Admin Commands__", _lang.GetMessage("Help admin", _prefix));
-                embed.AddField("command", _lang.GetMessage("Help command admin", _prefix));
-                embed.AddField("language", _lang.GetMessage("Help language", _prefix));
-                embed.AddField("welcome", _lang.GetMessage("Help welcome", _prefix));
-                embed.AddField("autochannel (ac)", _lang.GetMessage("Help autochannel", _prefix));
-                embed.AddField("permachannel (pc)", _lang.GetMessage("Help permachannel", _prefix));
-                embed.AddField("autorole (ar)", _lang.GetMessage("Help autorole", _prefix));
-                embed.AddField("permarole (pr)", _lang.GetMessage("Help permarole", _prefix));
-                embed.AddField("kick", _lang.GetMessage("Help kick", _prefix));
-                embed.AddField("ban", _lang.GetMessage("Help ban", _prefix));
+                embed.AddField("Help", _localization.GetMessage("Help title"));
+                embed.AddField("__General Commands__", _localization.GetMessage("Help general", _prefix));
+                embed.AddField("Praise", _localization.GetMessage("Help praise", _prefix));
+                embed.AddField("Music", _localization.GetMessage("Help music", _prefix));
+                embed.AddField("Request", _localization.GetMessage("Help request", _prefix));
+                embed.AddField("Command", _localization.GetMessage("Help command", _prefix));
+                embed.AddField("__Admin Commands__", _localization.GetMessage("Help admin", _prefix));
+                embed.AddField("Command", _localization.GetMessage("Help command admin", _prefix));
+                embed.AddField("Language", _localization.GetMessage("Help language", _prefix));
+                embed.AddField("Welcome", _localization.GetMessage("Help welcome", _prefix));
+                embed.AddField("AutoChannel (ac)", _localization.GetMessage("Help autochannel", _prefix));
+                embed.AddField("PermaChannel (pc)", _localization.GetMessage("Help permachannel", _prefix));
+                embed.AddField("AutoRole (ar)", _localization.GetMessage("Help autorole", _prefix));
+                embed.AddField("PermaRole (pr)", _localization.GetMessage("Help permarole", _prefix));
+                embed.AddField("Kick", _localization.GetMessage("Help kick", _prefix));
+                embed.AddField("Ban", _localization.GetMessage("Help ban", _prefix));
                 await ReplyAsync("", false, embed.Build());
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
@@ -80,35 +80,35 @@ namespace Logic.Modules
         [Command("praise")]
         public async Task HelpPraise()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help praise", _lang.GetMessage("Help praise title") + "\n\n" + _lang.GetMessage("Help praise", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help praise", _localization.GetMessage("Help praise title") + "\n\n" + _localization.GetMessage("Help praise", _prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Command("music")]
         public async Task HelpMusic()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help music", _lang.GetMessage("Help music title") + "\n\n" + _lang.GetMessage("Help music", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help music", _localization.GetMessage("Help music title") + "\n\n" + _localization.GetMessage("Help music", _prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Command("request")]
         public async Task HelpRequest()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help request", _lang.GetMessage("Help request title") + "\n\n" + _lang.GetMessage("Help request", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help request", _localization.GetMessage("Help request title") + "\n\n" + _localization.GetMessage("Help request", _prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Command("command")]
         public async Task HelpCommand()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help command", _lang.GetMessage("Help command title") + "\n\n" + _lang.GetMessage("Help command", _prefix) + "\n" + _lang.GetMessage("Help command admin", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help command", _localization.GetMessage("Help command title") + "\n\n" + _localization.GetMessage("Help command", _prefix) + "\n" + _localization.GetMessage("Help command admin", _prefix));
             await ReplyAsync("", false, embed);
         }
 
         [Command("language")]
         public async Task HelpLanguage()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help language", _lang.GetMessage("Help language title") + "\n\n" + _lang.GetMessage("Help language", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help language", _localization.GetMessage("Help language title") + "\n\n" + _localization.GetMessage("Help language", _prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -116,7 +116,7 @@ namespace Logic.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpWelcome()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help welcome", _lang.GetMessage("Help welcome title") + "\n\n" + _lang.GetMessage("Help welcome", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help welcome", _localization.GetMessage("Help welcome title") + "\n\n" + _localization.GetMessage("Help welcome", _prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -125,7 +125,7 @@ namespace Logic.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpAutoChannel()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help autochannel", _lang.GetMessage("Help autochannel title") + "\n\n" + _lang.GetMessage("Help autochannel", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help autochannel", _localization.GetMessage("Help autochannel title") + "\n\n" + _localization.GetMessage("Help autochannel", _prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -134,7 +134,7 @@ namespace Logic.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpPermaChannel()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help permachannel", _lang.GetMessage("Help permachannel title") + "\n\n" + _lang.GetMessage("Help permachannel", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help permachannel", _localization.GetMessage("Help permachannel title") + "\n\n" + _localization.GetMessage("Help permachannel", _prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -143,7 +143,7 @@ namespace Logic.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpAutoRole()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help autorole", _lang.GetMessage("Help autorole title") + "\n\n" + _lang.GetMessage("Help autorole", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help autorole", _localization.GetMessage("Help autorole title") + "\n\n" + _localization.GetMessage("Help autorole", _prefix));
             await ReplyAsync("", false, embed);
         }
 
@@ -152,7 +152,7 @@ namespace Logic.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpPermaRole()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help permarole", _lang.GetMessage("Help permarole title") + "\n\n" + _lang.GetMessage("Help permarole", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help permarole", _localization.GetMessage("Help permarole title") + "\n\n" + _localization.GetMessage("Help permarole", _prefix));
             await ReplyAsync("", false, embed);
         }
     }

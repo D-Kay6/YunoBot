@@ -1,20 +1,24 @@
 ﻿using DalFactory;
 using Entity;
-using IDal.Interfaces;
-using IDal.Structs.Localization;
 using Logic.Extensions;
+using System.Threading.Tasks;
+using IDal;
 
-namespace Logic.Localization
+namespace Logic.Services
 {
-    public class Localization
+    public class LocalizationService
     {
-        private ILocalization _lang;
-        private LanguageData _data;
+        private ILocalization _localization;
+        private Localization _data;
 
-        public Localization(Language language)
+        public LocalizationService()
         {
-            _lang = LocalizationFactory.GenerateLocalization();
-            _data = _lang.Read(language.ToString());
+            _localization = LocalizationFactory.GenerateLocalization();
+        }
+
+        public async Task Load(Language language)
+        {
+            _data = await _localization.Read(language.ToString());
         }
 
         public string GetMessage(string key)

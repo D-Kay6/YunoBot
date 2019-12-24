@@ -1,5 +1,5 @@
 ﻿using Dal.Json;
-using IDal.Interfaces;
+using IDal;
 
 namespace DalFactory
 {

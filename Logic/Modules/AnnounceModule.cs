@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Net;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Extensions;
 using Logic.Services;
 using System.Collections.Generic;
@@ -14,22 +14,25 @@ namespace Logic.Modules
     public class AnnounceModule : ModuleBase<SocketCommandContext>
     {
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
+        private LogsService _logs;
 
-        public AnnounceModule(IDbLanguage language)
+        public AnnounceModule(IDbLanguage language, LocalizationService localization, LogsService logs)
         {
             _language = language;
+            _localization = localization;
+            _logs = logs;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Priority(-1)]
@@ -39,7 +42,7 @@ namespace Logic.Modules
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                await ReplyAsync(_lang.GetMessage("Invalid message"));
+                await ReplyAsync(_localization.GetMessage("Invalid message"));
                 return;
             }
 
@@ -52,7 +55,7 @@ namespace Logic.Modules
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                await ReplyAsync(_lang.GetMessage("Invalid message"));
+                await ReplyAsync(_localization.GetMessage("Invalid message"));
                 return;
             }
             
@@ -81,11 +84,11 @@ namespace Logic.Modules
             {
                 var channel = await user.GetOrCreateDMChannelAsync();
                 await channel.SendMessageAsync("", false, EmbedExtensions.CreateEmbed(title, message));
-                LogService.Instance.Log("Announcement", $"{user.Username}({user.Id}) - {message}");
+                await _logs.Write("Announcement", $"{user.Username}({user.Id}) - {message}");
             }
             catch (HttpException)
             {
-                LogService.Instance.Log("Announcement", $"Could not send announcement to {user.Username}({user.Id}).");
+                await _logs.Write("Announcement", $"Could not send announcement to {user.Username}({user.Id}).");
             }
         }
     }

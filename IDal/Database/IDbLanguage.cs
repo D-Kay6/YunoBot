@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Entity;
 
-namespace IDal.Interfaces.Database
+namespace IDal.Database
 {
     public interface IDbLanguage
     {

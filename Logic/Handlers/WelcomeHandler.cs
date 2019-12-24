@@ -1,5 +1,5 @@
 ﻿using Discord.WebSocket;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Extensions;
 using System.Threading.Tasks;
 

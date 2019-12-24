@@ -1,5 +1,5 @@
 ﻿using Dal.EF;
-using IDal.Interfaces.Database;
+using IDal.Database;
 
 namespace DalFactory
 {

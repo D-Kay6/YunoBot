@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Entity;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dal.EF

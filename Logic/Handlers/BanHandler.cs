@@ -1,21 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Discord.WebSocket;
+using IDal.Database;
+using System;
 using System.Threading.Tasks;
 using System.Timers;
-using Discord.WebSocket;
-using IDal.Interfaces.Database;
+using Logic.Services;
 
 namespace Logic.Handlers
-{ 
+{
     public class BanHandler : BaseHandler
     {
         private IDbBan _ban;
-        private Timer _timer;
+        private LogsService _logs;
 
-        public BanHandler(DiscordSocketClient client, IDbBan ban) : base(client)
+        private Timer _timer;
+        private bool _isRunning;
+
+        public BanHandler(DiscordSocketClient client, IDbBan ban, LogsService logs) : base(client)
         {
             _ban = ban;
+            _logs = logs;
             _timer = new Timer(10 * 1000);
         }
 
@@ -32,14 +35,25 @@ namespace Logic.Handlers
 
         private async void OnTick(object sender, ElapsedEventArgs e)
         {
-            var bans = await _ban.GetBans();
-            foreach (var ban in bans)
+            if (_isRunning) return;
+
+            _isRunning = true;
+            try
             {
-                var server = Client.GetGuild(ban.ServerId);
-                if (server == null) continue;
-                await server.RemoveBanAsync(ban.UserId);
-                await _ban.RemoveBan(ban);
+                var bans = await _ban.GetBans();
+                foreach (var ban in bans)
+                {
+                    var server = Client.GetGuild(ban.ServerId);
+                    if (server == null) continue;
+                    await server.RemoveBanAsync(ban.UserId);
+                    await _ban.RemoveBan(ban);
+                }
             }
+            catch (Exception ex)
+            {
+                await _logs.Write("Crashes", $"Could not handle tick for bans. {ex.Message}, {ex.StackTrace}");
+            }
+            _isRunning = false;
         }
     }
 }

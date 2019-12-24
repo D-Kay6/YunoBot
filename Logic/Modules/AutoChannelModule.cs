@@ -1,10 +1,10 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using IDal.Interfaces.Database;
-using IDbChannel = IDal.Interfaces.Database.IDbChannel;
 
 namespace Logic.Modules
 {
@@ -15,30 +15,31 @@ namespace Logic.Modules
     {
         private IDbLanguage _language;
         private IDbChannel _channel;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public AutoChannelModule(IDbLanguage language, IDbChannel channel)
+        public AutoChannelModule(IDbLanguage language, IDbChannel channel, LocalizationService localization)
         {
             _language = language;
             _channel = channel;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DefaultAutoChannel()
         {
-            await ReplyAsync(_lang.GetMessage("Autochannel default"));
+            await ReplyAsync(_localization.GetMessage("Autochannel default"));
         }
         
         [Group("prefix")]
@@ -46,29 +47,30 @@ namespace Logic.Modules
         {
             private IDbLanguage _language;
             private IDbChannel _channel;
-            private Localization.Localization _lang;
+            private LocalizationService _localization;
 
-            public AutoChannelPrefixModule(IDbLanguage language, IDbChannel channel)
+            public AutoChannelPrefixModule(IDbLanguage language, IDbChannel channel, LocalizationService localization)
             {
                 _language = language;
                 _channel = channel;
+                _localization = localization;
             }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                Task.WaitAll(LoadLanguage());
+                Task.WaitAll(Prepare());
                 base.BeforeExecute(command);
             }
 
-            private async Task LoadLanguage()
+            private async Task Prepare()
             {
-                _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+                await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
             }
 
             [Command]
             public async Task DefaultAutoChannelPrefix()
             {
-                await ReplyAsync(_lang.GetMessage("Autochannel prefix default", await _channel.GetAutoPrefix(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Autochannel prefix default", await _channel.GetAutoPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
@@ -76,11 +78,11 @@ namespace Logic.Modules
             {
                 if (message.Equals(await _channel.GetAutoPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
                 {
-                    await ReplyAsync(_lang.GetMessage("Invalid ac/pc prefix"));
+                    await ReplyAsync(_localization.GetMessage("Invalid ac/pc prefix"));
                     return;
                 }
                 await _channel.SetAutoPrefix(Context.Guild.Id, message);
-                await ReplyAsync(_lang.GetMessage("Autochannel prefix set", message));
+                await ReplyAsync(_localization.GetMessage("Autochannel prefix set", message));
             }
         }
         
@@ -89,36 +91,37 @@ namespace Logic.Modules
         {
             private IDbLanguage _language;
             private IDbChannel _channel;
-            private Localization.Localization _lang;
+            private LocalizationService _localization;
 
-            public AutoChannelNameModule(IDbLanguage language, IDbChannel channel)
+            public AutoChannelNameModule(IDbLanguage language, IDbChannel channel, LocalizationService localization)
             {
                 _language = language;
                 _channel = channel;
+                _localization = localization;
             }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                Task.WaitAll(LoadLanguage());
+                Task.WaitAll(Prepare());
                 base.BeforeExecute(command);
             }
 
-            private async Task LoadLanguage()
+            private async Task Prepare()
             {
-                _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+                await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
             }
 
             [Command]
             public async Task DefaultAutoChannelName()
             {
-                await ReplyAsync(_lang.GetMessage("Autochannel name default", await _channel.GetAutoName(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Autochannel name default", await _channel.GetAutoName(Context.Guild.Id)));
             }
 
             [Command("set")]
             public async Task AutoChannelNameSet([Remainder] string message)
             {
                 await _channel.SetAutoName(Context.Guild.Id, message);
-                await ReplyAsync(_lang.GetMessage("Autochannel name set", message));
+                await ReplyAsync(_localization.GetMessage("Autochannel name set", message));
             }
         }
 
@@ -132,7 +135,7 @@ namespace Logic.Modules
                 if (await _channel.IsGeneratedChannel(Context.Guild.Id, channel.Id)) await _channel.RemoveGeneratedChannel(Context.Guild.Id, channel.Id);
                 await channel.DeleteAsync();
             }
-            await ReplyAsync(_lang.GetMessage("Autochannel delete", data.Name));
+            await ReplyAsync(_localization.GetMessage("Autochannel delete", data.Name));
         }
     }
 }

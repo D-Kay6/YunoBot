@@ -1,12 +1,12 @@
-﻿namespace IDal.Structs.Configuration
+﻿namespace Entity
 {
-    public class ConfigData
+    public class Configuration
     {
         public ulong ClientId;
         public string Token;
         public string DiscordBotsToken;
 
-        public ConfigData()
+        public Configuration()
         {
             this.ClientId = 0;
             this.Token = "";

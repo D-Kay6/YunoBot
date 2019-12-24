@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Entity;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dal.EF
@@ -90,7 +91,7 @@ namespace Dal.EF
 
         public async Task<List<CustomCommand>> GetCustomCommands(ulong serverId)
         {
-            return await _context.CustomCommands.ToListAsync();
+            return await _context.CustomCommands.Where(x => x.ServerId == serverId).ToListAsync();
         }
     }
 }

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 
-namespace IDal.Structs.Localization
+namespace Entity
 {
-    public class LanguageData
+    public class Localization
     {
         public Dictionary<string, string> Messages;
         public List<string> UserPraises;
         public List<string> GroupPraises;
 
-        public LanguageData()
+        public Localization()
         {
             this.Messages = new Dictionary<string, string>();
             this.UserPraises = new List<string>();

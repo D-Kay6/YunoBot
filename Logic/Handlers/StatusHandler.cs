@@ -1,9 +1,9 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
-using Discord;
 
 namespace Logic.Handlers
 {

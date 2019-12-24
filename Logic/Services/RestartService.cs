@@ -1,19 +1,18 @@
-﻿using System;
-//using System.Deployment.Application;
-using System.Diagnostics;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace Logic.Services
 {
     public class RestartService
     {
+        private LogsService _logs;
         private CancellationTokenSource _restartToken;
 
         public bool KeepAlive { get; private set; }
 
-        public RestartService()
+        public RestartService(LogsService logs)
         {
+            _logs = logs;
             KeepAlive = true;
         }
 
@@ -47,7 +46,7 @@ namespace Logic.Services
             }
             catch (TaskCanceledException)
             {
-                LogService.Instance.Log("Main", "Server is restarting.");
+                await _logs.Write("Main", "Server is restarting.");
             }
         }
     }

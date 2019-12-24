@@ -1,12 +1,12 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using IDal.Database;
 using Logic.Exceptions;
 using Logic.Extensions;
 using Logic.Services.Music;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IDal.Interfaces.Database;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
@@ -24,7 +24,7 @@ namespace Logic.Services
         private LavaPlayer _player;
         private Queue<IPlayable> _queue;
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
         public bool IsPlaying => _player != null && _player.PlayerState == PlayerState.Playing || _player.PlayerState == PlayerState.Paused;
         public bool IsPaused => _player != null && _player.PlayerState == PlayerState.Paused;
@@ -33,10 +33,11 @@ namespace Logic.Services
         public ITextChannel TextChannel => _player?.TextChannel;
         public LavaTrack CurrentTrack => _player?.Track;
         
-        public AudioService(DiscordSocketClient client, IDbLanguage language)
+        public AudioService(DiscordSocketClient client, IDbLanguage language, LocalizationService localization)
         {
             _client = client;
             _language = language;
+            _localization = localization;
             _lavaConfig = new LavaConfig();
             _lavaNode = new LavaNode(_client, _lavaConfig);
             _queues = new Dictionary<ulong, Queue<IPlayable>>();
@@ -45,7 +46,7 @@ namespace Logic.Services
 
         private async Task LoadLanguage(ulong serverId)
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(serverId));
+            await _localization.Load(await _language.GetLanguage(serverId));
         }
 
 
@@ -105,7 +106,7 @@ namespace Logic.Services
 
             var song = _queue.Dequeue();
             _lavaNode.UpdateTextChannel(song.Guild, song.TextChannel);
-            await song.TextChannel.SendMessageAsync(_lang.GetMessage("Music now playing", song.Track.Title, song.Requester.Nickname()));
+            await song.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", song.Track.Title, song.Requester.Nickname()));
             await _player.PlayAsync(song.Track);
         }
 
@@ -149,7 +150,7 @@ namespace Logic.Services
                 await _player.UpdateVolumeAsync(25);
                 return;
             }
-            await song.TextChannel.SendMessageAsync(_lang.GetMessage("Music queued song", _queue.Count, song.Track.Title, song.Track.Duration));
+            await song.TextChannel.SendMessageAsync(_localization.GetMessage("Music queued song", _queue.Count, song.Track.Title, song.Track.Duration));
         }
         
         public async Task Queue(IEnumerable<IPlayable> songs, IVoiceChannel channel)

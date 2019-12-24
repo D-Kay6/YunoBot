@@ -1,7 +1,7 @@
 ﻿using DalFactory;
 using Discord;
 using Discord.WebSocket;
-using IDal.Interfaces;
+using IDal;
 using ILogic;
 using Logic.Handlers;
 using Logic.Services;
@@ -23,9 +23,6 @@ namespace Logic
 
         private IServiceProvider _services;
 
-        /// <summary>
-        ///     Creates a new instance of this class.
-        /// </summary>
         public Bot()
         {
             _config = ConfigFactory.GenerateConfig();
@@ -42,12 +39,10 @@ namespace Logic
             _handlers = new HandlerCollection(_services);
         }
 
-        /// <summary>
-        ///     Asynchronous start of the connection.
-        /// </summary>
         public async Task Start()
         {
             var restartService = _services.GetService<RestartService>();
+            var logsService = _services.GetService<LogsService>();
             await _handlers.Initialize();
 
             while (restartService.KeepAlive)
@@ -55,7 +50,7 @@ namespace Logic
                 try
                 {
                     DownloadPrerequisites();
-                    var config = _config.Read();
+                    var config = await _config.Read();
                     if (string.IsNullOrWhiteSpace(config.Token)) return;
                     
                     await _client.LoginAsync(TokenType.Bot, config.Token);
@@ -65,7 +60,7 @@ namespace Logic
                 }
                 catch (Exception e)
                 {
-                    LogService.Instance.Log("Main", $"Fatal exception occured. Restarting bot. Traceback: {e}");
+                    await logsService.Write("Main", $"Fatal exception occured. Restarting bot. Traceback: {e}");
                 }
                 finally
                 {
@@ -88,22 +83,15 @@ namespace Logic
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRole());
 
             serviceCollection.AddSingleton(_client);
-            serviceCollection.AddSingleton(_config.Read());
+            serviceCollection.AddSingleton(_config);
 
-            serviceCollection.AddSingleton(new LogService());
-            serviceCollection.AddSingleton(new RestartService());
-            serviceCollection.AddSingleton(new AudioService(_client, DatabaseFactory.GenerateLanguage()));
+            var logsService = new LogsService();
+            serviceCollection.AddTransient<LocalizationService>();
+            serviceCollection.AddSingleton(logsService);
+            serviceCollection.AddSingleton(new RestartService(logsService));
+            serviceCollection.AddSingleton(new AudioService(_client, DatabaseFactory.GenerateLanguage(), new LocalizationService()));
 
             return serviceCollection.BuildServiceProvider();
-
-            //serviceCollection.AddSingleton(DatabaseFactory.GenerateServer());
-            //serviceCollection.AddSingleton(DatabaseFactory.GenerateUser());
-            //serviceCollection.AddSingleton(DatabaseFactory.GenerateBan());
-            //serviceCollection.AddSingleton(DatabaseFactory.GenerateLanguage());
-            //serviceCollection.AddSingleton(DatabaseFactory.GenerateCommand());
-            //serviceCollection.AddSingleton(DatabaseFactory.GenerateWelcome());
-            //serviceCollection.AddSingleton(DatabaseFactory.GenerateChannel());
-            //serviceCollection.AddSingleton(DatabaseFactory.GenerateRole());
         }
 
         private void DownloadPrerequisites()
@@ -120,8 +108,9 @@ namespace Logic
 
         private async Task OnReady()
         {
-            var shartCount = await _client.GetRecommendedShardCountAsync();
-            if (shartCount > 1) LogService.Instance.Log("Main", $"Probably time to think about creating shards. {shartCount}");
+            var logService = _services.GetService<LogsService>();
+            var shardCount = await _client.GetRecommendedShardCountAsync();
+            if (shardCount > 1) await logService.Write("Main", $"Probably time to think about creating shards. {shardCount}");
         }
 
         private async Task Log(LogMessage msg)

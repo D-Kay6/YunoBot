@@ -1,6 +1,6 @@
-﻿using System;
-using ILogic;
+﻿using ILogic;
 using LogicFactory;
+using System;
 using System.Threading.Tasks;
 
 namespace Yuno

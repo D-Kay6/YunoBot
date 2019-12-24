@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Threading.Tasks;
-using Logic.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Logic.Handlers
 {

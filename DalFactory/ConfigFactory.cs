@@ -1,5 +1,5 @@
 ﻿using Dal.Json;
-using IDal.Interfaces;
+using IDal;
 
 namespace DalFactory
 {
@@ -7,7 +7,7 @@ namespace DalFactory
     {
         public static IConfig GenerateConfig()
         {
-            return new Configuration();
+            return new Config();
         }
     }
 }

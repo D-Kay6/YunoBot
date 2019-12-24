@@ -1,7 +1,8 @@
 ﻿using Discord.Commands;
-using System.Threading.Tasks;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Extensions;
+using Logic.Services;
+using System.Threading.Tasks;
 
 namespace Logic.Modules
 {
@@ -9,28 +10,29 @@ namespace Logic.Modules
     public class InviteModule : ModuleBase<SocketCommandContext>
     {
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public InviteModule(IDbLanguage language)
+        public InviteModule(IDbLanguage language, LocalizationService localization)
         {
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         public async Task DefaultInvite()
         {
-            await Context.User.SendDM(_lang.GetMessage("Invite default"));
+            await Context.User.SendDM(_localization.GetMessage("Invite default"));
         }
     }
 }

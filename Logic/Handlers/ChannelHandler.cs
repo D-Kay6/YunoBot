@@ -1,30 +1,33 @@
 ﻿using Discord;
 using Discord.Net;
 using Discord.WebSocket;
+using IDal.Database;
 using Logic.Extensions;
 using Logic.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IDal.Interfaces.Database;
-using IDbChannel = IDal.Interfaces.Database.IDbChannel;
 
 namespace Logic.Handlers
 {
     public class ChannelHandler : BaseHandler
     {
-        private IDbLanguage _language;
         private IDbChannel _channel;
+        private IDbLanguage _language;
+        private LocalizationService _localization;
         private AudioService _audioService;
+        private LogsService _logs;
 
         private HashSet<ulong> _channels;
         
-        public ChannelHandler(DiscordSocketClient client, IDbLanguage language, IDbChannel channel, AudioService audioService) : base(client)
+        public ChannelHandler(DiscordSocketClient client, IDbChannel channel, IDbLanguage language, LocalizationService localization, AudioService audioService, LogsService logs) : base(client)
         {
-            _language = language;
             _channel = channel;
+            _language = language;
+            _localization = localization;
             _audioService = audioService;
+            _logs = logs;
             _channels = new HashSet<ulong>();
         }
 
@@ -35,21 +38,34 @@ namespace Logic.Handlers
 
         private async Task HandleChannelAsync(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
         {
-            await LeaveChannel(state1.VoiceChannel, (SocketGuildUser) user);
-            await JoinChannel(state2.VoiceChannel, (SocketGuildUser) user);
+            try
+            {
+                var guildUser = user as SocketGuildUser;
+                LeaveChannel(state1.VoiceChannel, guildUser);
+                JoinChannel(state2.VoiceChannel, guildUser);
+            }
+            catch (Exception e)
+            {
+                await _logs.Write("Crashes", $"Failed to handle UserVoiceStateUpdated. {e.Message}, {e.StackTrace}");
+            }
+        }
+
+        private async Task LoadLanguage(ulong serverId)
+        {
+            await _localization.Load(await _language.GetLanguage(serverId));
         }
 
         private async Task LeaveChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
             if (channel == null) return;
-            var lang = new Localization.Localization(await _language.GetLanguage(channel.Guild.Id));
             try
             {
                 if (channel.Users.Count > 0)
                 {
                     if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(Client.CurrentUser.Id)) return;
                     await _audioService.BeforeExecute(channel.Guild);
-                    await _audioService.TextChannel.SendMessageAsync(lang.GetMessage("Channel musicplayer stopped"));
+                    await LoadLanguage(channel.Guild.Id);
+                    await _audioService.TextChannel.SendMessageAsync(_localization.GetMessage("Channel musicplayer stopped"));
                     await _audioService.Stop();
                     return;
                 }
@@ -57,7 +73,7 @@ namespace Logic.Handlers
                 while (_channels.Contains(channel.Id)) await Task.Delay(100);
                 
                 if (!await _channel.IsGeneratedChannel(channel.Guild.Id, channel.Id)) return;
-                LogService.Instance.Log("Channels", channel.Guild, $"{user.Nickname()} left channel '{channel.Name}'.");
+                await _logs.Write("Channels", channel.Guild, $"{user.Nickname()} left channel '{channel.Name}'.");
                 if (channel.Guild.GetChannel(channel.Id) == null) return;
                 await channel.DeleteAsync();
                 await _channel.RemoveGeneratedChannel(channel.Guild.Id, channel.Id);
@@ -65,14 +81,13 @@ namespace Logic.Handlers
             catch (Exception e)
             {
                 var info = channel == null ? "Null channel" : $"({channel.Guild.Id}) {channel.Id}, {channel.Name}";
-                LogService.Instance.Log("Crashes", $"LeaveChannel crashed. {info}. Stacktrace: {e}");
+                await _logs.Write("Crashes", $"LeaveChannel crashed. {info}. Stacktrace: {e}");
             }
         }
 
         private async Task JoinChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
             if (channel == null || user == null) return;
-            var lang = new Localization.Localization(await _language.GetLanguage(channel.Guild.Id));
             try
             {
                 var auto = await _channel.GetAutoChannel(channel.Guild.Id);
@@ -95,23 +110,24 @@ namespace Logic.Handlers
             {
                 if (!httpException.Message.Contains("error 50013: Missing Permissions"))
                 {
-                    LogService.Instance.Log("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
+                    await _logs.Write("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
                     return;
                 }
 
                 var pmChannel = await channel.Guild.Owner.GetOrCreateDMChannelAsync();
-                await pmChannel.SendMessageAsync(lang.GetMessage("Channel no permission", channel.Guild.Name, channel.Name));
+                await LoadLanguage(channel.Guild.Id);
+                await pmChannel.SendMessageAsync(_localization.GetMessage("Channel no permission", channel.Guild.Name, channel.Name));
             }
             catch (Exception e)
             {
                 var info = channel == null ? "Null channel" : $"({channel.Guild.Id}) {channel.Id}, {channel.Name}";
-                LogService.Instance.Log("Crashes", $"JoinChannel crashed. {info}. Stacktrace: {e}");
+                await _logs.Write("Crashes", $"JoinChannel crashed. {info}. Stacktrace: {e}");
             }
         }
 
         private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
         {
-            LogService.Instance.Log("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
+            await _logs.Write("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
             var newChannel = await channel.Guild.CreateVoiceChannelAsync(string.Format(name, user.Nickname().ToPossessive()), p =>
             {
                 p.Bitrate = channel.Bitrate;

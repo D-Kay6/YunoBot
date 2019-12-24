@@ -1,8 +1,7 @@
 ﻿using Discord.Commands;
-using Logic.Handlers;
-using System.Threading.Tasks;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Services;
+using System.Threading.Tasks;
 
 namespace Logic.Modules
 {
@@ -10,42 +9,45 @@ namespace Logic.Modules
     public class RequestModule : ModuleBase<SocketCommandContext>
     {
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
+        private LogsService _logs;
 
-        public RequestModule(IDbLanguage language)
+        public RequestModule(IDbLanguage language, LocalizationService localization, LogsService logs)
         {
             _language = language;
+            _localization = localization;
+            _logs = logs;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         public async Task DefaultRequest()
         {
-            await ReplyAsync(_lang.GetMessage("Request default"));
+            await ReplyAsync(_localization.GetMessage("Request default"));
         }
 
         [Command("feature")]
         public async Task RequestFeature([Remainder] string message)
         {
-            LogService.Instance.Log("Features", message);
-            await ReplyAsync(_lang.GetMessage("Request feature"));
+            await _logs.Write("Features", message);
+            await ReplyAsync(_localization.GetMessage("Request feature"));
         }
 
         [Command("change")]
         public async Task RequestChange([Remainder] string message)
         {
-            LogService.Instance.Log("Changes", message);
-            await ReplyAsync(_lang.GetMessage("Request change"));
+            await _logs.Write("Changes", message);
+            await ReplyAsync(_localization.GetMessage("Request change"));
         }
     }
 }

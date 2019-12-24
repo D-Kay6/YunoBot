@@ -24,10 +24,11 @@ namespace Dal.EF
         public DbSet<PermaRole> PermaRoles { get; set; }
         public DbSet<RoleIgnore> IgnoredUsers { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override async void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var connectionstring = new Database().Read().CreateConnectionString();
-            optionsBuilder.UseMySql(connectionstring);
+            var connection = await new Database().Read();
+            var connectionString = connection.CreateConnectionString();
+            optionsBuilder.UseMySql(connectionString);
             optionsBuilder.UseLazyLoadingProxies();
         }
 

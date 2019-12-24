@@ -1,10 +1,7 @@
-﻿using System;
+﻿using Discord.WebSocket;
+using IDal.Database;
+using System;
 using System.Linq;
-using DalFactory;
-using Discord.WebSocket;
-using Entity;
-using IDal.Interfaces.Database;
-using Logic.Extensions;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers

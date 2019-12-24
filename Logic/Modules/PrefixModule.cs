@@ -1,8 +1,8 @@
-﻿using DalFactory;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
+using IDal.Database;
+using Logic.Services;
 using System.Threading.Tasks;
-using IDal.Interfaces.Database;
 
 namespace Logic.Modules
 {
@@ -12,36 +12,37 @@ namespace Logic.Modules
     {
         private IDbCommand _command;
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public PrefixModule(IDbCommand command, IDbLanguage language)
+        public PrefixModule(IDbCommand command, IDbLanguage language, LocalizationService localization)
         {
             _command = command;
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         public async Task DefaultPrefix()
         {
-            await ReplyAsync(_lang.GetMessage("Prefix default", await _command.GetPrefix(Context.Guild.Id), Context.Guild.Name));
+            await ReplyAsync(_localization.GetMessage("Prefix default", await _command.GetPrefix(Context.Guild.Id), Context.Guild.Name));
         }
 
         [Command("set")]
         public async Task PrefixSet([Remainder] string message)
         {
             await _command.SetPrefix(Context.Guild.Id, message);
-            await ReplyAsync(_lang.GetMessage("Prefix set", message, Context.Guild.Name));
+            await ReplyAsync(_localization.GetMessage("Prefix set", message, Context.Guild.Name));
         }
     }
 }

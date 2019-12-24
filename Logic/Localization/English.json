@@ -168,7 +168,7 @@ This time, you do not need to write it within double quotes if you have a comman
 		"Command custom exists": "There already is a custom command with that name.",
 		"Command custom added": "`{0}` was added as a custom command.",
 		"Command custom none": "I could not find a custom command called `{0}`. Are you sure you typed it correctly?",
-		"Command custom removed": "`{0}` was remooved from the custom commands.",
+		"Command custom removed": "`{0}` was removed from the custom commands.",
 
 		"Request default": "Send some information to me about your idea for a new feature or if you think something needs to be changed.",
 		"Request feature": "Thanks for your submission.",

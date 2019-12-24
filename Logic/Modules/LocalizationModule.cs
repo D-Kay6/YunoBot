@@ -1,8 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
 using Entity;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Extensions;
+using Logic.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -14,29 +15,30 @@ namespace Logic.Modules
     public class LocalizationModule : ModuleBase<SocketCommandContext>
     {
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public LocalizationModule(IDbLanguage language)
+        public LocalizationModule(IDbLanguage language, LocalizationService localization)
         {
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         public async Task DefaultLanguage()
         {
             var language = await _language.GetLanguage(Context.Guild.Id);
-            await ReplyAsync(_lang.GetMessage("Language default", language, Context.Guild.Name, string.Join(", ", Enum.GetNames(typeof(Language)))));
+            await ReplyAsync(_localization.GetMessage("Language default", language, Context.Guild.Name, string.Join(", ", Enum.GetNames(typeof(Language)))));
         }
 
         [Command("set")]
@@ -44,13 +46,13 @@ namespace Logic.Modules
         {
             if (!Enum.TryParse(value.FirstCharToUpper(), out Language language))
             {
-                await ReplyAsync(_lang.GetMessage("Language unsupported", value));
+                await ReplyAsync(_localization.GetMessage("Language unsupported", value));
                 return;
             }
 
             await _language.SetLanguage(Context.Guild.Id, language);
-            await LoadLanguage();
-            await ReplyAsync(_lang.GetMessage("Language set", language, Context.Guild.Name));
+            await Prepare();
+            await ReplyAsync(_localization.GetMessage("Language set", language, Context.Guild.Name));
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Services;
 using System;
 using System.Threading.Tasks;
-using Discord;
-using IDal.Interfaces.Database;
-using IDbRole = IDal.Interfaces.Database.IDbRole;
 
 namespace Logic.Modules
 {
@@ -12,29 +12,30 @@ namespace Logic.Modules
     public class AutoRoleModule : ModuleBase<SocketCommandContext>
     {
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public AutoRoleModule(IDbLanguage language)
+        public AutoRoleModule(IDbLanguage language, LocalizationService localization)
         {
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DefaultAutoRole()
         {
-            await ReplyAsync(_lang.GetMessage("Autorole default"));
+            await ReplyAsync(_localization.GetMessage("Autorole default"));
         }
 
         [Group("prefix")]
@@ -43,29 +44,30 @@ namespace Logic.Modules
         {
             private IDbRole _role;
             private IDbLanguage _language;
-            private Localization.Localization _lang;
+            private LocalizationService _localization;
 
-            public AutoRolePrefixModule(IDbRole role, IDbLanguage language)
+            public AutoRolePrefixModule(IDbRole role, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
                 _language = language;
+                _localization = localization;
             }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                Task.WaitAll(LoadLanguage());
+                Task.WaitAll(Prepare());
                 base.BeforeExecute(command);
             }
 
-            private async Task LoadLanguage()
+            private async Task Prepare()
             {
-                _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+                await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
             }
 
             [Command]
             public async Task DefaultAutoRolePrefix()
             {
-                await ReplyAsync(_lang.GetMessage("Autorole prefix default", await _role.GetAutoPrefix(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Autorole prefix default", await _role.GetAutoPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
@@ -73,11 +75,11 @@ namespace Logic.Modules
             {
                 if (message.Equals(await _role.GetAutoPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
                 {
-                    await ReplyAsync(_lang.GetMessage("Invalid ar/pr prefix"));
+                    await ReplyAsync(_localization.GetMessage("Invalid ar/pr prefix"));
                     return;
                 }
                 await _role.SetAutoPrefix(Context.Guild.Id, message);
-                await ReplyAsync(_lang.GetMessage("Autorole prefix set", message));
+                await ReplyAsync(_localization.GetMessage("Autorole prefix set", message));
             }
         }
 
@@ -86,30 +88,31 @@ namespace Logic.Modules
         {
             private IDbRole _role;
             private IDbLanguage _language;
-            private Localization.Localization _lang;
+            private LocalizationService _localization;
 
-            public AutoRoleIgnoreModule(IDbRole role, IDbLanguage language)
+            public AutoRoleIgnoreModule(IDbRole role, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
                 _language = language;
+                _localization = localization;
             }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                Task.WaitAll(LoadLanguage());
+                Task.WaitAll(Prepare());
                 base.BeforeExecute(command);
             }
 
-            private async Task LoadLanguage()
+            private async Task Prepare()
             {
-                _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+                await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
             }
 
             [Command]
             public async Task DefaultAutoRoleIgnore()
             {
                 var activity = await _role.IsIgnoringRoles(Context.Guild.Id, Context.User.Id) ? "on" : "off";
-                await ReplyAsync(_lang.GetMessage($"RoleIgnore default {activity}"));
+                await ReplyAsync(_localization.GetMessage($"RoleIgnore default {activity}"));
             }
 
             [Command("on")]
@@ -117,12 +120,12 @@ namespace Logic.Modules
             {
                 if (await _role.IsIgnoringRoles(Context.Guild.Id, Context.User.Id))
                 {
-                    await ReplyAsync(_lang.GetMessage($"RoleIgnore is on"));
+                    await ReplyAsync(_localization.GetMessage($"RoleIgnore is on"));
                     return;
                 }
 
                 await _role.AddIgnoringRoles(Context.Guild.Id, Context.User.Id);
-                await ReplyAsync(_lang.GetMessage($"RoleIgnore turned on"));
+                await ReplyAsync(_localization.GetMessage($"RoleIgnore turned on"));
             }
 
             [Command("off")]
@@ -130,12 +133,12 @@ namespace Logic.Modules
             {
                 if (!await _role.IsIgnoringRoles(Context.Guild.Id, Context.User.Id))
                 {
-                    await ReplyAsync(_lang.GetMessage($"RoleIgnore is off"));
+                    await ReplyAsync(_localization.GetMessage($"RoleIgnore is off"));
                     return;
                 }
 
                 await _role.RemoveIgnoringRoles(Context.Guild.Id, Context.User.Id);
-                await ReplyAsync(_lang.GetMessage($"RoleIgnore turned off"));
+                await ReplyAsync(_localization.GetMessage($"RoleIgnore turned off"));
             }
         }
     }

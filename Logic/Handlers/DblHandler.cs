@@ -1,23 +1,31 @@
 ﻿using Discord.WebSocket;
 using DiscordBotsList.Api;
-using IDal.Structs.Configuration;
+using Entity;
+using Logic.Services;
 using System;
 using System.Threading.Tasks;
-using Logic.Services;
+using IDal;
 
 namespace Logic.Handlers
 {
     public class DblHandler : BaseHandler
     {
+        private IConfig _config;
+        private LogsService _logs;
+
         public AuthDiscordBotListApi DblApi { get; private set; }
 
-        public DblHandler(DiscordSocketClient client, ConfigData config) : base(client)
+        public DblHandler(DiscordSocketClient client, IConfig config, LogsService logs) : base(client)
         {
-            DblApi = new AuthDiscordBotListApi(config.ClientId, config.DiscordBotsToken);
+            _config = config;
+            _logs = logs;
         }
 
         public override async Task Initialize()
         {
+            var settings = await _config.Read();
+            DblApi = new AuthDiscordBotListApi(settings.ClientId, settings.DiscordBotsToken);
+
             Client.Ready += OnReady;
             Client.JoinedGuild += OnGuildJoined;
             Client.LeftGuild += OnGuildLeft;
@@ -25,19 +33,19 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
-            await UpdateGuilds();
+            await UpdateGuilds().ConfigureAwait(false);
         }
 
         private async Task OnGuildJoined(SocketGuild guild)
         {
             await UpdateGuilds();
-            LogService.Instance.Log("Connections", guild, "Joined.");
+            await _logs.Write("Connections", guild, "Joined.");
         }
 
         private async Task OnGuildLeft(SocketGuild guild)
         {
             await UpdateGuilds();
-            LogService.Instance.Log("Connections", guild, "Left.");
+            await _logs.Write("Connections", guild, "Left.");
         }
 
         private async Task UpdateGuilds()

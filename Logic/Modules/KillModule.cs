@@ -1,8 +1,9 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
-using System.Threading.Tasks;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Extensions;
+using Logic.Services;
+using System.Threading.Tasks;
 
 namespace Logic.Modules
 {
@@ -10,29 +11,30 @@ namespace Logic.Modules
     public class KillModule : ModuleBase<SocketCommandContext>
     {
         private IDbLanguage _language;
-        private Localization.Localization _lang;
+        private LocalizationService _localization;
 
-        public KillModule(IDbLanguage language)
+        public KillModule(IDbLanguage language, LocalizationService localization)
         {
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadLanguage());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        private async Task LoadLanguage()
+        private async Task Prepare()
         {
-            _lang = new Localization.Localization(await _language.GetLanguage(Context.Guild.Id));
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Priority(-1)]
         [Command]
         public async Task DefaultCommand([Remainder] string name)
         {
-            await ReplyAsync(_lang.GetMessage("Invalid user", name));
+            await ReplyAsync(_localization.GetMessage("Invalid user", name));
         }
 
         [Command]
@@ -42,13 +44,13 @@ namespace Logic.Modules
             switch (user.Id)
             {
                 case 255453041531158538:
-                    await ReplyAsync(_lang.GetMessage("Kill creator", user.Nickname()));
+                    await ReplyAsync(_localization.GetMessage("Kill creator", user.Nickname()));
                     break;
                 case 286972781273546762:
-                    await ReplyAsync(_lang.GetMessage("Kill self"));
+                    await ReplyAsync(_localization.GetMessage("Kill self"));
                     break;
                 default:
-                    await Context.Channel.SendFileAsync(ImageExtensions.GetImagePath("GasaiYuno.gif"), _lang.GetMessage("Kill default", user.Mention));
+                    await Context.Channel.SendFileAsync(ImageExtensions.GetImagePath("GasaiYuno.gif"), _localization.GetMessage("Kill default", user.Mention));
                     break;
             }
         }
