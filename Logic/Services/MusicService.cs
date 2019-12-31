@@ -3,26 +3,27 @@ using Discord.WebSocket;
 using IDal.Database;
 using Logic.Exceptions;
 using Logic.Extensions;
-using Logic.Services.Music;
+using Logic.Models.Music;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Victoria;
 using Victoria.Enums;
-using Victoria.EventArgs;
 using Victoria.Responses.Rest;
 
 namespace Logic.Services
 {
-    public class AudioService
+    public class MusicService
     {
+        public readonly LavaNode Lavanode;
+
         private readonly DiscordSocketClient _client;
         private readonly LavaConfig _lavaConfig;
-        private readonly LavaNode _lavaNode;
         private readonly Dictionary<ulong, Queue<IPlayable>> _queues;
 
         private LavaPlayer _player;
         private Queue<IPlayable> _queue;
+
         private IDbLanguage _language;
         private LocalizationService _localization;
 
@@ -33,70 +34,31 @@ namespace Logic.Services
         public ITextChannel TextChannel => _player?.TextChannel;
         public LavaTrack CurrentTrack => _player?.Track;
         
-        public AudioService(DiscordSocketClient client, IDbLanguage language, LocalizationService localization)
+        public MusicService(DiscordSocketClient client, IDbLanguage language, LocalizationService localization)
         {
             _client = client;
             _language = language;
             _localization = localization;
             _lavaConfig = new LavaConfig();
-            _lavaNode = new LavaNode(_client, _lavaConfig);
+            Lavanode = new LavaNode(_client, _lavaConfig);
             _queues = new Dictionary<ulong, Queue<IPlayable>>();
-            _client.Ready += OnReady;
-        }
-
-        private async Task LoadLanguage(ulong serverId)
-        {
-            await _localization.Load(await _language.GetLanguage(serverId));
         }
 
 
-        private async Task OnReady()
+        public async Task BeforeExecute(IGuild guild)
         {
-            await _lavaNode.ConnectAsync();
-            _lavaNode.OnTrackException += OnTrackException;
-            _lavaNode.OnTrackStuck += OnTrackStuck;
-            _lavaNode.OnTrackEnded += OnTrackEnded;
-        }
-
-
-        private async Task OnTrackException(TrackExceptionEventArgs e)
-        {
-            //_player = e.Player;
-            //_lang = new Localization.Localization(_player.VoiceChannel.GuildId);
-            await PlayNextTrack();
-        }
-
-        private async Task OnTrackStuck(TrackStuckEventArgs e)
-        {
-            //_player = e.Player;
-            //_lang = new Localization.Localization(_player.VoiceChannel.GuildId);
-            await PlayNextTrack();
-        }
-
-        private async Task OnTrackEnded(TrackEndedEventArgs e)
-        {
-            _player = e.Player;
-            await LoadLanguage(_player.VoiceChannel.GuildId);
-            switch (e.Reason)
+            _player = Lavanode.HasPlayer(guild) ? Lavanode.GetPlayer(guild) : null;
+            if (_queues.ContainsKey(guild.Id)) _queue = _queues[guild.Id];
+            else
             {
-                case TrackEndReason.Finished:
-                    await PlayNextTrack();
-                    break;
-                case TrackEndReason.Replaced:
-                    break;
-                case TrackEndReason.LoadFailed:
-                    await PlayNextTrack();
-                    break;
-                case TrackEndReason.Cleanup:
-                    break;
-                case TrackEndReason.Stopped:
-                    await EndPlayer();
-                    break;
+                _queue = new Queue<IPlayable>();
+                _queues.Add(guild.Id, _queue);
             }
+            await _localization.Load(await _language.GetLanguage(guild.Id));
         }
-        
 
-        private async Task PlayNextTrack()
+
+        public async Task PlayNextTrack()
         {
             if (_queue.Count == 0)
             {
@@ -105,44 +67,29 @@ namespace Logic.Services
             }
 
             var song = _queue.Dequeue();
-            _lavaNode.UpdateTextChannel(song.Guild, song.TextChannel);
+            Lavanode.UpdateTextChannel(song.Guild, song.TextChannel);
             await song.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", song.Track.Title, song.Requester.Nickname()));
             await _player.PlayAsync(song.Track);
         }
 
-        private async Task EndPlayer()
+        public async Task EndPlayer()
         {
             if (_player == null) throw new InvalidPlayerException();
             _queue.Clear();
-            await _lavaNode.LeaveAsync(_player.VoiceChannel);
-
-        }
-
-
-        public async Task BeforeExecute(IGuild guild)
-        {
-            _player = _lavaNode.HasPlayer(guild) ? _lavaNode.GetPlayer(guild) : null;
-            if (_queues.ContainsKey(guild.Id)) _queue = _queues[guild.Id];
-            else
-            {
-                _queue = new Queue<IPlayable>();
-                _queues.Add(guild.Id, _queue);
-            }
-
-            await LoadLanguage(guild.Id);
+            await Lavanode.LeaveAsync(_player.VoiceChannel);
         }
 
 
         public async Task<SearchResponse> GetTracks(string query)
         {
-            var result = await _lavaNode.SearchAsync(query);
-            if (result.LoadType == LoadType.NoMatches) result = await _lavaNode.SearchYouTubeAsync(query);
+            var result = await Lavanode.SearchAsync(query);
+            if (result.LoadType == LoadType.NoMatches) result = await Lavanode.SearchYouTubeAsync(query);
             return result;
         }
         
         public async Task Queue(IPlayable song)
         {
-            if (_player == null) _player = await _lavaNode.JoinAsync(song.Requester.VoiceChannel);
+            if (_player == null) _player = await Lavanode.JoinAsync(song.Requester.VoiceChannel);
             _queue.Enqueue(song);
             if (_player.PlayerState == PlayerState.Connected)
             {
@@ -161,7 +108,7 @@ namespace Logic.Services
                 return;
             }
             
-            _player = await _lavaNode.JoinAsync(channel);
+            _player = await Lavanode.JoinAsync(channel);
             songs.Foreach(s => _queue.Enqueue(s));
             await PlayNextTrack();
             await _player.UpdateVolumeAsync(25);

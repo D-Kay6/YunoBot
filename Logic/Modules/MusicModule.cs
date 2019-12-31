@@ -2,8 +2,8 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using IDal.Database;
+using Logic.Models.Music;
 using Logic.Services;
-using Logic.Services.Music;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,9 +17,9 @@ namespace Logic.Modules
         private IDbLanguage _language;
         private LocalizationService _localization;
 
-        private AudioService AudioService { get; }
+        private MusicService AudioService { get; }
 
-        public MusicModule(AudioService audioService, IDbLanguage language, LocalizationService localization)
+        public MusicModule(MusicService audioService, IDbLanguage language, LocalizationService localization)
         {
             AudioService = audioService;
             _language = language;
@@ -134,7 +134,7 @@ namespace Logic.Modules
             }
 
             if (!await CanPerform()) return;
-            await AudioService.TextChannel.SendMessageAsync(_localization.GetMessage("Music stop"));
+            await AudioService.TextChannel.SendMessageAsync(_localization.GetMessage("Music stop command"));
             await AudioService.Stop();
         }
 

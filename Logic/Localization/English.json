@@ -8,8 +8,6 @@
 
 		"Channel no permission": "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
 Either remove the prefix from `{1}` or give me the `Manage channels` permission.",
-		"Channel musicplayer stopped": "The music player was stopped.
-All users have left the voice channel.",
 
 		"Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
 		"Command invalid arguments": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
@@ -61,7 +59,7 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 		"Permachannel prefix set": "The new permachannel prefix is '{0}'.",
 		"Permachannel name default": "The current name for perma generated channels is `{0}`.",
 		"Permachannel name set": "The new name for perma generated channels is '{0}'.",
-		
+
 		"Autorole default": "Autoroles are roles that are temporary granted when a user starts playing a game, and removed when the user stops playing that game.
 
 When setting up autoroles, you need to make sure I have at least the `manage roles` permission.
@@ -116,7 +114,7 @@ Be warry translations can be under construction and may contain messages that st
 If you want your language to be supported or help improve an already existing translation, come to my support server.",
 		"Language unsupported": "`{0}` is not a supported language.",
 		"Language set": "The language for {1} was set to `{0}`.",
-		
+
 		"Music now playing": "Now playing `{0}` requested by {1}",
 		"Music not active": "I'm currently not playing music.",
 		"Music search": "Searching for `{0}`...",
@@ -134,7 +132,9 @@ If you want your language to be supported or help improve an already existing tr
 		"Music skipped": "Skipped `{0}` song(s).",
 		"Music shuffle": "Shuffling...",
 		"Music shuffled": "The queue has been shuffled.",
-		"Music stop": "The music player was stopped.",
+		"Music stop command": "The music player was stopped.",
+		"Music stop channel": "The music player was stopped. 
+All users have left the voice channel.",
 		"Music clear": "Queue cleared :ok_hand:.",
 		"Music paused": "Music player is paused.",
 		"Music is paused": "The music player is already paused.",
