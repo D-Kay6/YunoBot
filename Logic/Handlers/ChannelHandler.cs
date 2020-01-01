@@ -35,7 +35,9 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
+            if (IsLoaded()) return;
             Client.UserVoiceStateUpdated += HandleChannelAsync;
+            FinishLoading();
         }
 
         private async Task HandleChannelAsync(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)

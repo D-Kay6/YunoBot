@@ -30,8 +30,12 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
-            Client.JoinedGuild += OnGuildJoined;
-            Client.LeftGuild += OnGuildLeft;
+            if (!IsLoaded())
+            {
+                Client.JoinedGuild += OnGuildJoined;
+                Client.LeftGuild += OnGuildLeft;
+                FinishLoading();
+            }
 
             await UpdateGuilds().ConfigureAwait(false);
         }

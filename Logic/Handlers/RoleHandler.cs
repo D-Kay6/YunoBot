@@ -26,7 +26,9 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
+            if (IsLoaded()) return;
             Client.GuildMemberUpdated += GuildMemberUpdated;
+            FinishLoading();
         }
 
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)

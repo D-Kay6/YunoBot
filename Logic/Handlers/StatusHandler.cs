@@ -27,8 +27,10 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
+            if (IsLoaded()) return;
             _timer.Elapsed += OnTick;
             _timer.Start();
+            FinishLoading();
         }
 
         private async void OnTick(object sender, ElapsedEventArgs e)

@@ -23,7 +23,9 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
+            if (IsLoaded()) return;
             Client.UserJoined += OnUserJoined;
+            FinishLoading();
         }
 
         private async Task OnUserJoined(SocketGuildUser user)

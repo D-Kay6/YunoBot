@@ -31,11 +31,13 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
+            if (IsLoaded()) return;
             Client.UserVoiceStateUpdated += OnChangeVoiceChannel;
 
             _lavaNode.OnTrackException += OnTrackException;
             _lavaNode.OnTrackStuck += OnTrackStuck;
             _lavaNode.OnTrackEnded += OnTrackEnded;
+            FinishLoading();
 
             await _lavaNode.ConnectAsync();
         }

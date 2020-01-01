@@ -38,7 +38,9 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
+            if (IsLoaded()) return;
             Client.MessageReceived += HandleCommandAsync;
+            FinishLoading();
         }
 
         private async Task HandleCommandAsync(SocketMessage s)
