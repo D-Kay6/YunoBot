@@ -10,31 +10,26 @@ namespace Dal.EF
 {
     public class BanRepository : IDbBan
     {
-        private readonly DataContext _context;
-
-        public BanRepository()
-        {
-            _context = new DataContext();
-        }
-
         public async Task<bool> IsBanned(ulong userId, ulong serverId)
         {
-            var ban = await _context.Bans.FindAsync(userId, serverId);
+            var context = new DataContext();
+            var ban = await context.Bans.FindAsync(userId, serverId);
             return ban != null && (ban.EndDate == null || ban.EndDate > DateTime.Now);
         }
 
         public async Task<bool> AddBan(ulong userId, ulong serverId, DateTime? endDate = null, string reason = null)
         {
+            var context = new DataContext();
             try
             {
-                _context.Bans.Add(new Ban
+                context.Bans.Add(new Ban
                 {
                     UserId = userId,
                     ServerId = serverId,
                     EndDate = endDate,
                     Reason = reason
                 });
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -45,17 +40,19 @@ namespace Dal.EF
 
         public async Task<bool> RemoveBan(ulong userId, ulong serverId)
         {
-            var ban = await _context.Bans.FindAsync(userId, serverId);
+            var context = new DataContext();
+            var ban = await context.Bans.FindAsync(userId, serverId);
             if (ban == null) return false;
             return await RemoveBan(ban);
         }
 
         public async Task<bool> RemoveBan(Ban ban)
         {
+            var context = new DataContext();
             try
             {
-                _context.Bans.Remove(ban);
-                await _context.SaveChangesAsync();
+                context.Bans.Remove(ban);
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -66,15 +63,15 @@ namespace Dal.EF
 
         public async Task<Ban> GetBan(ulong userId, ulong serverId)
         {
-            return await _context.Bans.FindAsync(userId, serverId);
+            var context = new DataContext();
+            return await context.Bans.FindAsync(userId, serverId);
         }
 
         public async Task<List<Ban>> GetBans(bool expiredOnly = true)
         {
-            var query = _context.Bans.AsQueryable();
-
+            var context = new DataContext();
+            var query = context.Bans.AsQueryable();
             if (expiredOnly) query = query.Where(x => x.EndDate < DateTime.Now);
-
             return await query.ToListAsync();
         }
     }

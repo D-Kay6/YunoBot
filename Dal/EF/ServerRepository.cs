@@ -8,29 +8,24 @@ namespace Dal.EF
 {
     public class ServerRepository : IDbServer
     {
-        private readonly DataContext _context;
-
-        public ServerRepository()
-        {
-            _context = new DataContext();
-        }
-
         public async Task AddServer(ulong id, string name)
         {
-            _context.Servers.Add(new Server
+            var context = new DataContext();
+            context.Servers.Add(new Server
             {
                 Id = id,
                 Name = name
             });
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task AddServer(Server server)
         {
+            var context = new DataContext();
             try
             {
-                _context.Servers.Add(server);
-                await _context.SaveChangesAsync();
+                context.Servers.Add(server);
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -40,9 +35,10 @@ namespace Dal.EF
 
         public async Task UpdateServer(ulong id, string name)
         {
+            var context = new DataContext();
             try
             {
-                var server = await _context.Servers.FindAsync(id);
+                var server = await context.Servers.FindAsync(id);
                 if (server == null)
                 {
                     await AddServer(id, name);
@@ -50,7 +46,7 @@ namespace Dal.EF
                 }
 
                 server.Name = name;
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -60,26 +56,30 @@ namespace Dal.EF
 
         public async Task UpdateServer(Server server)
         {
-            _context.Servers.Update(server);
-            await _context.SaveChangesAsync();
+            var context = new DataContext();
+            context.Servers.Update(server);
+            await context.SaveChangesAsync();
         }
 
         public async Task DeleteServer(ulong id)
         {
-            var server = await _context.Servers.FindAsync(id);
+            var context = new DataContext();
+            var server = await context.Servers.FindAsync(id);
             if (server == null) return;
-            _context.Servers.Remove(server);
-            await _context.SaveChangesAsync();
+            context.Servers.Remove(server);
+            await context.SaveChangesAsync();
         }
 
         public async Task<Server> GetServer(ulong id)
         {
-            return await _context.Servers.FindAsync(id);
+            var context = new DataContext();
+            return await context.Servers.FindAsync(id);
         }
 
         public async Task Save()
         {
-            await _context.SaveChangesAsync();
+            var context = new DataContext();
+            await context.SaveChangesAsync();
         }
     }
 }

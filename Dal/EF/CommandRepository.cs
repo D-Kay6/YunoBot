@@ -9,27 +9,22 @@ namespace Dal.EF
 {
     public class CommandRepository : IDbCommand
     {
-        private readonly DataContext _context;
-
-        public CommandRepository()
-        {
-            _context = new DataContext();
-        }
-
         public async Task<string> GetPrefix(ulong serverId)
         {
-            var settings = await _context.CommandSettings.FindAsync(serverId);
+            var context = new DataContext();
+            var settings = await context.CommandSettings.FindAsync(serverId);
             return settings?.Prefix;
         }
 
         public async Task<bool> SetPrefix(ulong serverId, string prefix)
         {
-            var settings = await _context.CommandSettings.FindAsync(serverId);
+            var context = new DataContext();
+            var settings = await context.CommandSettings.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.Prefix = prefix;
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -40,6 +35,7 @@ namespace Dal.EF
 
         public async Task<bool> AddCustomCommand(ulong serverId, string command, string response)
         {
+            var context = new DataContext();
             var customCommand = new CustomCommand
             {
                 ServerId = serverId,
@@ -51,10 +47,11 @@ namespace Dal.EF
 
         public async Task<bool> AddCustomCommand(CustomCommand customCommand)
         {
+            var context = new DataContext();
             try
             {
-                _context.CustomCommands.Add(customCommand);
-                await _context.SaveChangesAsync();
+                context.CustomCommands.Add(customCommand);
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -65,17 +62,19 @@ namespace Dal.EF
 
         public async Task<bool> RemoveCustomCommand(ulong serverId, string command)
         {
+            var context = new DataContext();
             var customCommand = await GetCustomCommand(serverId, command);
             return await RemoveCustomCommand(customCommand);
         }
 
         public async Task<bool> RemoveCustomCommand(CustomCommand customCommand)
         {
+            var context = new DataContext();
             if (customCommand == null) return false;
             try
             {
-                _context.CustomCommands.Remove(customCommand);
-                await _context.SaveChangesAsync();
+                context.CustomCommands.Remove(customCommand);
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -86,12 +85,14 @@ namespace Dal.EF
 
         public async Task<CustomCommand> GetCustomCommand(ulong serverId, string command)
         {
-            return await _context.CustomCommands.FindAsync(serverId, command);
+            var context = new DataContext();
+            return await context.CustomCommands.FindAsync(serverId, command);
         }
 
         public async Task<List<CustomCommand>> GetCustomCommands(ulong serverId)
         {
-            return await _context.CustomCommands.Where(x => x.ServerId == serverId).ToListAsync();
+            var context = new DataContext();
+            return await context.CustomCommands.Where(x => x.ServerId == serverId).ToListAsync();
         }
     }
 }
