@@ -1,16 +1,16 @@
 ﻿using Entity;
+using IDal.Database;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IDal.Database;
 
 namespace Dal.EF
 {
     public class BanRepository : IDbBan
     {
-        private DataContext _context;
+        private readonly DataContext _context;
 
         public BanRepository()
         {

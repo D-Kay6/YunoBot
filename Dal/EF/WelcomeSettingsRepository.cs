@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
-using Entity;
+﻿using Entity;
 using IDal.Database;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Dal.EF
 {
     public class WelcomeSettingsRepository : IDbWelcome
     {
-        private DataContext _context;
+        private readonly DataContext _context;
 
         public WelcomeSettingsRepository()
         {
