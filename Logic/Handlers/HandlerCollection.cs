@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Logic.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers
@@ -20,15 +22,20 @@ namespace Logic.Handlers
 
         public void GenerateHandlers()
         {
-            _handlers.Add(ActivatorUtilities.CreateInstance<StatusHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<DatabaseHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<BanHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<CommandHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<DblHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<ChannelHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<RoleHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<WelcomeHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<MusicHandler>(_services));
+            CreateInstance<StatusHandler>();
+            CreateInstance<DatabaseHandler>();
+            CreateInstance<BanHandler>();
+            CreateInstance<CommandHandler>();
+            CreateInstance<DblHandler>();
+            CreateInstance<ChannelHandler>();
+            CreateInstance<RoleHandler>();
+            CreateInstance<WelcomeHandler>();
+            CreateInstance<MusicHandler>();
+        }
+
+        private void CreateInstance<T>() where T : BaseHandler
+        {
+            _handlers.Add(ActivatorUtilities.CreateInstance<T>(_services));
         }
 
         public async Task Initialize()
