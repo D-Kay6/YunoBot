@@ -89,7 +89,7 @@ namespace Logic
             serviceCollection.AddTransient<LocalizationService>();
             serviceCollection.AddSingleton(logsService);
             serviceCollection.AddSingleton(new RestartService(logsService));
-            serviceCollection.AddSingleton(new MusicService(_client, DatabaseFactory.GenerateLanguage(), new LocalizationService()));
+            serviceCollection.AddSingleton(new AudioService(_client, DatabaseFactory.GenerateLanguage(), new LocalizationService()));
 
             return serviceCollection.BuildServiceProvider();
         }

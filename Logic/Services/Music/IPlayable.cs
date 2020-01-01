@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Victoria;
 
-namespace Logic.Models.Music
+namespace Logic.Services.Music
 {
     public interface IPlayable
     {

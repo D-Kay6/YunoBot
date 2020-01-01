@@ -27,7 +27,6 @@ namespace Logic.Handlers
             _handlers.Add(ActivatorUtilities.CreateInstance<DblHandler>(_services));
             _handlers.Add(ActivatorUtilities.CreateInstance<ChannelHandler>(_services));
             _handlers.Add(ActivatorUtilities.CreateInstance<RoleHandler>(_services));
-            _handlers.Add(ActivatorUtilities.CreateInstance<MusicHandler>(_services));
             _handlers.Add(ActivatorUtilities.CreateInstance<WelcomeHandler>(_services));
         }
 

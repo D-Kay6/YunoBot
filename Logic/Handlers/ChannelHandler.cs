@@ -16,12 +16,12 @@ namespace Logic.Handlers
         private IDbChannel _channel;
         private IDbLanguage _language;
         private LocalizationService _localization;
-        private MusicService _audioService;
+        private AudioService _audioService;
         private LogsService _logs;
 
         private HashSet<ulong> _channels;
         
-        public ChannelHandler(DiscordSocketClient client, IDbChannel channel, IDbLanguage language, LocalizationService localization, MusicService audioService, LogsService logs) : base(client)
+        public ChannelHandler(DiscordSocketClient client, IDbChannel channel, IDbLanguage language, LocalizationService localization, AudioService audioService, LogsService logs) : base(client)
         {
             _channel = channel;
             _language = language;
@@ -60,7 +60,15 @@ namespace Logic.Handlers
             if (channel == null) return;
             try
             {
-                if (channel.Users.Count > 0) return;
+                if (channel.Users.Count > 0)
+                {
+                    if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(Client.CurrentUser.Id)) return;
+                    await _audioService.BeforeExecute(channel.Guild);
+                    await LoadLanguage(channel.Guild.Id);
+                    await _audioService.TextChannel.SendMessageAsync(_localization.GetMessage("Channel musicplayer stopped"));
+                    await _audioService.Stop();
+                    return;
+                }
 
                 while (_channels.Contains(channel.Id)) await Task.Delay(100);
                 

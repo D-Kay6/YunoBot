@@ -39,7 +39,6 @@ namespace Logic.Handlers
         {
             var i = _random.Next(1, 5);
             IActivity activity = null;
-            //i = 10;
             switch (i)
             {
                 case 1:
@@ -57,12 +56,6 @@ namespace Logic.Handlers
                 case 5:
                     var userCount = Client.Guilds.Sum(guild => guild.MemberCount);
                     activity = new Game($"{userCount} users", ActivityType.Watching);
-                    break;
-                case 10:
-                    activity = new Game("Getting updates", ActivityType.Playing);
-                    break;
-                case 11:
-                    activity = new Game("Restarting", ActivityType.Playing);
                     break;
             }
             await Client.SetActivityAsync(activity);
