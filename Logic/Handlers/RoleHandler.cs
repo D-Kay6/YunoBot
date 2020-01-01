@@ -21,6 +21,11 @@ namespace Logic.Handlers
 
         public override async Task Initialize()
         {
+            Client.Ready += OnReady;
+        }
+
+        private async Task OnReady()
+        {
             Client.GuildMemberUpdated += GuildMemberUpdated;
         }
 

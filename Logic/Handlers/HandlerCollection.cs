@@ -7,8 +7,8 @@ namespace Logic.Handlers
 {
     public class HandlerCollection
     {
-        private IServiceProvider _services;
-        private Collection<BaseHandler> _handlers;
+        private readonly IServiceProvider _services;
+        private readonly Collection<BaseHandler> _handlers;
 
         public HandlerCollection(IServiceProvider services)
         {
@@ -28,6 +28,7 @@ namespace Logic.Handlers
             _handlers.Add(ActivatorUtilities.CreateInstance<ChannelHandler>(_services));
             _handlers.Add(ActivatorUtilities.CreateInstance<RoleHandler>(_services));
             _handlers.Add(ActivatorUtilities.CreateInstance<WelcomeHandler>(_services));
+            _handlers.Add(ActivatorUtilities.CreateInstance<MusicHandler>(_services));
         }
 
         public async Task Initialize()

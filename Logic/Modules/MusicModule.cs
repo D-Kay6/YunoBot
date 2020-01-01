@@ -17,9 +17,9 @@ namespace Logic.Modules
         private IDbLanguage _language;
         private LocalizationService _localization;
 
-        private AudioService AudioService { get; }
+        private MusicService AudioService { get; }
 
-        public MusicModule(AudioService audioService, IDbLanguage language, LocalizationService localization)
+        public MusicModule(MusicService audioService, IDbLanguage language, LocalizationService localization)
         {
             AudioService = audioService;
             _language = language;
@@ -28,7 +28,7 @@ namespace Logic.Modules
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(Prepare(), AudioService.BeforeExecute(Context.Guild));
+            Task.WaitAll(Prepare(), AudioService.Prepare(Context.Guild));
             base.BeforeExecute(command);
         }
 
@@ -54,25 +54,25 @@ namespace Logic.Modules
             var message = await ReplyAsync(_localization.GetMessage("Music search", query));
             var result = await AudioService.GetTracks(query);
             await message.DeleteAsync();
-            switch (result.LoadType)
+            switch (result.LoadStatus)
             {
-                case LoadType.SearchResult:
+                case LoadStatus.SearchResult:
                     var search = result.Tracks.FirstOrDefault(t => query.Contains(t.Id)) ?? result.Tracks.First();
                     await AudioService.Queue(new Song(search, Context));
                     break;
-                case LoadType.TrackLoaded:
+                case LoadStatus.TrackLoaded:
                     var track = result.Tracks.First();
                     await AudioService.Queue(new Song(track, Context));
                     break;
-                case LoadType.PlaylistLoaded:
+                case LoadStatus.PlaylistLoaded:
                     var user = (SocketGuildUser) Context.User;
                     await AudioService.Queue(result.Tracks.Select(t => new Song(t, Context)), user.VoiceChannel);
                     await Context.Channel.SendMessageAsync(_localization.GetMessage("Music queued playlist", result.Tracks.Count));
                     break;
-                case LoadType.NoMatches:
+                case LoadStatus.NoMatches:
                     await ReplyAsync(_localization.GetMessage("Music invalid song"));
                     break;
-                case LoadType.LoadFailed:
+                case LoadStatus.LoadFailed:
                     await ReplyAsync(_localization.GetMessage("Music exception"));
                     break;
             }

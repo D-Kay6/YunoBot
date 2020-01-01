@@ -1,10 +1,9 @@
 ﻿using Discord.WebSocket;
 using DiscordBotsList.Api;
-using Entity;
+using IDal;
 using Logic.Services;
 using System;
 using System.Threading.Tasks;
-using IDal;
 
 namespace Logic.Handlers
 {
@@ -27,12 +26,13 @@ namespace Logic.Handlers
             DblApi = new AuthDiscordBotListApi(settings.ClientId, settings.DiscordBotsToken);
 
             Client.Ready += OnReady;
-            Client.JoinedGuild += OnGuildJoined;
-            Client.LeftGuild += OnGuildLeft;
         }
 
         private async Task OnReady()
         {
+            Client.JoinedGuild += OnGuildJoined;
+            Client.LeftGuild += OnGuildLeft;
+
             await UpdateGuilds().ConfigureAwait(false);
         }
 

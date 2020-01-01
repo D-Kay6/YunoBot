@@ -6,7 +6,6 @@ using Logic.Extensions;
 using Logic.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers
@@ -16,22 +15,25 @@ namespace Logic.Handlers
         private IDbChannel _channel;
         private IDbLanguage _language;
         private LocalizationService _localization;
-        private AudioService _audioService;
         private LogsService _logs;
 
         private HashSet<ulong> _channels;
         
-        public ChannelHandler(DiscordSocketClient client, IDbChannel channel, IDbLanguage language, LocalizationService localization, AudioService audioService, LogsService logs) : base(client)
+        public ChannelHandler(DiscordSocketClient client, IDbChannel channel, IDbLanguage language, LocalizationService localization, LogsService logs) : base(client)
         {
             _channel = channel;
             _language = language;
             _localization = localization;
-            _audioService = audioService;
             _logs = logs;
             _channels = new HashSet<ulong>();
         }
 
         public override async Task Initialize()
+        {
+            Client.Ready += OnReady;
+        }
+
+        private async Task OnReady()
         {
             Client.UserVoiceStateUpdated += HandleChannelAsync;
         }
@@ -60,15 +62,7 @@ namespace Logic.Handlers
             if (channel == null) return;
             try
             {
-                if (channel.Users.Count > 0)
-                {
-                    if (channel.Users.Count != 1 || !channel.Users.First().Id.Equals(Client.CurrentUser.Id)) return;
-                    await _audioService.BeforeExecute(channel.Guild);
-                    await LoadLanguage(channel.Guild.Id);
-                    await _audioService.TextChannel.SendMessageAsync(_localization.GetMessage("Channel musicplayer stopped"));
-                    await _audioService.Stop();
-                    return;
-                }
+                if (channel.Users.Count > 0) return;
 
                 while (_channels.Contains(channel.Id)) await Task.Delay(100);
                 

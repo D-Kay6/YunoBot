@@ -33,6 +33,11 @@ namespace Logic.Handlers
         public override async Task Initialize()
         {
             await _service.AddModulesAsync(Assembly.GetExecutingAssembly(), _serviceProvider);
+            Client.Ready += OnReady;
+        }
+
+        private async Task OnReady()
+        {
             Client.MessageReceived += HandleCommandAsync;
         }
 

@@ -20,15 +20,16 @@ namespace Logic.Handlers
         public override async Task Initialize()
         {
             Client.Ready += OnReady;
-            Client.UserUpdated += OnUserUpdated;
-            Client.JoinedGuild += OnGuildJoined;
-            Client.LeftGuild += OnGuildLeft;
-            Client.GuildUpdated += OnGuildUpdated;
         }
 
         private async Task OnReady()
         {
-            await UpdateServers();
+            Client.UserUpdated += OnUserUpdated;
+            Client.JoinedGuild += OnGuildJoined;
+            Client.LeftGuild += OnGuildLeft;
+            Client.GuildUpdated += OnGuildUpdated;
+
+            await UpdateServers().ConfigureAwait(false);
         }
 
         private async Task OnUserUpdated(SocketUser oldState, SocketUser newState)

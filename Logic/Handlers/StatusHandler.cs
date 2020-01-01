@@ -21,12 +21,13 @@ namespace Logic.Handlers
         public override async Task Initialize()
         {
             Client.Ready += OnReady;
-            _timer.Elapsed += OnTick;
+
+            await RandomizeActivity();
         }
 
         private async Task OnReady()
         {
-            await RandomizeActivity();
+            _timer.Elapsed += OnTick;
             _timer.Start();
         }
 
