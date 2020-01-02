@@ -27,18 +27,15 @@ namespace Logic.Handlers
         public override async Task Initialize()
         {
             Client.Ready += OnReady;
-        }
-
-        private async Task OnReady()
-        {
-            if (IsLoaded()) return;
             Client.UserVoiceStateUpdated += OnChangeVoiceChannel;
 
             _lavaNode.OnTrackException += OnTrackException;
             _lavaNode.OnTrackStuck += OnTrackStuck;
             _lavaNode.OnTrackEnded += OnTrackEnded;
-            FinishLoading();
+        }
 
+        private async Task OnReady()
+        {
             await _lavaNode.ConnectAsync();
         }
 

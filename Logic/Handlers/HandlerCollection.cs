@@ -42,6 +42,7 @@ namespace Logic.Handlers
         {
             foreach (var handler in _handlers)
             {
+                Console.WriteLine($"Loading {handler.GetType().Name}.");
                 await handler.Initialize();
             }
         }

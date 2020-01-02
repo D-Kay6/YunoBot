@@ -26,7 +26,7 @@ namespace Logic.Services
         private IDbLanguage _language;
         private LocalizationService _localization;
 
-        public bool IsPlaying => _player != null && _player.PlayerState == PlayerState.Playing || _player.PlayerState == PlayerState.Paused;
+        public bool IsPlaying => _player != null && (_player.PlayerState == PlayerState.Playing || _player.PlayerState == PlayerState.Paused);
         public bool IsPaused => _player != null && _player.PlayerState == PlayerState.Paused;
         public PlayerState State => _player?.PlayerState ?? PlayerState.Disconnected;
         public IVoiceChannel VoiceChannel => _player?.VoiceChannel;

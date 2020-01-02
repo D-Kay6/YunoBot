@@ -10,12 +10,13 @@ namespace Logic.Handlers
 {
     public class CommandHandler : BaseHandler
     {
-        private IDbCommand _command;
-        private IDbLanguage _language;
-        private LocalizationService _localization;
-        private LogsService _logs;
-        private IServiceProvider _serviceProvider;
-        private CommandService _service;
+        private readonly IDbCommand _command;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+        private readonly LogsService _logs;
+        private readonly IServiceProvider _serviceProvider;
+
+        private readonly CommandService _service;
 
         public CommandHandler(DiscordSocketClient client, IDbCommand command, IDbLanguage language, LocalizationService localization, LogsService logs, IServiceProvider serviceProvider) : base(client)
         {
@@ -33,14 +34,7 @@ namespace Logic.Handlers
         public override async Task Initialize()
         {
             await _service.AddModulesAsync(Assembly.GetExecutingAssembly(), _serviceProvider);
-            Client.Ready += OnReady;
-        }
-
-        private async Task OnReady()
-        {
-            if (IsLoaded()) return;
             Client.MessageReceived += HandleCommandAsync;
-            FinishLoading();
         }
 
         private async Task HandleCommandAsync(SocketMessage s)

@@ -9,8 +9,10 @@ namespace Logic.Handlers
 {
     public class DblHandler : BaseHandler
     {
-        private IConfig _config;
-        private LogsService _logs;
+        private readonly IConfig _config;
+        private readonly LogsService _logs;
+
+        private bool _isRunning;
 
         public AuthDiscordBotListApi DblApi { get; private set; }
 
@@ -30,14 +32,9 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
-            if (!IsLoaded())
-            {
-                Client.JoinedGuild += OnGuildJoined;
-                Client.LeftGuild += OnGuildLeft;
-                FinishLoading();
-            }
-
             await UpdateGuilds().ConfigureAwait(false);
+            Client.JoinedGuild += OnGuildJoined;
+            Client.LeftGuild += OnGuildLeft;
         }
 
         private async Task OnGuildJoined(SocketGuild guild)
@@ -54,8 +51,11 @@ namespace Logic.Handlers
 
         private async Task UpdateGuilds()
         {
+            if (_isRunning) return;
+
             try
             {
+                _isRunning = true;
                 var me = await DblApi.GetMeAsync();
                 await me.UpdateStatsAsync(Client.Guilds.Count);
                 await DblApi.UpdateStats(Client.Guilds.Count);
@@ -64,6 +64,10 @@ namespace Logic.Handlers
             catch (Exception e)
             {
                 Console.WriteLine($"Could not update guild count. {e.Message}");
+            }
+            finally
+            {
+                _isRunning = false;
             }
         }
     }

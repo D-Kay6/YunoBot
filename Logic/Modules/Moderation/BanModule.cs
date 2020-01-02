@@ -14,10 +14,10 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.BanMembers)]
     public class BanModule : ModuleBase<SocketCommandContext>
     {
-        private IDbBan _ban;
-        private IDbUser _user;
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbBan _ban;
+        private readonly IDbUser _user;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public BanModule(IDbBan ban, IDbUser user, IDbLanguage language, LocalizationService localization)
         {

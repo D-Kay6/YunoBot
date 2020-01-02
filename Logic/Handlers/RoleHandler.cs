@@ -10,8 +10,8 @@ namespace Logic.Handlers
 {
     public class RoleHandler : BaseHandler
     {
-        private IDbRole _role;
-        private LogsService _logs;
+        private readonly IDbRole _role;
+        private readonly LogsService _logs;
 
         public RoleHandler(DiscordSocketClient client, IDbRole role, LogsService logs) : base(client)
         {
@@ -21,14 +21,7 @@ namespace Logic.Handlers
 
         public override async Task Initialize()
         {
-            Client.Ready += OnReady;
-        }
-
-        private async Task OnReady()
-        {
-            if (IsLoaded()) return;
             Client.GuildMemberUpdated += GuildMemberUpdated;
-            FinishLoading();
         }
 
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)

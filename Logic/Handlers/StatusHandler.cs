@@ -9,8 +9,8 @@ namespace Logic.Handlers
 {
     public class StatusHandler : BaseHandler
     {
-        private Timer _timer;
-        private Random _random;
+        private readonly Timer _timer;
+        private readonly Random _random;
 
         public StatusHandler(DiscordSocketClient client) : base(client)
         {
@@ -20,17 +20,10 @@ namespace Logic.Handlers
 
         public override async Task Initialize()
         {
-            Client.Ready += OnReady;
-
-            await RandomizeActivity();
-        }
-
-        private async Task OnReady()
-        {
-            if (IsLoaded()) return;
             _timer.Elapsed += OnTick;
             _timer.Start();
-            FinishLoading();
+
+            await RandomizeActivity();
         }
 
         private async void OnTick(object sender, ElapsedEventArgs e)

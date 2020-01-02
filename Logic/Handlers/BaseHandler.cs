@@ -5,8 +5,6 @@ namespace Logic.Handlers
 {
     public abstract class BaseHandler
     {
-        private bool _loaded;
-
         protected DiscordSocketClient Client;
 
         protected BaseHandler(DiscordSocketClient client)
@@ -15,15 +13,5 @@ namespace Logic.Handlers
         }
 
         public abstract Task Initialize();
-
-        protected void FinishLoading()
-        {
-            _loaded = true;
-        }
-
-        protected bool IsLoaded()
-        {
-            return _loaded;
-        }
     }
 }

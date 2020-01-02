@@ -7,8 +7,8 @@ namespace Logic.Handlers
 {
     public class WelcomeHandler : BaseHandler
     {
-        private IDbCommand _command;
-        private IDbWelcome _welcome;
+        private readonly IDbCommand _command;
+        private readonly IDbWelcome _welcome;
 
         public WelcomeHandler(DiscordSocketClient client, IDbCommand command, IDbWelcome welcome) : base(client)
         {
@@ -18,14 +18,7 @@ namespace Logic.Handlers
 
         public override async Task Initialize()
         {
-            Client.Ready += OnReady;
-        }
-
-        private async Task OnReady()
-        {
-            if (IsLoaded()) return;
             Client.UserJoined += OnUserJoined;
-            FinishLoading();
         }
 
         private async Task OnUserJoined(SocketGuildUser user)

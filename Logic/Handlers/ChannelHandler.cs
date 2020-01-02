@@ -12,12 +12,12 @@ namespace Logic.Handlers
 {
     public class ChannelHandler : BaseHandler
     {
-        private IDbChannel _channel;
-        private IDbLanguage _language;
-        private LocalizationService _localization;
-        private LogsService _logs;
+        private readonly IDbChannel _channel;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+        private readonly LogsService _logs;
 
-        private HashSet<ulong> _channels;
+        private readonly HashSet<ulong> _channels;
         
         public ChannelHandler(DiscordSocketClient client, IDbChannel channel, IDbLanguage language, LocalizationService localization, LogsService logs) : base(client)
         {
@@ -30,14 +30,12 @@ namespace Logic.Handlers
 
         public override async Task Initialize()
         {
-            Client.Ready += OnReady;
+            Client.UserVoiceStateUpdated += HandleChannelAsync;
         }
 
-        private async Task OnReady()
+        private async Task LoadLanguage(ulong serverId)
         {
-            if (IsLoaded()) return;
-            Client.UserVoiceStateUpdated += HandleChannelAsync;
-            FinishLoading();
+            await _localization.Load(await _language.GetLanguage(serverId));
         }
 
         private async Task HandleChannelAsync(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
@@ -52,11 +50,6 @@ namespace Logic.Handlers
             {
                 await _logs.Write("Crashes", $"Failed to handle UserVoiceStateUpdated. {e.Message}, {e.StackTrace}");
             }
-        }
-
-        private async Task LoadLanguage(ulong serverId)
-        {
-            await _localization.Load(await _language.GetLanguage(serverId));
         }
 
         private async Task LeaveChannel(SocketVoiceChannel channel, SocketGuildUser user)

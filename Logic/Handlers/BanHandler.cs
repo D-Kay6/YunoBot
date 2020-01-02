@@ -9,10 +9,11 @@ namespace Logic.Handlers
 {
     public class BanHandler : BaseHandler
     {
-        private IDbBan _ban;
-        private LogsService _logs;
+        private readonly IDbBan _ban;
+        private readonly LogsService _logs;
 
-        private Timer _timer;
+        private readonly Timer _timer;
+
         private bool _isRunning;
 
         public BanHandler(DiscordSocketClient client, IDbBan ban, LogsService logs) : base(client)
@@ -24,14 +25,8 @@ namespace Logic.Handlers
 
         public override async Task Initialize()
         {
-            Client.Ready += OnReady;
             _timer.Elapsed += OnTick;
-        }
-
-        private async Task OnReady()
-        {
             _timer.Start();
-            FinishLoading();
         }
 
         private async void OnTick(object sender, ElapsedEventArgs e)

@@ -20,19 +20,14 @@ namespace Logic.Handlers
         public override async Task Initialize()
         {
             Client.Ready += OnReady;
+            Client.UserUpdated += OnUserUpdated;
+            Client.JoinedGuild += OnGuildJoined;
+            Client.LeftGuild += OnGuildLeft;
+            Client.GuildUpdated += OnGuildUpdated;
         }
 
         private async Task OnReady()
         {
-            if (!IsLoaded())
-            {
-                Client.UserUpdated += OnUserUpdated;
-                Client.JoinedGuild += OnGuildJoined;
-                Client.LeftGuild += OnGuildLeft;
-                Client.GuildUpdated += OnGuildUpdated;
-                FinishLoading();
-            }
-
             await UpdateServers().ConfigureAwait(false);
         }
 
