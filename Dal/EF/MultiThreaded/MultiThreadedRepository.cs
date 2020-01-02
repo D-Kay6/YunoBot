@@ -1,11 +1,10 @@
-﻿using Dal.EF.SingleThreaded;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dal.EF.MultiThreaded
 {
-    public abstract class MultiThreadedRepository : BaseRepository
+    public abstract class MultiThreadedRepository
     {
         protected static readonly SemaphoreSlim Semaphore;
 
