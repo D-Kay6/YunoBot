@@ -7,6 +7,7 @@ using Logic.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Discord.Rest;
 
 namespace Logic.Handlers
 {
@@ -77,22 +78,23 @@ namespace Logic.Handlers
         private async Task JoinChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
             if (channel == null || user == null) return;
+            RestVoiceChannel newChannel = null;
             try
             {
                 var auto = await _channel.GetAutoChannel(channel.Guild.Id);
                 if (channel.Name.StartsWith(auto.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    var channelId = await DuplicateChannel(channel, user, auto.Name);
-                    await _channel.AddGeneratedChannel(channel.Guild.Id, channelId);
-                    _channels.Remove(channelId);
+                    newChannel = await DuplicateChannel(channel, user, auto.Name);
+                    await _channel.AddGeneratedChannel(channel.Guild.Id, newChannel.Id);
+                    _channels.Remove(newChannel.Id);
                     return;
                 }
 
                 var perma = await _channel.GetPermaChannel(channel.Guild.Id);
                 if (channel.Name.StartsWith(perma.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    var channelId = await DuplicateChannel(channel, user, perma.Name);
-                    _channels.Remove(channelId);
+                    newChannel = await DuplicateChannel(channel, user, perma.Name);
+                    _channels.Remove(newChannel.Id);
                 }
             }
             catch (HttpException httpException)
@@ -100,21 +102,38 @@ namespace Logic.Handlers
                 if (!httpException.Message.Contains("error 50013: Missing Permissions"))
                 {
                     await _logs.Write("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
+                    if (newChannel != null)
+                    {
+                        await newChannel.DeleteAsync();
+                        await _channel.RemoveGeneratedChannel(newChannel.GuildId, newChannel.Id);
+                        _channels.Remove(newChannel.Id);
+                    }
                     return;
                 }
 
                 var pmChannel = await channel.Guild.Owner.GetOrCreateDMChannelAsync();
                 await LoadLanguage(channel.Guild.Id);
                 await pmChannel.SendMessageAsync(_localization.GetMessage("Channel no permission", channel.Guild.Name, channel.Name));
+                if (newChannel != null)
+                {
+                    await newChannel.DeleteAsync();
+                    await _channel.RemoveGeneratedChannel(newChannel.GuildId, newChannel.Id);
+                    _channels.Remove(newChannel.Id);
+                }
             }
             catch (Exception e)
             {
-                var info = channel == null ? "Null channel" : $"({channel.Guild.Id}) {channel.Id}, {channel.Name}";
-                await _logs.Write("Crashes", $"JoinChannel crashed. {info}. Stacktrace: {e}");
+                await _logs.Write("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {e}");
+                if (newChannel != null)
+                {
+                    await newChannel.DeleteAsync();
+                    await _channel.RemoveGeneratedChannel(newChannel.GuildId, newChannel.Id);
+                    _channels.Remove(newChannel.Id);
+                }
             }
         }
 
-        private async Task<ulong> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
+        private async Task<RestVoiceChannel> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
         {
             await _logs.Write("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
             var newChannel = await channel.Guild.CreateVoiceChannelAsync(string.Format(name, user.Nickname().ToPossessive()), p =>
@@ -128,7 +147,7 @@ namespace Logic.Handlers
             await user.ModifyAsync(u => u.Channel = newChannel);
             foreach (var p in channel.PermissionOverwrites) await newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(p.TargetId), p.Permissions);
             await newChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
-            return newChannel.Id;
+            return newChannel;
         }
     }
 }
