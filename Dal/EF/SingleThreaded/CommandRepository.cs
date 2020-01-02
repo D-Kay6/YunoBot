@@ -5,31 +5,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Dal.EF
+namespace Dal.EF.SingleThreaded
 {
-    public class CommandRepository : IDbCommand
+    public class CommandRepository : BaseRepository, IDbCommand
     {
-        private readonly DataContext _context;
-
-        public CommandRepository()
-        {
-            _context = new DataContext();
-        }
-
         public async Task<string> GetPrefix(ulong serverId)
         {
-            var settings = await _context.CommandSettings.FindAsync(serverId);
+            var settings = await Context.CommandSettings.FindAsync(serverId);
             return settings?.Prefix;
         }
 
         public async Task<bool> SetPrefix(ulong serverId, string prefix)
         {
-            var settings = await _context.CommandSettings.FindAsync(serverId);
+            var settings = await Context.CommandSettings.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.Prefix = prefix;
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -53,8 +46,8 @@ namespace Dal.EF
         {
             try
             {
-                _context.CustomCommands.Add(customCommand);
-                await _context.SaveChangesAsync();
+                Context.CustomCommands.Add(customCommand);
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -74,8 +67,8 @@ namespace Dal.EF
             if (customCommand == null) return false;
             try
             {
-                _context.CustomCommands.Remove(customCommand);
-                await _context.SaveChangesAsync();
+                Context.CustomCommands.Remove(customCommand);
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -86,12 +79,12 @@ namespace Dal.EF
 
         public async Task<CustomCommand> GetCustomCommand(ulong serverId, string command)
         {
-            return await _context.CustomCommands.FindAsync(serverId, command);
+            return await Context.CustomCommands.FindAsync(serverId, command);
         }
 
         public async Task<List<CustomCommand>> GetCustomCommands(ulong serverId)
         {
-            return await _context.CustomCommands.Where(x => x.ServerId == serverId).ToListAsync();
+            return await Context.CustomCommands.Where(x => x.ServerId == serverId).ToListAsync();
         }
     }
 }

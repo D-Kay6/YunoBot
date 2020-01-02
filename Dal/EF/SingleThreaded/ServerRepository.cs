@@ -4,33 +4,26 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 
-namespace Dal.EF
+namespace Dal.EF.SingleThreaded
 {
-    public class ServerRepository : IDbServer
+    public class ServerRepository : BaseRepository, IDbServer
     {
-        private readonly DataContext _context;
-
-        public ServerRepository()
-        {
-            _context = new DataContext();
-        }
-
         public async Task AddServer(ulong id, string name)
         {
-            _context.Servers.Add(new Server
+            Context.Servers.Add(new Server
             {
                 Id = id,
                 Name = name
             });
-            await _context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         public async Task AddServer(Server server)
         {
             try
             {
-                _context.Servers.Add(server);
-                await _context.SaveChangesAsync();
+                Context.Servers.Add(server);
+                await Context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -42,7 +35,7 @@ namespace Dal.EF
         {
             try
             {
-                var server = await _context.Servers.FindAsync(id);
+                var server = await Context.Servers.FindAsync(id);
                 if (server == null)
                 {
                     await AddServer(id, name);
@@ -50,7 +43,7 @@ namespace Dal.EF
                 }
 
                 server.Name = name;
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -60,26 +53,26 @@ namespace Dal.EF
 
         public async Task UpdateServer(Server server)
         {
-            _context.Servers.Update(server);
-            await _context.SaveChangesAsync();
+            Context.Servers.Update(server);
+            await Context.SaveChangesAsync();
         }
 
         public async Task DeleteServer(ulong id)
         {
-            var server = await _context.Servers.FindAsync(id);
+            var server = await Context.Servers.FindAsync(id);
             if (server == null) return;
-            _context.Servers.Remove(server);
-            await _context.SaveChangesAsync();
+            Context.Servers.Remove(server);
+            await Context.SaveChangesAsync();
         }
 
         public async Task<Server> GetServer(ulong id)
         {
-            return await _context.Servers.FindAsync(id);
+            return await Context.Servers.FindAsync(id);
         }
 
         public async Task Save()
         {
-            await _context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
     }
 }

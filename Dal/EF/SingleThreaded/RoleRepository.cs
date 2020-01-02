@@ -3,32 +3,24 @@ using IDal.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace Dal.EF
+namespace Dal.EF.SingleThreaded
 {
-    public class RoleRepository : IDbRole
+    public class RoleRepository : BaseRepository, IDbRole
     {
-        private readonly DataContext _context;
-
-        public RoleRepository()
-        {
-            _context = new DataContext();
-        }
-
-
         public async Task<bool> IsAutoEnabled(ulong serverId)
         {
-            var ar = await _context.AutoRoles.FindAsync(serverId);
+            var ar = await Context.AutoRoles.FindAsync(serverId);
             return ar != null && ar.Enabled;
         }
 
         public async Task<bool> SetAutoEnabled(ulong serverId, bool enabled)
         {
-            var ar = await _context.AutoRoles.FindAsync(serverId);
+            var ar = await Context.AutoRoles.FindAsync(serverId);
             if (ar == null) return false;
             try
             {
                 ar.Enabled = enabled;
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -39,18 +31,18 @@ namespace Dal.EF
 
         public async Task<string> GetAutoPrefix(ulong serverId)
         {
-            var ar = await _context.AutoRoles.FindAsync(serverId);
+            var ar = await Context.AutoRoles.FindAsync(serverId);
             return ar?.Prefix;
         }
 
         public async Task<bool> SetAutoPrefix(ulong serverId, string prefix)
         {
-            var ar = await _context.AutoRoles.FindAsync(serverId);
+            var ar = await Context.AutoRoles.FindAsync(serverId);
             if (ar == null) return false;
             try
             {
                 ar.Prefix = prefix;
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -62,19 +54,19 @@ namespace Dal.EF
 
         public async Task<bool> IsPermaEnabled(ulong serverId)
         {
-            var pr = await _context.PermaRoles.FindAsync(serverId);
+            var pr = await Context.PermaRoles.FindAsync(serverId);
             if (pr == null) return false;
             return pr.Enabled;
         }
 
         public async Task<bool> SetPermaEnabled(ulong serverId, bool enabled)
         {
-            var pr = await _context.PermaRoles.FindAsync(serverId);
+            var pr = await Context.PermaRoles.FindAsync(serverId);
             if (pr == null) return false;
             try
             {
                 pr.Enabled = enabled;
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -85,18 +77,18 @@ namespace Dal.EF
 
         public async Task<string> GetPermaPrefix(ulong serverId)
         {
-            var pr = await _context.PermaRoles.FindAsync(serverId);
+            var pr = await Context.PermaRoles.FindAsync(serverId);
             return pr?.Prefix;
         }
 
         public async Task<bool> SetPermaPrefix(ulong serverId, string prefix)
         {
-            var pr = await _context.PermaRoles.FindAsync(serverId);
+            var pr = await Context.PermaRoles.FindAsync(serverId);
             if (pr == null) return false;
             try
             {
                 pr.Prefix = prefix;
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -108,7 +100,7 @@ namespace Dal.EF
 
         public async Task<bool> IsGeneratedChannel(ulong serverId, ulong channelId)
         {
-            var channel = await _context.GeneratedChannels.FindAsync(serverId, channelId);
+            var channel = await Context.GeneratedChannels.FindAsync(serverId, channelId);
             return channel != null;
         }
 
@@ -116,12 +108,12 @@ namespace Dal.EF
         {
             try
             {
-                _context.GeneratedChannels.Add(new GeneratedChannel
+                Context.GeneratedChannels.Add(new GeneratedChannel
                 {
                     ServerId = serverId,
                     ChannelId = channelId
                 });
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -132,12 +124,12 @@ namespace Dal.EF
 
         public async Task<bool> RemoveGeneratedChannel(ulong serverId, ulong channelId)
         {
-            var channel = await _context.GeneratedChannels.FindAsync(serverId, channelId);
+            var channel = await Context.GeneratedChannels.FindAsync(serverId, channelId);
             if (channel == null) return false;
             try
             {
-                _context.GeneratedChannels.Remove(channel);
-                await _context.SaveChangesAsync();
+                Context.GeneratedChannels.Remove(channel);
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -149,19 +141,19 @@ namespace Dal.EF
 
         public async Task<bool> IsIgnoringRoles(ulong serverId, ulong userId)
         {
-            return await _context.IgnoredUsers.FindAsync(serverId, userId) != null;
+            return await Context.IgnoredUsers.FindAsync(serverId, userId) != null;
         }
 
         public async Task<bool> AddIgnoringRoles(ulong serverId, ulong userId)
         {
             try
             {
-                _context.IgnoredUsers.Add(new RoleIgnore
+                Context.IgnoredUsers.Add(new RoleIgnore
                 {
                     ServerId = serverId,
                     UserId = userId
                 });
-                await _context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -172,12 +164,12 @@ namespace Dal.EF
 
         public async Task<bool> RemoveIgnoringRoles(ulong serverId, ulong userId)
         {
-            var user = await _context.IgnoredUsers.FindAsync(serverId, userId);
+            var user = await Context.IgnoredUsers.FindAsync(serverId, userId);
             if (user == null) return false;
             try
             {
-                _context.IgnoredUsers.Remove(user);
-                await _context.SaveChangesAsync();
+                Context.IgnoredUsers.Remove(user);
+                await Context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -189,12 +181,12 @@ namespace Dal.EF
 
         public async Task<AutoRole> GetAutoChannel(ulong serverId)
         {
-            return await _context.AutoRoles.FindAsync(serverId);
+            return await Context.AutoRoles.FindAsync(serverId);
         }
 
         public async Task<PermaRole> GetPermaChannel(ulong serverId)
         {
-            return await _context.PermaRoles.FindAsync(serverId);
+            return await Context.PermaRoles.FindAsync(serverId);
         }
     }
 }

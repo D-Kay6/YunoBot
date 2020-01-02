@@ -4,33 +4,26 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Dal.EF
+namespace Dal.EF.SingleThreaded
 {
-    public class UserRepository : IDbUser
+    public class UserRepository : BaseRepository, IDbUser
     {
-        private readonly DataContext _context;
-
-        public UserRepository()
-        {
-            _context = new DataContext();
-        }
-
         public async Task AddUser(ulong id, string name)
         {
-            _context.Users.Add(new User
+            Context.Users.Add(new User
             {
                 Id = id,
                 Name = name
             });
-            await _context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         public async Task AddUser(User user)
         {
             try
             {
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+                Context.Users.Add(user);
+                await Context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -40,7 +33,7 @@ namespace Dal.EF
 
         public async Task UpdateUser(ulong id, string name)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await Context.Users.FindAsync(id);
             if (user == null)
             {
                 await AddUser(id, name);
@@ -48,23 +41,23 @@ namespace Dal.EF
             }
 
             user.Name = name;
-            await _context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         public async Task UpdateUser(User user)
         {
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            Context.Users.Update(user);
+            await Context.SaveChangesAsync();
         }
 
         public async Task<User> GetUser(ulong id)
         {
-            return await _context.Users.FindAsync(id);
+            return await Context.Users.FindAsync(id);
         }
 
         public async Task<List<User>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await Context.Users.ToListAsync();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Dal.EF;
+﻿using Dal.EF.MultiThreaded;
 using IDal.Database;
 
 namespace DalFactory
