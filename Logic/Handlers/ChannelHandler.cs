@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Net;
+using Discord.Rest;
 using Discord.WebSocket;
 using IDal.Database;
 using Logic.Extensions;
@@ -7,7 +8,6 @@ using Logic.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord.Rest;
 
 namespace Logic.Handlers
 {
@@ -41,6 +41,9 @@ namespace Logic.Handlers
 
         private async Task HandleChannelAsync(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
         {
+#if DEBUG
+            if (!user.Id.Equals(255453041531158538)) return;
+#endif
             try
             {
                 var guildUser = user as SocketGuildUser;

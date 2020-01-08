@@ -26,6 +26,9 @@ namespace Logic.Handlers
 
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)
         {
+#if DEBUG
+            if (!oldState.Id.Equals(255453041531158538)) return;
+#endif
             if (oldState.Activity?.Name == newState.Activity?.Name) return;
             await RemoveRole(oldState).ConfigureAwait(false);
             await AddRole(newState).ConfigureAwait(false);

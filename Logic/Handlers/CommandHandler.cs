@@ -39,6 +39,9 @@ namespace Logic.Handlers
 
         private async Task HandleCommandAsync(SocketMessage s)
         {
+#if DEBUG
+            if (!s.Author.Id.Equals(255453041531158538)) return;
+#endif
             try
             {
                 if (s.Author.IsBot) return;
