@@ -5,5 +5,6 @@ namespace ILogic
     public interface IBot
     {
         Task Start();
+        Task Stop();
     }
 }

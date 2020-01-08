@@ -69,6 +69,12 @@ namespace Logic
             }
         }
 
+        public async Task Stop()
+        {
+            var restartService = _services.GetService<RestartService>();
+            restartService.Shutdown();
+        }
+
         private ServiceProvider GenerateServiceProvider()
         {
             var serviceCollection = new ServiceCollection();
