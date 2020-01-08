@@ -36,6 +36,7 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
+            if (_lavaNode.IsConnected) await _lavaNode.DisconnectAsync();
             await _lavaNode.ConnectAsync();
         }
 
