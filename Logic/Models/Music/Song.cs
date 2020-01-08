@@ -3,7 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Victoria;
 
-namespace Logic.Services.Music
+namespace Logic.Models.Music
 {
     public class Song : IPlayable
     {
@@ -30,10 +30,5 @@ namespace Logic.Services.Music
         public string DurationString { get; }
 
         public int Volume { get; }
-
-        public void OnPostPlay()
-        {
-            // do nothing;
-        }
     }
 }

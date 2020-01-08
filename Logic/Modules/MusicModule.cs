@@ -2,8 +2,8 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using IDal.Database;
+using Logic.Models.Music;
 using Logic.Services;
-using Logic.Services.Music;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

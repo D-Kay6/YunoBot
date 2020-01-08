@@ -3,7 +3,8 @@ using Discord.WebSocket;
 using IDal.Database;
 using Logic.Exceptions;
 using Logic.Extensions;
-using Logic.Services.Music;
+using Logic.Models.Music;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace Logic.Services
         public IVoiceChannel VoiceChannel => _player?.VoiceChannel;
         public ITextChannel TextChannel => _player?.TextChannel;
         public LavaTrack CurrentTrack => _player?.Track;
-        
+
 
         public MusicService(DiscordSocketClient client, IDbLanguage language, LocalizationService localization)
         {
@@ -57,7 +58,7 @@ namespace Logic.Services
 
             await _localization.Load(await _language.GetLanguage(guild.Id));
         }
-        
+
 
         public async Task PlayNextTrack()
         {
@@ -70,7 +71,14 @@ namespace Logic.Services
             var song = _queue.Dequeue();
             LavaNode.UpdateTextChannel(song.Guild, song.TextChannel);
             await song.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", song.Track.Title, song.Requester.Nickname()));
-            await _player.PlayAsync(song.Track);
+            try
+            {
+                await _player.PlayAsync(song.Track);
+            }
+            catch (Exception e)
+            {
+
+            }
         }
 
         public async Task EndPlayer()
@@ -88,7 +96,7 @@ namespace Logic.Services
             if (result.LoadStatus == LoadStatus.NoMatches) result = await LavaNode.SearchYouTubeAsync(query);
             return result;
         }
-        
+
         public async Task Queue(IPlayable song)
         {
             if (_player == null) _player = await LavaNode.JoinAsync(song.Requester.VoiceChannel);
@@ -101,7 +109,7 @@ namespace Logic.Services
             }
             await song.TextChannel.SendMessageAsync(_localization.GetMessage("Music queued song", _queue.Count, song.Track.Title, song.Track.Duration));
         }
-        
+
         public async Task Queue(IEnumerable<IPlayable> songs, IVoiceChannel channel)
         {
             if (IsPlaying)
@@ -109,7 +117,7 @@ namespace Logic.Services
                 songs.Foreach(s => _queue.Enqueue(s));
                 return;
             }
-            
+
             _player = await LavaNode.JoinAsync(channel);
             songs.Foreach(s => _queue.Enqueue(s));
             await PlayNextTrack();

@@ -61,7 +61,7 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 		"Permachannel prefix set": "The new permachannel prefix is '{0}'.",
 		"Permachannel name default": "The current name for perma generated channels is `{0}`.",
 		"Permachannel name set": "The new name for perma generated channels is '{0}'.",
-		
+
 		"Autorole default": "Autoroles are roles that are temporary granted when a user starts playing a game, and removed when the user stops playing that game.
 
 When setting up autoroles, you need to make sure I have at least the `manage roles` permission.
@@ -116,7 +116,7 @@ Be warry translations can be under construction and may contain messages that st
 If you want your language to be supported or help improve an already existing translation, come to my support server.",
 		"Language unsupported": "`{0}` is not a supported language.",
 		"Language set": "The language for {1} was set to `{0}`.",
-		
+
 		"Music now playing": "Now playing `{0}` requested by {1}",
 		"Music not active": "I'm currently not playing music.",
 		"Music search": "Searching for `{0}`...",

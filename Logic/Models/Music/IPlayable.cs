@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Victoria;
 
-namespace Logic.Services.Music
+namespace Logic.Models.Music
 {
     public interface IPlayable
     {
@@ -16,7 +16,5 @@ namespace Logic.Services.Music
         string DurationString { get; }
 
         int Volume { get; }
-
-        void OnPostPlay();
     }
 }
