@@ -1,20 +1,14 @@
 ﻿using Discord;
-using Victoria;
+using Logic.Models.Music.Track;
 
 namespace Logic.Models.Music
 {
     public interface IPlayable
     {
-        LavaTrack Track { get; }
-
+        ITrack Track { get; }
         IGuild Guild { get; }
-
         IGuildUser Requester { get; }
-
         ITextChannel TextChannel { get; }
-
-        string DurationString { get; }
-
         int Volume { get; }
     }
 }

@@ -1,25 +1,11 @@
 ﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using Victoria;
+using Logic.Models.Music.Track;
 
 namespace Logic.Models.Music
 {
     public class Song : IPlayable
     {
-        public Song(LavaTrack track, SocketCommandContext context, int volume = 25)
-        {
-            Track = track;
-            Guild = context.Guild;
-            Requester = (SocketGuildUser) context.User;
-            TextChannel = context.Channel as ITextChannel;
-            DurationString = track.Duration.ToString();
-            Volume = volume;
-        }
-
-        public string Id => Track.Id;
-
-        public LavaTrack Track { get; }
+        public ITrack Track { get; }
 
         public IGuild Guild { get; }
 
@@ -27,8 +13,15 @@ namespace Logic.Models.Music
 
         public ITextChannel TextChannel { get; }
 
-        public string DurationString { get; }
-
         public int Volume { get; }
+
+        public Song(ITrack track, IGuildUser requester, ITextChannel textChannel, int volume = 25)
+        {
+            Track = track;
+            Guild = requester.Guild;
+            Requester = requester;
+            TextChannel = textChannel;
+            Volume = volume;
+        }
     }
 }

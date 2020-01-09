@@ -4,6 +4,9 @@ using IDal.Database;
 using Logic.Exceptions;
 using Logic.Extensions;
 using Logic.Models.Music;
+using Logic.Models.Music.Player;
+using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,46 +19,35 @@ namespace Logic.Services
 {
     public class MusicService
     {
-        public LavaNode LavaNode { get; }
+        private readonly IMusicPlayer _player;
 
         private readonly DiscordSocketClient _client;
-        private readonly LavaConfig _lavaConfig;
-        private readonly Dictionary<ulong, Queue<IPlayable>> _queues;
+        private readonly Queue _queue;
 
-        private LavaPlayer _player;
-        private Queue<IPlayable> _queue;
         private IDbLanguage _language;
         private LocalizationService _localization;
-
-        public bool IsPlaying => _player != null && (_player.PlayerState == PlayerState.Playing || _player.PlayerState == PlayerState.Paused);
-        public bool IsPaused => _player != null && _player.PlayerState == PlayerState.Paused;
-        public PlayerState State => _player?.PlayerState ?? PlayerState.Disconnected;
-        public IVoiceChannel VoiceChannel => _player?.VoiceChannel;
-        public ITextChannel TextChannel => _player?.TextChannel;
-        public LavaTrack CurrentTrack => _player?.Track;
 
 
         public MusicService(DiscordSocketClient client, IDbLanguage language, LocalizationService localization)
         {
             _client = client;
+            _player = new VictoriaPlayer(client);
+            _queue = new Queue();
+
             _language = language;
             _localization = localization;
-            _lavaConfig = new LavaConfig();
-            LavaNode = new LavaNode(_client, _lavaConfig);
-            _queues = new Dictionary<ulong, Queue<IPlayable>>();
+        }
+
+
+        public async Task<SearchResult> Search(string query)
+        {
+            return await _player.Search(query);
         }
 
 
         public async Task Prepare(IGuild guild)
         {
-            _player = LavaNode.HasPlayer(guild) ? LavaNode.GetPlayer(guild) : null;
-            if (_queues.ContainsKey(guild.Id)) _queue = _queues[guild.Id];
-            else
-            {
-                _queue = new Queue<IPlayable>();
-                _queues.Add(guild.Id, _queue);
-            }
-
+            await _player.Prepare(guild);
             await _localization.Load(await _language.GetLanguage(guild.Id));
         }
 
@@ -90,15 +82,10 @@ namespace Logic.Services
         }
 
 
-        public async Task<SearchResponse> GetTracks(string query)
-        {
-            var result = await LavaNode.SearchAsync(query);
-            if (result.LoadStatus == LoadStatus.NoMatches) result = await LavaNode.SearchYouTubeAsync(query);
-            return result;
-        }
 
-        public async Task Queue(IPlayable song)
+        public async Task Queue(IPlayable item)
         {
+            _queue.Enqueue(item);
             if (_player == null) _player = await LavaNode.JoinAsync(song.Requester.VoiceChannel);
             _queue.Enqueue(song);
             if (_player.PlayerState == PlayerState.Connected)

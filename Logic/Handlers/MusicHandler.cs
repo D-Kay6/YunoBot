@@ -3,9 +3,7 @@ using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Victoria;
-using Victoria.Enums;
-using Victoria.EventArgs;
+using Logic.Models.Music;
 
 namespace Logic.Handlers
 {
@@ -14,14 +12,10 @@ namespace Logic.Handlers
         private readonly MusicService _music;
         private readonly LogsService _logs;
 
-        private readonly LavaNode _lavaNode;
-
         public MusicHandler(DiscordSocketClient client, MusicService music, LogsService logs) : base(client)
         {
             _music = music;
             _logs = logs;
-
-            _lavaNode = music.LavaNode;
         }
 
         public override async Task Initialize()
@@ -29,15 +23,14 @@ namespace Logic.Handlers
             Client.Ready += OnReady;
             Client.UserVoiceStateUpdated += OnChangeVoiceChannel;
 
-            _lavaNode.OnTrackException += OnTrackException;
-            _lavaNode.OnTrackStuck += OnTrackStuck;
-            _lavaNode.OnTrackEnded += OnTrackEnded;
+            _lavaNode.TrackException += OnTrackException;
+            _lavaNode.TrackStuck += OnTrackStuck;
+            _lavaNode.TrackEnded += OnTrackEnded;
         }
 
         private async Task OnReady()
         {
-            if (_lavaNode.IsConnected) await _lavaNode.DisconnectAsync();
-            await _lavaNode.ConnectAsync();
+
         }
 
         private async Task OnChangeVoiceChannel(SocketUser user, SocketVoiceState leaveState, SocketVoiceState joinState)
@@ -60,14 +53,14 @@ namespace Logic.Handlers
 
         private async Task OnTrackException(TrackExceptionEventArgs e)
         {
-            await _logs.Write("Crashes", $"Could not play track {e.Track.Title}. Reason: {e.ErrorMessage}");
+            await _logs.Write("Crashes", $"Could not play track {e.Track.Title}. Reason: {e.Message}");
             await _music.Prepare(e.Player.VoiceChannel.Guild);
             await _music.PlayNextTrack();
         }
 
         private async Task OnTrackStuck(TrackStuckEventArgs e)
         {
-            await _logs.Write("Crashes", $"Track {e.Track.Title} got stuck. Time: {e.Threshold}");
+            await _logs.Write("Crashes", $"Track {e.Track.Title} got stuck. Time: {e.Duration}");
             await _music.Prepare(e.Player.VoiceChannel.Guild);
             await _music.PlayNextTrack();
         }
@@ -77,17 +70,17 @@ namespace Logic.Handlers
             await _music.Prepare(e.Player.VoiceChannel.Guild);
             switch (e.Reason)
             {
-                case TrackEndReason.Finished:
+                case "Finished":
                     await _music.PlayNextTrack();
                     break;
-                case TrackEndReason.Replaced:
+                case "Replaced":
                     break;
-                case TrackEndReason.LoadFailed:
+                case "LoadFailed":
                     await _music.PlayNextTrack();
                     break;
-                case TrackEndReason.Cleanup:
+                case "Cleanup":
                     break;
-                case TrackEndReason.Stopped:
+                case "Stopped":
                     await _music.EndPlayer();
                     break;
             }
