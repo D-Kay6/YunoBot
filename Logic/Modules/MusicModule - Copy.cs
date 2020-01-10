@@ -7,20 +7,19 @@ using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Logic.Models.Music.Search;
 using Victoria.Enums;
 
 namespace Logic.Modules
 {
     [Group("music")]
-    public class MusicModule : ModuleBase<SocketCommandContext>
+    public class MusicModule2 : ModuleBase<SocketCommandContext>
     {
         private readonly MusicService _musicService;
 
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
 
-        public MusicModule(MusicService musicService, IDbLanguage language, LocalizationService localization)
+        public MusicModule2(MusicService musicService, IDbLanguage language, LocalizationService localization)
         {
             _musicService = musicService;
             _language = language;
@@ -52,17 +51,10 @@ namespace Logic.Modules
         public async Task MusicPlay([Remainder] string query)
         {
             if (!await CanPerform()) return;
-
-            var message = await ReplyAsync(_localization.GetMessage("Music search", query));
-            var result = await _musicService.Search(query);
-            await message.DeleteAsync();
-
-            switch (result.ResultStatus)
-            {
-                case ResultStatus.Failed
-            }
-
             if (query.Contains("&list=")) query = query.Substring(0, query.IndexOf("&list=", StringComparison.CurrentCulture));
+            var message = await ReplyAsync(_localization.GetMessage("Music search", query));
+            var result = await _musicService.GetTracks(query);
+            await message.DeleteAsync();
             switch (result.LoadStatus)
             {
                 case LoadStatus.SearchResult:
@@ -263,7 +255,3 @@ namespace Logic.Modules
         }
     }
 }
-
-/*
- * 
- */

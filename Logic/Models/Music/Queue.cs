@@ -40,11 +40,19 @@ namespace Logic.Models.Music
             return queue.Any();
         }
 
-        public void Enqueue(IPlayable item)
+        public int Enqueue(IPlayable item)
         {
             var guild = item.Guild;
             var queue = GetQueue(guild);
             queue.Enqueue(item);
+            return queue.Count;
+        }
+
+        public void Enqueue(IEnumerable<IPlayable> items)
+        {
+            var guild = items.First().Guild;
+            var queue = GetQueue(guild);
+            items.Foreach(x => queue.Enqueue(x));
         }
 
         public IPlayable Dequeue(IGuild guild)
@@ -52,6 +60,17 @@ namespace Logic.Models.Music
             var queue = GetQueue(guild);
             if (!queue.Any()) throw new InvalidOperationException("There are no items remaining in the queue.");
             return queue.Dequeue();
+        }
+
+        public void Remove(IGuild guild, int amount = 1)
+        {
+            var queue = GetQueue(guild);
+            if (!queue.Any()) throw new InvalidOperationException("There are no items remaining in the queue.");
+            if (queue.Count < amount) amount = queue.Count;
+            for (var i = 0; i < amount; i++)
+            {
+                queue.Dequeue();
+            }
         }
 
         public void Shuffle(IGuild guild)
