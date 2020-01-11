@@ -29,7 +29,7 @@ namespace Logic.Handlers
 
         private async Task OnReady()
         {
-            await UpdateServers().ConfigureAwait(false);
+            await UpdateServers();
         }
 
         private async Task OnUserUpdated(SocketUser oldState, SocketUser newState)

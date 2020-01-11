@@ -28,13 +28,13 @@ namespace Logic.Handlers
             DblApi = new AuthDiscordBotListApi(settings.ClientId, settings.DiscordBotsToken);
 
             Client.Ready += OnReady;
+            Client.JoinedGuild += OnGuildJoined;
+            Client.LeftGuild += OnGuildLeft;
         }
 
         private async Task OnReady()
         {
-            await UpdateGuilds().ConfigureAwait(false);
-            Client.JoinedGuild += OnGuildJoined;
-            Client.LeftGuild += OnGuildLeft;
+            await UpdateGuilds();
         }
 
         private async Task OnGuildJoined(SocketGuild guild)
