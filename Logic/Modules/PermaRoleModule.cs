@@ -12,8 +12,8 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class PermaRoleModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public PermaRoleModule(IDbLanguage language, LocalizationService localization)
         {

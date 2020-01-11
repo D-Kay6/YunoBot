@@ -8,9 +8,9 @@ namespace Logic.Modules
     [Group("request")]
     public class RequestModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
-        private LogsService _logs;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+        private readonly LogsService _logs;
 
         public RequestModule(IDbLanguage language, LocalizationService localization, LogsService logs)
         {

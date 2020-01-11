@@ -14,8 +14,8 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class LocalizationModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public LocalizationModule(IDbLanguage language, LocalizationService localization)
         {

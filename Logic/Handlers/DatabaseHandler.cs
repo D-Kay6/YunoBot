@@ -17,13 +17,14 @@ namespace Logic.Handlers
             _user = user;
         }
 
-        public override async Task Initialize()
+        public override Task Initialize()
         {
             Client.Ready += OnReady;
             Client.UserUpdated += OnUserUpdated;
             Client.JoinedGuild += OnGuildJoined;
             Client.LeftGuild += OnGuildLeft;
             Client.GuildUpdated += OnGuildUpdated;
+            return Task.CompletedTask;
         }
 
         private async Task OnReady()

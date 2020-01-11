@@ -29,9 +29,10 @@ namespace Logic.Handlers
             _channels = new HashSet<ulong>();
         }
 
-        public override async Task Initialize()
+        public override Task Initialize()
         {
             Client.UserVoiceStateUpdated += HandleChannelAsync;
+            return Task.CompletedTask;
         }
 
         private async Task LoadLanguage(ulong serverId)

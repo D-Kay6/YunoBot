@@ -11,11 +11,11 @@ namespace Logic.Modules
     [Group("help")]
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
-        private IDbCommand _command;
-        private IDbLanguage _language;
+        private readonly IDbCommand _command;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         private string _prefix;
-        private LocalizationService _localization;
 
         public HelpModule(IDbCommand command, IDbLanguage language, LocalizationService localization)
         {

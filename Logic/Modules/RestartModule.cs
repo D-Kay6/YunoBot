@@ -8,14 +8,14 @@ namespace Logic.Modules
     [RequireOwner]
     public class RestartModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private RestartService _service;
-        private LocalizationService _localization;
+        private readonly RestartService _service;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
-        public RestartModule(IDbLanguage language, RestartService service, LocalizationService localization)
+        public RestartModule(RestartService service, IDbLanguage language, LocalizationService localization)
         {
-            _language = language;
             _service = service;
+            _language = language;
             _localization = localization;
         }
 

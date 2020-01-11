@@ -11,8 +11,8 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.KickMembers)]
     public class KickModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public KickModule(IDbLanguage language, LocalizationService localization)
         {

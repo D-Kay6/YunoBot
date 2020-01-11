@@ -10,9 +10,9 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class PrefixModule : ModuleBase<SocketCommandContext>
     {
-        private IDbCommand _command;
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbCommand _command;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public PrefixModule(IDbCommand command, IDbLanguage language, LocalizationService localization)
         {

@@ -23,10 +23,11 @@ namespace Logic.Handlers
             _timer = new Timer(10 * 1000);
         }
 
-        public override async Task Initialize()
+        public override Task Initialize()
         {
             _timer.Elapsed += OnTick;
             _timer.Start();
+            return Task.CompletedTask;
         }
 
         private async void OnTick(object sender, ElapsedEventArgs e)

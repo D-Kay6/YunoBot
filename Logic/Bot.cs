@@ -69,10 +69,11 @@ namespace Logic
             }
         }
 
-        public async Task Stop()
+        public Task Stop()
         {
             var restartService = _services.GetService<RestartService>();
             restartService.Shutdown();
+            return Task.CompletedTask;
         }
 
         private ServiceProvider GenerateServiceProvider()
@@ -95,7 +96,7 @@ namespace Logic
             serviceCollection.AddTransient<LocalizationService>();
             serviceCollection.AddSingleton(logsService);
             serviceCollection.AddSingleton(new RestartService(logsService));
-            serviceCollection.AddSingleton(new MusicService(_client, DatabaseFactory.GenerateLanguage(), new LocalizationService()));
+            serviceCollection.AddSingleton(new MusicService(_client));
 
             return serviceCollection.BuildServiceProvider();
         }
@@ -119,9 +120,10 @@ namespace Logic
             if (shardCount > 1) await logService.Write("Main", $"Probably time to think about creating shards. {shardCount}");
         }
 
-        private async Task Log(LogMessage msg)
+        private Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.Message);
+            return Task.CompletedTask;
         }
     }
 }

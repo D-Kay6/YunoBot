@@ -13,9 +13,9 @@ namespace Logic.Modules
     [Group("announce")]
     public class AnnounceModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
-        private LogsService _logs;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+        private readonly LogsService _logs;
 
         public AnnounceModule(IDbLanguage language, LocalizationService localization, LogsService logs)
         {

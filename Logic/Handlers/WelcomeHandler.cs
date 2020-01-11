@@ -16,9 +16,10 @@ namespace Logic.Handlers
             _welcome = welcome;
         }
 
-        public override async Task Initialize()
+        public override Task Initialize()
         {
             Client.UserJoined += OnUserJoined;
+            return Task.CompletedTask;
         }
 
         private async Task OnUserJoined(SocketGuildUser user)

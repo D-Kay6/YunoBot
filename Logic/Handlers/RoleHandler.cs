@@ -19,9 +19,10 @@ namespace Logic.Handlers
             _logs = logs;
         }
 
-        public override async Task Initialize()
+        public override Task Initialize()
         {
             Client.GuildMemberUpdated += GuildMemberUpdated;
+            return Task.CompletedTask;
         }
 
         private async Task GuildMemberUpdated(SocketGuildUser oldState, SocketGuildUser newState)

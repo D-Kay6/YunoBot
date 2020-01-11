@@ -8,8 +8,8 @@ namespace Logic.Modules
     [Group("poll")]
     public class PollModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public PollModule(IDbLanguage language, LocalizationService localization)
         {
@@ -29,9 +29,9 @@ namespace Logic.Modules
         }
 
         [Command]
-        public async Task DefaultPoll([Remainder] string message)
+        public Task DefaultPoll([Remainder] string message)
         {
-            return;
+            return Task.CompletedTask;
         }
     }
 }
