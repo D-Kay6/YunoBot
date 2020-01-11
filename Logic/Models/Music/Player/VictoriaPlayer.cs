@@ -66,7 +66,7 @@ namespace Logic.Models.Music.Player
 
         public async Task Ready()
         {
-            if (_lavaNode.IsConnected) await _lavaNode.DisconnectAsync();
+            if (_lavaNode.IsConnected) return;
             Console.WriteLine("Loading Victoria Player...");
             await _lavaNode.ConnectAsync();
         }
