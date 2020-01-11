@@ -15,13 +15,12 @@ namespace Logic
 {
     public class Bot : IBot
     {
-        private readonly IConfig _config;
+        private readonly DiscordSocketClient _client;
 
-        private DiscordSocketClient _client;
+        private readonly IConfig _config;
+        private readonly IServiceProvider _services;
 
         private readonly HandlerCollection _handlers;
-
-        private IServiceProvider _services;
 
         public Bot()
         {
@@ -52,7 +51,8 @@ namespace Logic
                     DownloadPrerequisites();
                     var config = await _config.Read();
                     if (string.IsNullOrWhiteSpace(config.Token)) return;
-                    
+
+                    await _handlers.Start();
                     await _client.LoginAsync(TokenType.Bot, config.Token);
                     await _client.StartAsync();
 

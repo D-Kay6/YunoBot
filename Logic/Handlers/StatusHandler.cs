@@ -18,11 +18,21 @@ namespace Logic.Handlers
             _random = new Random();
         }
 
-        public override async Task Initialize()
+        public override Task Initialize()
         {
+            Client.Ready += OnReady;
             _timer.Elapsed += OnTick;
-            _timer.Start();
+            return Task.CompletedTask;
+        }
 
+        public override async Task Start()
+        {
+            await Client.SetActivityAsync(new Game("Booting up..."));
+        }
+
+        private async Task OnReady()
+        {
+            _timer.Start();
             await RandomizeActivity();
         }
 
