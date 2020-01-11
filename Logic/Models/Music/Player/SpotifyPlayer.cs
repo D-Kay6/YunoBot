@@ -1,6 +1,7 @@
 ﻿using Discord;
 using IDal;
 using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
 using System;
@@ -28,7 +29,7 @@ namespace Logic.Models.Music.Player
         public bool IsPaused { get; }
         public IVoiceChannel VoiceChannel { get; }
         public ITextChannel TextChannel { get; }
-        public IPlayable CurrentTrack { get; }
+        public ITrack CurrentTrack { get; }
 
 
         public async Task Ready()

@@ -215,7 +215,7 @@ namespace Logic.Modules
         {
             var currentTrack = _musicService.GetCurrentTrack();
             if (currentTrack == null) await ReplyAsync(_localization.GetMessage("Music not active"));
-            else await ReplyAsync(_localization.GetMessage("Music current", currentTrack.Track.Title));
+            else await ReplyAsync(_localization.GetMessage("Music current", currentTrack.Title));
         }
         
         [Command("queue")]

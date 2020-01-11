@@ -4,6 +4,7 @@ using Logic.Exceptions;
 using Logic.Models.Music;
 using Logic.Models.Music.Player;
 using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -165,7 +166,7 @@ namespace Logic.Services
         /// Get the current track that is playing.
         /// </summary>
         /// <returns>The track that is playing.</returns>
-        public IPlayable GetCurrentTrack()
+        public ITrack GetCurrentTrack()
         {
             return _player.CurrentTrack;
         }

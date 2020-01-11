@@ -30,7 +30,7 @@ namespace Logic.Models.Music.Player
         public bool IsPaused => _player?.PlayerState == PlayerState.Paused;
         public IVoiceChannel VoiceChannel => _player?.VoiceChannel;
         public ITextChannel TextChannel => _player?.TextChannel;
-        public IPlayable CurrentTrack { get; private set; }
+        public ITrack CurrentTrack => _player.Track == null ? null : new VictoriaTrack(_player.Track);
 
 
         public VictoriaPlayer(DiscordSocketClient client)
@@ -158,7 +158,6 @@ namespace Logic.Models.Music.Player
 
             if (_player.Track != null)
             {
-                CurrentTrack = null;
                 await _player.StopAsync();
             }
             await _lavaNode.LeaveAsync(voiceChannel);
@@ -177,7 +176,6 @@ namespace Logic.Models.Music.Player
             if (!(item.Track is VictoriaTrack track)) throw new InvalidFormatException("The requested track is not of the correct type.");
             await _player.PlayAsync(track.Track);
             await _lavaNode.MoveChannelAsync(item.TextChannel);
-            CurrentTrack = item;
         }
 
         /// <summary>
@@ -190,7 +188,6 @@ namespace Logic.Models.Music.Player
             if (_player == null) throw new InvalidPlayerException("There is no active player.");
             if (_player.Track == null) throw new InvalidTrackException("There is no track to stop playing.");
             await _player.StopAsync();
-            CurrentTrack = null;
         }
 
 

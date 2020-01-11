@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Logic.Exceptions;
 using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
 using System;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace Logic.Models.Music.Player
         bool IsConnected { get; }
         bool IsPlaying { get; }
         bool IsPaused { get; }
-        IPlayable CurrentTrack { get; }
+        ITrack CurrentTrack { get; }
 
         Task Prepare(IGuild guild);
 
