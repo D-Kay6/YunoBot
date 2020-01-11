@@ -6,15 +6,16 @@
 		"Invalid ac/pc prefix": "I am not able to use the same prefix for both autochannels and permachannels.",
 		"Invalid ar/pr prefix": "I am not able to use the same prefix for both autoroles and permaroles.",
 
+		
 		"Channel no permission": "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
 Either remove the prefix from `{1}` or give me the `Manage channels` permission.",
-		"Channel musicplayer stopped": "The music player was stopped.
-All users have left the voice channel.",
+
 
 		"Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
 		"Command invalid arguments": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
 		"Command invalid": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
 
+		
 		"Autochannel default": "Autochannels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
 These autochannels are voice channels that have a prefix in their name, so I can recognize them.
 When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the autochannel is in.
@@ -39,6 +40,7 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 		"Autochannel name set": "The new name for auto generated channels is '{0}'.",
 		"Autochannel delete": "I have removed any voice channels I could find on your server that had `{0}` as name.",
 
+		
 		"Permachannel default": "Permachannels are for when you want users to be able to have their own channels without having to bother admins.
 These permachannels are voice channels that have a prefix in their name, so I can recognize them.
 When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the permachannel is in.
@@ -62,6 +64,7 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 		"Permachannel name default": "The current name for perma generated channels is `{0}`.",
 		"Permachannel name set": "The new name for perma generated channels is '{0}'.",
 
+		
 		"Autorole default": "Autoroles are roles that are temporary granted when a user starts playing a game, and removed when the user stops playing that game.
 
 When setting up autoroles, you need to make sure I have at least the `manage roles` permission.
@@ -72,6 +75,7 @@ You can set-up your own prefix for autoroles with `/autorole prefix set <prefix>
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
 		"Autorole prefix set": "The new autorole prefix is `{0}`.",
 
+		
 		"Permarole default": "Permaroles are roles that are permanently granted when a user starts playing a game.
 
 When setting up permaroles, you need to make sure I have at least the `manage roles` permission.
@@ -82,6 +86,7 @@ You can set-up your own prefix for permaroles with `/permarole prefix set <prefi
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
 		"Permarole prefix set": "The new permarole prefix is `{0}`.",
 
+		
 		"RoleIgone default on": "You are not registered to gain either ",
 		"RoleIgone default off": "You are registered to be assigned both auto- and permaroles.",
 		"RoleIgone is on": "You already do not receive automated roles.",
@@ -89,6 +94,7 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 		"RoleIgone turned on": "You no longer will be assigned automated roles.",
 		"RoleIgone turned off": "You are registered to receive automated roles.",
 
+		
 		"Birthday default": "Hooray! It's our little {0} birthday!
 
 Happy Birthday to You :notes:
@@ -101,14 +107,17 @@ From old friends and new,
 May good luck go with you, :notes:
 And happiness too.",
 
+
 		"Invite default": "You can invite me to your server with this link: https://discordapp.com/oauth2/authorize?client_id=286972781273546762&scope=bot&permissions=8.
 For more info on me, go take a look at https://discordbots.org/bot/286972781273546762, or use /help in any of the discord servers I'm in.
 If you're in need of support, come join my support server at 'https://discord.gg/YFqUMDT'.",
+
 
 		"Kill default": "Come here {0}. We're gonna have some fun...",
 		"Kill self": "Why would I kill myself?",
 		"Kill creator": "How dare you to order me to kill {0}!
 I should kill YOU for even thinking of something like that!",
+
 
 		"Language default": "{1} is currently set to `{0}`.
 These are the languages I currently support: {2}.
@@ -117,38 +126,54 @@ If you want your language to be supported or help improve an already existing tr
 		"Language unsupported": "`{0}` is not a supported language.",
 		"Language set": "The language for {1} was set to `{0}`.",
 
-		"Music now playing": "Now playing `{0}` requested by {1}",
-		"Music not active": "I'm currently not playing music.",
-		"Music search": "Searching for `{0}`...",
+		
+		"Music exception": "Something went wrong. Come to the support server if this problem persists.",
+		"Music not active": "I'm currently not playing any music.",
+		
+		"Music connection exists": "I am already in a voice channel.",
+		"Music connection none": "I am currently not in a voice channel.",
+		"Music connection same": "I am already in the same voice channel as you.",
+		"Music connection different": "You must be in the same voice channel as me to be able to do this.",
 		"Music channel none": "You must be in a voice channel to listen to music.",
 		"Music channel same": "You must be in the same voice channel as me to be able to do this.",
+		
+		"Music search": "Searching for `{0}`...",
 		"Music invalid song": "I could not find a valid song to play.",
-		"Music exception": "Something went wrong. Come to the support server if this problem persists.",
+		"Music now playing": "Now playing `{0}` requested by {1}",
+		
+		"Music paused": "Music player is paused.",
+		"Music already paused": "The music player is already paused.",
+		"Music resumed": "Music player is un-paused.",
+		"Music not paused": "The music player is not paused.",
+		
+		"Music current": "Now playing `{0}`.",
 		"Music queued song": "Queued #{0} **{1}** (`{2}`).",
 		"Music queued playlist": "Queued {0} songs.",
 		"Music queue empty": "There is no music in the queue. Add a song to start listening to music.",
+		"Music queue cleared": "Queue cleared :ok_hand:.",
 		"Music queue item": "#{0}  **{1}** (`{2}`).",
 		"Music queue remaining": "There are {0} more songs in queue.",
-		"Music current empty": "I am not playing any music.",
-		"Music current item": "Now playing `{0}`.",
+		
 		"Music skipped": "Skipped `{0}` song(s).",
-		"Music shuffle": "Shuffling...",
+		"Music shuffling": "Shuffling...",
 		"Music shuffled": "The queue has been shuffled.",
-		"Music stop": "The music player was stopped.",
-		"Music clear": "Queue cleared :ok_hand:.",
-		"Music paused": "Music player is paused.",
-		"Music is paused": "The music player is already paused.",
-		"Music unpaused": "Music player is un-paused.",
-		"Music not paused": "The music player is not paused.",
+		
+		"Music stop command": "The music player was stopped.",
+		"Music stop channel": "The music player was stopped. 
+All users have left the voice channel.",
+
 		"Music volume": "Music volume was changed to {volume}.",
 
+		
 		"Pick default": "Choice for {0}",
 
+		
 		"Praise creator": "Please raise your hands for my wonderful creator *(and my future husband)*, D-Kay :heart:.",
 
+		
 		"Command prefix default": "The prefix for {1} is `{0}`.",
 		"Command prefix set": "The prefix for {1} was changed to `{0}`.",
-
+		
 		"Command custom list": "These are the custom commands for this server:
 
 {0}",
@@ -170,15 +195,19 @@ This time, you do not need to write it within double quotes if you have a comman
 		"Command custom none": "I could not find a custom command called `{0}`. Are you sure you typed it correctly?",
 		"Command custom removed": "`{0}` was removed from the custom commands.",
 
+		
 		"Request default": "Send some information to me about your idea for a new feature or if you think something needs to be changed.",
 		"Request feature": "Thanks for your submission.",
 		"Request change": "Thanks for your submission.",
 
+		
 		"Restart default": "Restarting...",
 		"Shutdown default": "Shutting down...",
 
+		
 		"Support default": "I'm sorry to hear you have problems with me. Come join my support server 'https://discord.gg/YFqUMDT'. Maybe someone there can help you.",
 
+		
 		"Welcome exception": "No welcome settings could be found. Please go to my support discord to have this fixed.",
 		"Welcome enable": "I will now welcome any new member in {0}.",
 		"Welcome disable": "The welcome message has now been disabled. You can still send a welcome message with my normal command.",
@@ -198,12 +227,12 @@ When setting your custom welcome message, you can use `{0}` as a variable where 
 		"Welcome image disable": "The welcome image for {0} will not be shown in welcome messages.",
 
 
-
 		"Kick default": "Kick a user from the discord with `/kick <username/mention>`.",
 		"Kick user": "Kicked user:",
 		"Kick reason": "Reason:",
 		"Kick reason none": "None",
 
+		
 		"Ban default": "You can ban a user from the discord with `/ban <username/mention> <optional: reason>`.
 Enter a reason if you want to see later why that user was banned.
 
@@ -222,7 +251,6 @@ Example:
 		"Ban duration forever": "Forever",
 		"Ban reason": "Reason:",
 		"Ban reason none": "None",
-
 
 
 		"Help no info": "I have no advanced information for that command (yet).",

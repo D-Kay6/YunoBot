@@ -1,12 +1,12 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Models.Music;
 using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Models.Music;
 
 namespace Logic.Handlers
 {
@@ -25,14 +25,15 @@ namespace Logic.Handlers
             _logs = logs;
         }
 
-        public override async Task Initialize()
+        public override Task Initialize()
         {
             Client.Ready += OnReady;
             Client.UserVoiceStateUpdated += OnChangeVoiceChannel;
-            
+
             _music.Player.TrackException += OnTrackException;
             _music.Player.TrackStuck += OnTrackStuck;
             _music.Player.TrackEnded += OnTrackEnded;
+            return Task.CompletedTask;
         }
 
         private async Task OnReady()
@@ -57,7 +58,7 @@ namespace Logic.Handlers
                 if (!voiceChannel.Users.First().Id.Equals(Client.CurrentUser.Id)) return;
 
                 await Prepare(textChannel.Guild);
-                await textChannel.SendMessageAsync(_localization.GetMessage("Music stop channel"));
+                if (_music.IsActive && _music.GetCurrentTrack() != null) await textChannel.SendMessageAsync(_localization.GetMessage("Music stop channel"));
                 await _music.Stop();
             }
             catch (Exception e)
@@ -84,22 +85,22 @@ namespace Logic.Handlers
 
         private async Task OnTrackEnded(TrackEndedEventArgs e)
         {
-            await Prepare(e.Player.VoiceChannel.Guild);
             IPlayable track = null;
             switch (e.Reason)
             {
                 case "Finished":
+                    await Prepare(e.Player.VoiceChannel.Guild);
                     track = await _music.PlayNext();
                     break;
                 case "Replaced":
                     break;
                 case "LoadFailed":
+                    await Prepare(e.Player.VoiceChannel.Guild);
                     track = await _music.PlayNext();
                     break;
                 case "Cleanup":
                     break;
                 case "Stopped":
-                    //await _music.Stop();
                     break;
             }
 

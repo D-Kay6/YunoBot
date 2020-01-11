@@ -11,6 +11,7 @@ namespace Logic.Models.Music.Player
         bool IsConnected { get; }
         bool IsPlaying { get; }
         bool IsPaused { get; }
+        IPlayable CurrentTrack { get; }
 
         Task Prepare(IGuild guild);
 
@@ -46,7 +47,7 @@ namespace Logic.Models.Music.Player
         /// </summary>
         /// <param name="item">The track to play.</param>
         /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
-        /// <exception cref="InvalidTrackException">Thrown if the track is not of the correct type for the player.</exception>
+        /// <exception cref="InvalidFormatException">Thrown if the track is not of the correct type for the player.</exception>
         Task Play(IPlayable item);
         /// <summary>
         /// Stop playing the current track.

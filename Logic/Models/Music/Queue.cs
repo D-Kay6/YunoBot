@@ -48,11 +48,13 @@ namespace Logic.Models.Music
             return queue.Count;
         }
 
-        public void Enqueue(IEnumerable<IPlayable> items)
+        public int Enqueue(IEnumerable<IPlayable> items)
         {
             var guild = items.First().Guild;
             var queue = GetQueue(guild);
+            var index = queue.Count + 1;
             items.Foreach(x => queue.Enqueue(x));
+            return index;
         }
 
         public IPlayable Dequeue(IGuild guild)

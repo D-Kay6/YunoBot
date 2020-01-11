@@ -3,7 +3,7 @@ using Logic.Models.Music.Track;
 
 namespace Logic.Models.Music
 {
-    public class Song : IPlayable
+    public class Playable : IPlayable
     {
         public ITrack Track { get; }
 
@@ -15,7 +15,7 @@ namespace Logic.Models.Music
 
         public int Volume { get; }
 
-        public Song(ITrack track, IGuildUser requester, ITextChannel textChannel, int volume = 25)
+        public Playable(ITrack track, IGuildUser requester, ITextChannel textChannel, int volume = 25)
         {
             Track = track;
             Guild = requester.Guild;

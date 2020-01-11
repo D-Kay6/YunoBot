@@ -25,11 +25,12 @@ namespace Logic.Models.Music.Player
         private LavaPlayer _player;
 
 
-        public bool IsConnected => _player?.PlayerState == PlayerState.Connected || IsPlaying;
+        public bool IsConnected => _player != null;
         public bool IsPlaying => _player?.PlayerState == PlayerState.Playing || _player?.PlayerState == PlayerState.Paused;
         public bool IsPaused => _player?.PlayerState == PlayerState.Paused;
         public IVoiceChannel VoiceChannel => _player?.VoiceChannel;
         public ITextChannel TextChannel => _player?.TextChannel;
+        public IPlayable CurrentTrack { get; private set; }
 
 
         public VictoriaPlayer(DiscordSocketClient client)
@@ -69,9 +70,10 @@ namespace Logic.Models.Music.Player
             await _lavaNode.ConnectAsync();
         }
 
-        public async Task Prepare(IGuild guild)
+        public Task Prepare(IGuild guild)
         {
-            _player = _lavaNode.GetPlayer(guild);
+            if (!_lavaNode.TryGetPlayer(guild, out _player)) _player = null;
+            return Task.CompletedTask;
         }
 
 
@@ -82,6 +84,7 @@ namespace Logic.Models.Music.Player
         public async Task<SearchResult> Search(string query)
         {
             var result = await _lavaNode.SearchAsync(query);
+            if (result.LoadStatus == LoadStatus.NoMatches) result = await _lavaNode.SearchYouTubeAsync(query);
 
             var tracks = result.Tracks.Select(x => new VictoriaTrack(x)).ToList();
             var resultStatus = ResultStatus.Failed;
@@ -120,9 +123,10 @@ namespace Logic.Models.Music.Player
         /// <exception cref="InvalidPlayerException">Thrown if already connected to a voice channel.</exception>
         public async Task Join(IVoiceChannel voiceChannel)
         {
-            if (_lavaNode.HasPlayer(voiceChannel.Guild)) throw new InvalidPlayerException("Already connected to a voice channel.");
+            if (_player != null) throw new InvalidPlayerException("Already connected to a voice channel.");
 
-            await _lavaNode.JoinAsync(voiceChannel);
+            _player = await _lavaNode.JoinAsync(voiceChannel);
+            await _player.UpdateVolumeAsync(25);
         }
 
         /// <summary>
@@ -133,10 +137,10 @@ namespace Logic.Models.Music.Player
         /// <exception cref="InvalidChannelException">Thrown if already connected to the specified voice channel.</exception>
         public async Task Move(IVoiceChannel voiceChannel)
         {
-            if (!_lavaNode.HasPlayer(voiceChannel.Guild)) throw new InvalidPlayerException("Not connected to a voice channel");
+            if (_player == null) throw new InvalidPlayerException("Not connected to a voice channel");
             if (_player.VoiceChannel.Id.Equals(voiceChannel.Id)) throw new InvalidChannelException("The argument is the same as the source.");
 
-            await _lavaNode.MoveAsync(voiceChannel);
+            await _lavaNode.MoveChannelAsync(voiceChannel);
         }
 
         /// <summary>
@@ -147,9 +151,10 @@ namespace Logic.Models.Music.Player
         /// <exception cref="InvalidChannelException">Thrown if not connected to the specified voice channel.</exception>
         public async Task Leave(IVoiceChannel voiceChannel)
         {
-            if (!_lavaNode.TryGetPlayer(voiceChannel.Guild, out _player)) throw new InvalidPlayerException("Not connected to a voice channel");
+            if (_player == null) throw new InvalidPlayerException("Not connected to a voice channel");
             if (!_player.VoiceChannel.Id.Equals(voiceChannel.Id)) throw new InvalidChannelException("The argument is not the same as the source.");
 
+            CurrentTrack = null;
             await _lavaNode.LeaveAsync(voiceChannel);
         }
 
@@ -159,13 +164,14 @@ namespace Logic.Models.Music.Player
         /// </summary>
         /// <param name="item">The track to play.</param>
         /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
-        /// <exception cref="InvalidTrackException">Thrown if the track is not of the correct type for the player.</exception>
+        /// <exception cref="InvalidFormatException">Thrown if the track is not of the correct type for the player.</exception>
         public async Task Play(IPlayable item)
         {
             if (_player == null) throw new InvalidPlayerException("There is no active player.");
-            if (!(item.Track is VictoriaTrack track)) throw new InvalidTrackException("The requested track is not of the correct type.");
+            if (!(item.Track is VictoriaTrack track)) throw new InvalidFormatException("The requested track is not of the correct type.");
             await _player.PlayAsync(track.Track);
-            _lavaNode.UpdateTextChannel(item.Guild, item.TextChannel);
+            await _lavaNode.MoveChannelAsync(item.TextChannel);
+            CurrentTrack = item;
         }
 
         /// <summary>
@@ -178,6 +184,7 @@ namespace Logic.Models.Music.Player
             if (_player == null) throw new InvalidPlayerException("There is no active player.");
             if (_player.Track == null) throw new InvalidTrackException("There is no track to stop playing.");
             await _player.StopAsync();
+            CurrentTrack = null;
         }
 
 
