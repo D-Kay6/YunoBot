@@ -268,7 +268,10 @@ I am constantly updated with new features so keep an eye on this page.",
 {0}praise everyone - Send a positive message to everyone.
 {0}praise role <rolename> - Send a positive message to a group.",
 		"Help music title": "These are the commands for 'music'.",
-		"Help music": "{0}music play <name> - Search for a song by it's name and add it to the queue.
+		"Help music": "{0}music join - Join the voice channel you're currently in.
+{0}music move - Move to the voice channel you're currently in.
+{0}music leave - Leave the voice channel I'm currently in.
+{0}music play <name> - Search for a song by it's name and add it to the queue.
 {0}music play <video url> - Add a song to the queue.
 {0}music play <playlist url> - Add an entire playlist to the queue.
 {0}music pause - Pause the currently playing song.
