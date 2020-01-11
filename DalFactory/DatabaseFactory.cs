@@ -1,8 +1,8 @@
-﻿#if DEBUG
+﻿//#if DEBUG
 using Dal.EF.SingleThreaded;
-#else
-using Dal.EF.MultiThreaded;
-#endif
+//#else
+//using Dal.EF.MultiThreaded;
+//#endif
 using IDal.Database;
 
 namespace DalFactory
