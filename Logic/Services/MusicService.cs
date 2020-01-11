@@ -73,6 +73,7 @@ namespace Logic.Services
         /// <exception cref="InvalidChannelException">Thrown if not connected to the specified voice channel.</exception>
         public async Task Leave(IVoiceChannel channel)
         {
+            _queue.Clear(channel.Guild);
             await _player.Leave(channel);
         }
 
@@ -135,7 +136,6 @@ namespace Logic.Services
         /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
         public async Task Stop()
         {
-            _queue.Clear(_guild);
             await _player.Stop();
             await _player.Leave(_player.VoiceChannel);
         }

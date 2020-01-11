@@ -125,6 +125,7 @@ namespace Logic.Models.Music.Player
         public async Task Join(IVoiceChannel voiceChannel)
         {
             if (_player != null) throw new InvalidPlayerException("Already connected to a voice channel.");
+            if (!_lavaNode.IsConnected) await _lavaNode.ConnectAsync();
 
             _player = await _lavaNode.JoinAsync(voiceChannel);
             await _player.UpdateVolumeAsync(25);
@@ -155,7 +156,11 @@ namespace Logic.Models.Music.Player
             if (_player == null) throw new InvalidPlayerException("Not connected to a voice channel");
             if (!_player.VoiceChannel.Id.Equals(voiceChannel.Id)) throw new InvalidChannelException("The argument is not the same as the source.");
 
-            CurrentTrack = null;
+            if (_player.Track != null)
+            {
+                CurrentTrack = null;
+                await _player.StopAsync();
+            }
             await _lavaNode.LeaveAsync(voiceChannel);
         }
 

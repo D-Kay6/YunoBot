@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using IDal.Database;
+using Logic.Exceptions;
 using Logic.Extensions;
 using Logic.Models.Music;
 using Logic.Services;
@@ -57,9 +58,16 @@ namespace Logic.Handlers
                 if (voiceChannel.Users.Count != 1) return;
                 if (!voiceChannel.Users.First().Id.Equals(Client.CurrentUser.Id)) return;
 
-                await Prepare(textChannel.Guild);
-                if (_music.IsActive && _music.GetCurrentTrack() != null) await textChannel.SendMessageAsync(_localization.GetMessage("Music stop channel"));
-                await _music.Stop();
+                await Prepare(voiceChannel.Guild);
+                try
+                {
+                    await _music.Stop();
+                    await textChannel.SendMessageAsync(_localization.GetMessage("Music stop channel"));
+                }
+                catch (Exception e) when (e is InvalidPlayerException || e is InvalidTrackException)
+                {
+                    await _music.Leave(voiceChannel);
+                }
             }
             catch (Exception e)
             {
