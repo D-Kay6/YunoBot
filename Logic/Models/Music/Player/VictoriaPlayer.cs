@@ -30,7 +30,7 @@ namespace Logic.Models.Music.Player
         public bool IsPaused => _player?.PlayerState == PlayerState.Paused;
         public IVoiceChannel VoiceChannel => _player?.VoiceChannel;
         public ITextChannel TextChannel => _player?.TextChannel;
-        public ITrack CurrentTrack => _player.Track == null ? null : new VictoriaTrack(_player.Track);
+        public ITrack CurrentTrack => _player?.Track == null ? null : new VictoriaTrack(_player.Track);
 
 
         public VictoriaPlayer(DiscordSocketClient client)
