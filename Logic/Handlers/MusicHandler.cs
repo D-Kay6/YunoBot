@@ -104,6 +104,7 @@ namespace Logic.Handlers
                     break;
                 case "LoadFailed":
                     await Prepare(e.Player.VoiceChannel.Guild);
+                    await e.Player.TextChannel.SendMessageAsync(_localization.GetMessage("Music exception"));
                     track = await _music.PlayNext();
                     break;
                 case "Cleanup":
