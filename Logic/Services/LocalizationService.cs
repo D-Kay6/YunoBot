@@ -8,7 +8,8 @@ namespace Logic.Services
 {
     public class LocalizationService
     {
-        private ILocalization _localization;
+        private readonly ILocalization _localization;
+
         private Localization _data;
 
         public LocalizationService()

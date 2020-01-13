@@ -15,13 +15,12 @@ namespace Logic
 {
     public class Bot : IBot
     {
-        private readonly IConfig _config;
+        private readonly DiscordSocketClient _client;
 
-        private DiscordSocketClient _client;
+        private readonly IConfig _config;
+        private readonly IServiceProvider _services;
 
         private readonly HandlerCollection _handlers;
-
-        private IServiceProvider _services;
 
         public Bot()
         {
@@ -52,7 +51,8 @@ namespace Logic
                     DownloadPrerequisites();
                     var config = await _config.Read();
                     if (string.IsNullOrWhiteSpace(config.Token)) return;
-                    
+
+                    await _handlers.Start();
                     await _client.LoginAsync(TokenType.Bot, config.Token);
                     await _client.StartAsync();
 
@@ -69,10 +69,11 @@ namespace Logic
             }
         }
 
-        public async Task Stop()
+        public Task Stop()
         {
             var restartService = _services.GetService<RestartService>();
             restartService.Shutdown();
+            return Task.CompletedTask;
         }
 
         private ServiceProvider GenerateServiceProvider()
@@ -95,7 +96,7 @@ namespace Logic
             serviceCollection.AddTransient<LocalizationService>();
             serviceCollection.AddSingleton(logsService);
             serviceCollection.AddSingleton(new RestartService(logsService));
-            serviceCollection.AddSingleton(new MusicService(_client, DatabaseFactory.GenerateLanguage(), new LocalizationService()));
+            serviceCollection.AddSingleton(new MusicService(_client));
 
             return serviceCollection.BuildServiceProvider();
         }
@@ -119,9 +120,10 @@ namespace Logic
             if (shardCount > 1) await logService.Write("Main", $"Probably time to think about creating shards. {shardCount}");
         }
 
-        private async Task Log(LogMessage msg)
+        private Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.Message);
+            return Task.CompletedTask;
         }
     }
 }

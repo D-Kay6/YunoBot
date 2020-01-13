@@ -9,8 +9,8 @@ namespace Logic.Modules
     [Group("Invite")]
     public class InviteModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public InviteModule(IDbLanguage language, LocalizationService localization)
         {

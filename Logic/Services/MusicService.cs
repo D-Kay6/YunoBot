@@ -1,182 +1,224 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using IDal.Database;
 using Logic.Exceptions;
-using Logic.Extensions;
 using Logic.Models.Music;
+using Logic.Models.Music.Player;
+using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Victoria;
-using Victoria.Enums;
-using Victoria.Responses.Rest;
 
 namespace Logic.Services
 {
     public class MusicService
     {
-        public LavaNode LavaNode { get; }
+        private readonly IMusicPlayer _player;
+        private readonly Queue _queue;
 
-        private readonly DiscordSocketClient _client;
-        private readonly LavaConfig _lavaConfig;
-        private readonly Dictionary<ulong, Queue<IPlayable>> _queues;
+        private IGuild _guild;
 
-        private LavaPlayer _player;
-        private Queue<IPlayable> _queue;
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        public IPlayer Player => _player;
+        public bool IsActive => _player.IsConnected;
+        public bool HasQueue => _queue.HasItems(_guild);
 
-        public bool IsPlaying => _player != null && (_player.PlayerState == PlayerState.Playing || _player.PlayerState == PlayerState.Paused);
-        public bool IsPaused => _player != null && _player.PlayerState == PlayerState.Paused;
-        public PlayerState State => _player?.PlayerState ?? PlayerState.Disconnected;
-        public IVoiceChannel VoiceChannel => _player?.VoiceChannel;
-        public ITextChannel TextChannel => _player?.TextChannel;
-        public LavaTrack CurrentTrack => _player?.Track;
-
-
-        public MusicService(DiscordSocketClient client, IDbLanguage language, LocalizationService localization)
+        public MusicService(DiscordSocketClient client)
         {
-            _client = client;
-            _language = language;
-            _localization = localization;
-            _lavaConfig = new LavaConfig();
-            LavaNode = new LavaNode(_client, _lavaConfig);
-            _queues = new Dictionary<ulong, Queue<IPlayable>>();
+            _player = new VictoriaPlayer(client);
+            _queue = new Queue();
         }
-
 
         public async Task Prepare(IGuild guild)
         {
-            _player = LavaNode.HasPlayer(guild) ? LavaNode.GetPlayer(guild) : null;
-            if (_queues.ContainsKey(guild.Id)) _queue = _queues[guild.Id];
-            else
-            {
-                _queue = new Queue<IPlayable>();
-                _queues.Add(guild.Id, _queue);
-            }
-
-            await _localization.Load(await _language.GetLanguage(guild.Id));
+            _guild = guild;
+            await _player.Prepare(guild);
         }
 
 
-        public async Task PlayNextTrack()
+        /// <summary>
+        /// Search for a track or playlist.
+        /// </summary>
+        /// <param name="query">The value to search for</param>
+        /// <returns>Returns a SearchResult containing the track(s) found.</returns>
+        public async Task<SearchResult> Search(string query)
         {
-            if (_queue.Count == 0)
-            {
-                await EndPlayer();
-                return;
-            }
+            return await _player.Search(query);
+        }
 
-            var song = _queue.Dequeue();
-            LavaNode.UpdateTextChannel(song.Guild, song.TextChannel);
-            await song.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", song.Track.Title, song.Requester.Nickname()));
+
+        /// <summary>
+        /// Connect to a voice channel.
+        /// </summary>
+        /// <param name="channel">The voice channel to connect to.</param>
+        /// <exception cref="InvalidPlayerException">Thrown if already connected to a voice channel.</exception>
+        public async Task Join(IVoiceChannel channel)
+        {
+            await _player.Join(channel);
+        }
+
+        /// <summary>
+        /// Move to a different voice channel.
+        /// </summary>
+        /// <param name="channel">The voice channel to connect to.</param>
+        /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
+        /// <exception cref="InvalidChannelException">Thrown if already connected to the specified voice channel.</exception>
+        public async Task Move(IVoiceChannel channel)
+        {
+            await _player.Move(channel);
+        }
+
+        /// <summary>
+        /// Disconnect from the voice channel.
+        /// </summary>
+        /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
+        /// <exception cref="InvalidChannelException">Thrown if not connected to the specified voice channel.</exception>
+        public async Task Leave(IVoiceChannel channel)
+        {
+            _queue.Clear(channel.Guild);
+            await _player.Leave(channel);
+        }
+
+
+        /// <summary>
+        /// Play the next track in the queue. 
+        /// </summary>
+        /// <returns>The track that will be played.</returns>
+        /// <exception cref="InvalidTrackException">Thrown if the track is not of the correct type for the player.</exception>
+        public async Task<IPlayable> PlayNext()
+        {
+            IPlayable track;
             try
             {
-                await _player.PlayAsync(song.Track);
+                track = _queue.Dequeue(_guild);
             }
-            catch (Exception e)
+            catch (InvalidOperationException)
             {
-
+                await Leave(_player.VoiceChannel);
+                return null;
             }
-        }
 
-        public async Task EndPlayer()
-        {
-            if (_player == null) throw new InvalidPlayerException();
-            _queue.Clear();
-            await LavaNode.LeaveAsync(_player.VoiceChannel);
-
-        }
-
-
-        public async Task<SearchResponse> GetTracks(string query)
-        {
-            var result = await LavaNode.SearchAsync(query);
-            if (result.LoadStatus == LoadStatus.NoMatches) result = await LavaNode.SearchYouTubeAsync(query);
-            return result;
-        }
-
-        public async Task Queue(IPlayable song)
-        {
-            if (_player == null) _player = await LavaNode.JoinAsync(song.Requester.VoiceChannel);
-            _queue.Enqueue(song);
-            if (_player.PlayerState == PlayerState.Connected)
+            if (!_player.IsConnected)
             {
-                await PlayNextTrack();
-                await _player.UpdateVolumeAsync(25);
-                return;
-            }
-            await song.TextChannel.SendMessageAsync(_localization.GetMessage("Music queued song", _queue.Count, song.Track.Title, song.Track.Duration));
-        }
-
-        public async Task Queue(IEnumerable<IPlayable> songs, IVoiceChannel channel)
-        {
-            if (IsPlaying)
-            {
-                songs.Foreach(s => _queue.Enqueue(s));
-                return;
+                await _player.Join(track.Requester.VoiceChannel);
             }
 
-            _player = await LavaNode.JoinAsync(channel);
-            songs.Foreach(s => _queue.Enqueue(s));
-            await PlayNextTrack();
-            await _player.UpdateVolumeAsync(25);
+            await _player.Play(track);
+            return track;
         }
 
-        public async Task<bool> Play()
+        /// <summary>
+        /// Pause playing the current track.
+        /// </summary>
+        /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
+        /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the player is already paused.</exception>
+        public async Task Pause()
         {
-            if (_player == null) throw new InvalidPlayerException();
-            if (_player.PlayerState != PlayerState.Paused) return false;
-            await _player.ResumeAsync();
-            return true;
+            await _player.Pause();
         }
 
-        public async Task<bool> Pause()
+        /// <summary>
+        /// Resume playing the current track.
+        /// </summary>
+        /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
+        /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the player is not paused.</exception>
+        public async Task Resume()
         {
-            if (_player == null) throw new InvalidPlayerException();
-            if (_player.PlayerState == PlayerState.Paused) return false;
-            await _player.PauseAsync();
-            return true;
+            await _player.Resume();
         }
 
-        public void Shuffle()
+        /// <summary>
+        /// Stop playing the current track.
+        /// Remove any tracks remaining in the queue.
+        /// Disconnects from the voice channel.
+        /// </summary>
+        /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
+        /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
+        public async Task Stop()
         {
-            _queue.Shuffle();
+            await _player.Stop();
+            await _player.Leave(_player.VoiceChannel);
         }
 
-        public async Task Skip(int amount = 1)
+
+        /// <summary>
+        /// Add a track to the queue of a server.
+        /// </summary>
+        /// <param name="item">The track to add to the queue.</param>
+        /// <returns>The index of the track that was added.</returns>
+        public int Queue(IPlayable item)
         {
-            if (_player == null) throw new InvalidPlayerException();
-
-            for (var i = 0; i < amount - 1; i++) _queue.Dequeue();
-
-            await PlayNextTrack();
+            return _queue.Enqueue(item);
+            //await song.TextChannel.SendMessageAsync(_localization.GetMessage("Music queued song", _queue.Count, song.Track.Title, song.Track.Duration));
         }
 
-        public async Task Stop(string type = "command")
+        /// <summary>
+        /// Add a list of tracks to the queue of a server. The server is determined by the first track in the list.
+        /// </summary>
+        /// <param name="items">The tracks to add to the queue.</param>
+        public int Queue(IEnumerable<IPlayable> items)
         {
-            if (_player == null) throw new InvalidPlayerException();
-            await TextChannel.SendMessageAsync(_localization.GetMessage($"Music stop {type}"));
-            await _player.StopAsync();
+            return _queue.Enqueue(items);
         }
 
-        public void Clear()
+        /// <summary>
+        /// Get the current track that is playing.
+        /// </summary>
+        /// <returns>The track that is playing.</returns>
+        public ITrack GetCurrentTrack()
         {
-            if (_player == null) throw new InvalidPlayerException();
-            _queue.Clear();
+            return _player.CurrentTrack;
         }
 
+        /// <summary>
+        /// Get the queue for the server.
+        /// </summary>
+        /// <returns>The list of tracks for the server.</returns>
         public IReadOnlyCollection<IPlayable> GetQueue()
         {
-            return _queue.ToList();
+            return _queue.GetItems(_guild);
         }
 
+
+        /// <summary>
+        /// Shuffle the tracks in the queue.
+        /// </summary>
+        public void Shuffle()
+        {
+            _queue.Shuffle(_guild);
+        }
+
+        /// <summary>
+        /// Skip one or more tracks and play the next track in the queue.
+        /// </summary>
+        /// <param name="amount">The amount of tracks to skip</param>
+        /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
+        /// <exception cref="InvalidFormatException">Thrown if the track is not of the correct type for the player.</exception>
+        /// <returns>The track that will be played.</returns>
+        public async Task<IPlayable> Skip(int amount = 1)
+        {
+            if (amount > 1) _queue.Remove(_guild, amount - 1);
+            return await PlayNext();
+        }
+
+        /// <summary>
+        /// Remove the remaining tracks in the queue.
+        /// </summary>
+        public void Clear()
+        {
+            _queue.Clear(_guild);
+        }
+
+
+        /// <summary>
+        /// Change the volume of the player.
+        /// </summary>
+        /// <param name="volume">The new volume. Min: 0, Max: 150</param>
+        /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
         public async Task ChangeVolume(ushort volume)
         {
-            if (_player == null) throw new InvalidPlayerException();
-            if (_player.PlayerState != PlayerState.Playing) throw new InvalidPlayerException();
-            await _player.UpdateVolumeAsync(volume);
+            await _player.ChangeVolume(volume);
         }
     }
 }

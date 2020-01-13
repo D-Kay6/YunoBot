@@ -5,7 +5,8 @@ namespace Logic.Services
 {
     public class RestartService
     {
-        private LogsService _logs;
+        private readonly LogsService _logs;
+
         private CancellationTokenSource _restartToken;
 
         public bool KeepAlive { get; private set; }

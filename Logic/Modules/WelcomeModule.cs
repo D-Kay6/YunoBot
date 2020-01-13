@@ -15,9 +15,10 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class WelcomeModule : ModuleBase<SocketCommandContext>
     {
-        private IDbWelcome _welcome;
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbWelcome _welcome;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+
         private WelcomeMessage _settings;
 
         public WelcomeModule(IDbWelcome welcome, IDbLanguage language, LocalizationService localization)

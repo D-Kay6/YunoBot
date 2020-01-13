@@ -8,8 +8,8 @@ namespace Logic.Modules
     [Group("support")]
     public class SupportModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public SupportModule(IDbLanguage language, LocalizationService localization)
         {

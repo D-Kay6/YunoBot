@@ -1,8 +1,6 @@
-﻿using Logic.Services;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers
@@ -22,7 +20,6 @@ namespace Logic.Handlers
 
         public void GenerateHandlers()
         {
-            CreateInstance<StatusHandler>();
             CreateInstance<DatabaseHandler>();
             CreateInstance<BanHandler>();
             CreateInstance<CommandHandler>();
@@ -31,6 +28,7 @@ namespace Logic.Handlers
             CreateInstance<RoleHandler>();
             CreateInstance<WelcomeHandler>();
             CreateInstance<MusicHandler>();
+            CreateInstance<StatusHandler>();
         }
 
         private void CreateInstance<T>() where T : BaseHandler
@@ -44,6 +42,15 @@ namespace Logic.Handlers
             {
                 Console.WriteLine($"Loading {handler.GetType().Name}.");
                 await handler.Initialize();
+            }
+        }
+
+        public async Task Start()
+        {
+            foreach (var handler in _handlers)
+            {
+                Console.WriteLine($"Starting {handler.GetType().Name}.");
+                await handler.Start();
             }
         }
     }

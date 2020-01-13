@@ -13,5 +13,10 @@ namespace Logic.Handlers
         }
 
         public abstract Task Initialize();
+
+        public virtual Task Start()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

@@ -10,8 +10,8 @@ namespace Logic.Modules
 {
     public class PickModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public PickModule(IDbLanguage language, LocalizationService localization)
         {

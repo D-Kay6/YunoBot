@@ -11,8 +11,8 @@ namespace Logic.Modules
     [Group("autorole")]
     public class AutoRoleModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         public AutoRoleModule(IDbLanguage language, LocalizationService localization)
         {

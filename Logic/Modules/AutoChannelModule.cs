@@ -13,9 +13,9 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class AutoChannelModule : ModuleBase<SocketCommandContext>
     {
-        private IDbLanguage _language;
-        private IDbChannel _channel;
-        private LocalizationService _localization;
+        private readonly IDbLanguage _language;
+        private readonly IDbChannel _channel;
+        private readonly LocalizationService _localization;
 
         public AutoChannelModule(IDbLanguage language, IDbChannel channel, LocalizationService localization)
         {
