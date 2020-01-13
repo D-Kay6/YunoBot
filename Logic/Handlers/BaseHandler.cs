@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Discord.WebSocket;
 using System.Threading.Tasks;
-using Discord.WebSocket;
 
 namespace Logic.Handlers
 {
@@ -17,5 +13,10 @@ namespace Logic.Handlers
         }
 
         public abstract Task Initialize();
+
+        public virtual Task Start()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

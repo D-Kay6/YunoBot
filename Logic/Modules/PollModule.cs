@@ -1,5 +1,6 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
+using IDal.Database;
+using Logic.Services;
 using System.Threading.Tasks;
 
 namespace Logic.Modules
@@ -7,18 +8,30 @@ namespace Logic.Modules
     [Group("poll")]
     public class PollModule : ModuleBase<SocketCommandContext>
     {
-        private Localization.Localization _lang;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+
+        public PollModule(IDbLanguage language, LocalizationService localization)
+        {
+            _language = language;
+            _localization = localization;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
         }
 
-        [Command]
-        public async Task DefaultPoll([Remainder] string message)
+        private async Task Prepare()
         {
-            return;
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
+        }
+
+        [Command]
+        public Task DefaultPoll([Remainder] string message)
+        {
+            return Task.CompletedTask;
         }
     }
 }

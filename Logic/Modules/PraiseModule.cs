@@ -1,20 +1,34 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Logic.Extensions;
 
 namespace Logic.Modules
 {
     [Group("praise")]
     public class PraiseModule : ModuleBase<SocketCommandContext>
     {
-        private Localization.Localization _lang;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+
+        public PraiseModule(IDbLanguage language, LocalizationService localization)
+        {
+            _language = language;
+            _localization = localization;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
+        }
+
+        private async Task Prepare()
+        {
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         // source: https://www.happier.com/blog/nice-things-to-say-100-compliments/
@@ -165,7 +179,7 @@ namespace Logic.Modules
         [Command]
         public async Task DefaultPraise([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync(_lang.GetMessage("Invalid user", name));
+            await Context.Channel.SendMessageAsync(_localization.GetMessage("Invalid user", name));
         }
 
         [Command]
@@ -177,7 +191,7 @@ namespace Logic.Modules
         [Command("role")]
         private async Task PraiseRole([Remainder] string name)
         {
-            await Context.Channel.SendMessageAsync(_lang.GetMessage("Invalid role", name));
+            await Context.Channel.SendMessageAsync(_localization.GetMessage("Invalid role", name));
         }
 
         [Command("role")]
@@ -201,14 +215,14 @@ namespace Logic.Modules
                     await PraiseJim();
                     return;
                 default:
-                    await ReplyAsync(string.Format(_lang.GetRandomUserPraise(), user.Mention));
+                    await ReplyAsync(string.Format(_localization.GetRandomUserPraise(), user.Mention));
                     return;
             }
         }
 
         private async Task PraiseGroup(SocketRole role)
         {
-            await ReplyAsync(string.Format(_lang.GetRandomGroupPraise(), role.Mention));
+            await ReplyAsync(string.Format(_localization.GetRandomGroupPraise(), role.Mention));
         }
 
         [Command("everyone")]
@@ -228,7 +242,7 @@ namespace Logic.Modules
         [Alias("D-Kay")]
         public async Task PraiseDKay()
         {
-            await ReplyAsync(_lang.GetMessage("Praise creator"));
+            await ReplyAsync(_localization.GetMessage("Praise creator"));
         }
 
         [Command("god")]

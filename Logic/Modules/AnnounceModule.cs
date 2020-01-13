@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Net;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Extensions;
 using Logic.Services;
 using System.Collections.Generic;
@@ -13,18 +13,26 @@ namespace Logic.Modules
     [Group("announce")]
     public class AnnounceModule : ModuleBase<SocketCommandContext>
     {
-        private ILanguage _language;
-        private Localization.Localization _lang;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+        private readonly LogsService _logs;
 
-        public AnnounceModule(ILanguage language)
+        public AnnounceModule(IDbLanguage language, LocalizationService localization, LogsService logs)
         {
             _language = language;
+            _localization = localization;
+            _logs = logs;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
+        }
+
+        private async Task Prepare()
+        {
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Priority(-1)]
@@ -34,11 +42,11 @@ namespace Logic.Modules
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                await ReplyAsync(_lang.GetMessage("Invalid message"));
+                await ReplyAsync(_localization.GetMessage("Invalid message"));
                 return;
             }
 
-            SendAnnouncement(Context.Guild.Users, message, Context.Guild.Name);
+            await SendAnnouncement(Context.Guild.Users, message, Context.Guild.Name);
         }
 
         [Command("global")]
@@ -47,7 +55,7 @@ namespace Logic.Modules
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                await ReplyAsync(_lang.GetMessage("Invalid message"));
+                await ReplyAsync(_localization.GetMessage("Invalid message"));
                 return;
             }
             
@@ -58,12 +66,16 @@ namespace Logic.Modules
                 if (users.Any(u => u.Id.Equals(guild.OwnerId))) continue;
                 users.Add(guild.Owner);
             }
-            SendAnnouncement(users, message, "Update notice");
+            await SendAnnouncement(users, message, "Update notice");
         }
 
         private async Task SendAnnouncement(IReadOnlyCollection<IUser> users, string message, string title = "")
         {
-            users.Foreach(async u => await SendDM(u, message, title));
+            foreach (var user in users)
+            {
+                await SendDM(user, message, title);
+                await Task.Delay(1000);
+            }
         }
 
         private async Task SendDM(IUser user, string message, string title = "")
@@ -72,11 +84,11 @@ namespace Logic.Modules
             {
                 var channel = await user.GetOrCreateDMChannelAsync();
                 await channel.SendMessageAsync("", false, EmbedExtensions.CreateEmbed(title, message));
-                LogService.Instance.Log("Announcement", $"{user.Username}({user.Id}) - {message}");
+                await _logs.Write("Announcement", $"{user.Username}({user.Id}) - {message}");
             }
             catch (HttpException)
             {
-                LogService.Instance.Log("Announcement", $"Could not send announcement to {user.Username}({user.Id}).");
+                await _logs.Write("Announcement", $"Could not send announcement to {user.Username}({user.Id}).");
             }
         }
     }

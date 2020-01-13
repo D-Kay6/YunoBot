@@ -1,8 +1,9 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Services;
 using System;
 using System.Threading.Tasks;
-using Discord;
-using IRole = IDal.Interfaces.Database.IRole;
 
 namespace Logic.Modules
 {
@@ -11,53 +12,73 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class PermaRoleModule : ModuleBase<SocketCommandContext>
     {
-        private Localization.Localization _lang;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
+
+        public PermaRoleModule(IDbLanguage language, LocalizationService localization)
+        {
+            _language = language;
+            _localization = localization;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
+        }
+
+        private async Task Prepare()
+        {
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command]
         public async Task DefaultPermaRole()
         {
-            await ReplyAsync(_lang.GetMessage("Permarole default"));
+            await ReplyAsync(_localization.GetMessage("Permarole default"));
         }
 
         [Group("prefix")]
         public class PermaRolePrefixModule : ModuleBase<SocketCommandContext>
         {
-            private IRole _role;
-            private Localization.Localization _lang;
+            private IDbRole _role;
+            private IDbLanguage _language;
+            private LocalizationService _localization;
 
-            public PermaRolePrefixModule(IRole role)
+            public PermaRolePrefixModule(IDbRole role, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
+                _language = language;
+                _localization = localization;
             }
 
             protected override void BeforeExecute(CommandInfo command)
             {
-                _lang = new Localization.Localization(Context.Guild.Id);
+                Task.WaitAll(Prepare());
                 base.BeforeExecute(command);
+            }
+
+            private async Task Prepare()
+            {
+                await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
             }
 
             [Command]
             public async Task DefaultPermaRolePrefix()
             {
-                await ReplyAsync(_lang.GetMessage("Permarole prefix default", _role.GetPermaPrefix(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Permarole prefix default", await _role.GetPermaPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
             public async Task PermaRolePrefixSet([Remainder] string message)
             {
-                if (message.Equals(_role.GetPermaPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
+                if (message.Equals(await _role.GetPermaPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
                 {
-                    await ReplyAsync(_lang.GetMessage("Invalid ar/pr prefix"));
+                    await ReplyAsync(_localization.GetMessage("Invalid ar/pr prefix"));
                     return;
                 }
-                _role.SetPermaPrefix(Context.Guild.Id, message);
-                await ReplyAsync(_lang.GetMessage("Permarole prefix set", message));
+                await _role.SetPermaPrefix(Context.Guild.Id, message);
+                await ReplyAsync(_localization.GetMessage("Permarole prefix set", message));
             }
         }
     }

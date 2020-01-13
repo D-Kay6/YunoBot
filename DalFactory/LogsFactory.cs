@@ -1,5 +1,5 @@
 ﻿using Dal.Text;
-using IDal.Interfaces;
+using IDal;
 
 namespace DalFactory
 {

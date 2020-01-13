@@ -1,35 +1,44 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Extensions;
+using Logic.Models.Music;
+using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
 using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using IDal.Interfaces.Database;
-using Logic.Services.Music;
-using Victoria.Enums;
 
 namespace Logic.Modules
 {
     [Group("music")]
     public class MusicModule : ModuleBase<SocketCommandContext>
     {
-        private ILanguage _language;
-        private Localization.Localization _lang;
+        private readonly MusicService _musicService;
 
-        private AudioService AudioService { get; }
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
-        public MusicModule(AudioService audioService, ILanguage language)
+        public MusicModule(MusicService musicService, IDbLanguage language, LocalizationService localization)
         {
-            AudioService = audioService;
+            _musicService = musicService;
             _language = language;
+            _localization = localization;
         }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            AudioService.BeforeExecute(Context.Guild);
-            _lang = new Localization.Localization(_language.GetLanguage(Context.Guild.Id));
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
+        }
+
+        private async Task Prepare()
+        {
+            await _musicService.Prepare(Context.Guild);
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Priority(-1)]
@@ -39,209 +48,305 @@ namespace Logic.Modules
             await MusicPlaying();
         }
 
+
+        [Command("join")]
+        public async Task MusicJoin()
+        {
+            var user = Context.User as SocketGuildUser;
+            try
+            {
+                await _musicService.Join(user.VoiceChannel);
+            }
+            catch (InvalidPlayerException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music connection exists"));
+            }
+        }
+
+        [Command("move")]
+        public async Task MusicMove()
+        {
+            var user = Context.User as SocketGuildUser;
+            try
+            {
+                await _musicService.Move(user.VoiceChannel);
+            }
+            catch (InvalidPlayerException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music connection none"));
+            }
+            catch (InvalidChannelException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music connection same"));
+            }
+        }
+
+        [Command("leave")]
+        public async Task MusicLeave()
+        {
+            var user = Context.User as SocketGuildUser;
+            try
+            {
+                await _musicService.Leave(user.VoiceChannel);
+            }
+            catch (InvalidPlayerException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music connection none"));
+            }
+            catch (InvalidChannelException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music connection different"));
+            }
+        }
+
+
         [Alias("request")]
         [Command("play")]
         [Summary("Requests a song to be played")]
         public async Task MusicPlay([Remainder] string query)
         {
             if (!await CanPerform()) return;
+
+            var message = await ReplyAsync(_localization.GetMessage("Music search", query)); 
             if (query.Contains("&list=")) query = query.Substring(0, query.IndexOf("&list=", StringComparison.CurrentCulture));
-            var message = await ReplyAsync(_lang.GetMessage("Music search", query));
-            var result = await AudioService.GetTracks(query);
+            var result = await _musicService.Search(query);
             await message.DeleteAsync();
-            switch (result.LoadType)
+
+            var user = (SocketGuildUser)Context.User;
+            var index = 0;
+            ITrack track = null;
+            var isPlaying = _musicService.GetCurrentTrack() != null;
+            switch (result.ResultStatus)
             {
-                case LoadType.SearchResult:
-                    var search = result.Tracks.FirstOrDefault(t => query.Contains(t.Id)) ?? result.Tracks.First();
-                    await AudioService.Queue(new Song(search, Context));
+                case ResultStatus.Failed:
+                    await ReplyAsync(_localization.GetMessage("Music exception"));
                     break;
-                case LoadType.TrackLoaded:
-                    var track = result.Tracks.First();
-                    await AudioService.Queue(new Song(track, Context));
+                case ResultStatus.NoMatch:
+                    await ReplyAsync(_localization.GetMessage("Music invalid song"));
                     break;
-                case LoadType.PlaylistLoaded:
-                    var user = (SocketGuildUser) Context.User;
-                    await AudioService.Queue(result.Tracks.Select(t => new Song(t, Context)), user.VoiceChannel);
-                    await Context.Channel.SendMessageAsync(_lang.GetMessage("Music queued playlist", result.Tracks.Count));
+                case ResultStatus.SearchResult:
+                    track = result.Tracks.FirstOrDefault(t => query.Contains(t.Id)) ?? result.Tracks.First();
+                    index = _musicService.Queue(new Playable(track, user, Context.Channel as ITextChannel));
+                    if (isPlaying)
+                    {
+                        await ReplyAsync(_localization.GetMessage("Music queued song", index, track.Title, track.Duration));
+                        return;
+                    }
                     break;
-                case LoadType.NoMatches:
-                    await ReplyAsync(_lang.GetMessage("Music invalid song"));
+                case ResultStatus.SingleTrack:
+                    track = result.Tracks.First();
+                    index = _musicService.Queue(new Playable(track, user, Context.Channel as ITextChannel));
+                    if (isPlaying)
+                    {
+                        await ReplyAsync(_localization.GetMessage("Music queued song", index, track.Title, track.Duration));
+                        return;
+                    }
                     break;
-                case LoadType.LoadFailed:
-                    await ReplyAsync(_lang.GetMessage("Music exception"));
+                case ResultStatus.Playlist:
+                    index = _musicService.Queue(result.Tracks.Select(t => new Playable(t, user, Context.Channel as ITextChannel)));
+                    await Context.Channel.SendMessageAsync(_localization.GetMessage("Music queued playlist", result.Tracks.Count));
                     break;
             }
-        }
 
-        [Command("shuffle")]
-        public async Task MusicShuffle()
-        {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
-                return;
-            }
-
-            if (!await CanPerform()) return;
-            
-            var notice = await ReplyAsync(_lang.GetMessage("Music shuffle"));
-            AudioService.Shuffle();
-            await notice.DeleteAsync();
-            await ReplyAsync(_lang.GetMessage("Music shuffled"));
-        }
-
-        [Command("skip")]
-        public async Task MusicSkip()
-        {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
-                return;
-            }
-
-            if (!await CanPerform()) return;
-
-            await AudioService.Skip();
-        }
-
-        [Command("skip")]
-        public async Task MusicSkip(int amount)
-        {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
-                return;
-            }
-
-            if (!await CanPerform()) return;
-
-            await AudioService.Skip(amount);
-            await ReplyAsync(_lang.GetMessage("Music skipped", amount));
-        }
-
-        [Command("stop")]
-        public async Task MusicStop()
-        {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
-                return;
-            }
-
-            if (!await CanPerform()) return;
-            await AudioService.TextChannel.SendMessageAsync(_lang.GetMessage("Music stop"));
-            await AudioService.Stop();
-        }
-
-        [Command("clear")]
-        public async Task MusicClear()
-        {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
-                return;
-            }
-
-            if (!await CanPerform()) return;
-            AudioService.Clear();
-            await ReplyAsync(_lang.GetMessage("Music clear"));
-        }
-
-        [Alias("now")]
-        [Command("playing")]
-        public async Task MusicPlaying()
-        {
-            var currentSong = AudioService.CurrentTrack;
-            if (currentSong == null) await ReplyAsync(_lang.GetMessage("Music current empty"));
-            else await ReplyAsync(_lang.GetMessage("Music current item", currentSong.Title));
-        }
-        
-        [Command("queue")]
-        public async Task MusicQueue()
-        {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
-                return;
-            }
-
-            var queue = AudioService.GetQueue();
-            if (!queue.Any())
-            {
-                await ReplyAsync(_lang.GetMessage("Music queue empty"));
-                return;
-            }
-            var position = 1;
-            var msg = "";
-            foreach (var item in queue)
-            {
-                msg += _lang.GetMessage("Music queue item", position, item.Track.Title, item.Track.Duration);
-                msg += "\n";
-                if (position >= 15) break;
-                position++;
-            }
-            await ReplyAsync(msg);
-            if (queue.Count - 15 > 0) await ReplyAsync(_lang.GetMessage("Music queue remaining", queue.Count - 15));
+            if (isPlaying) return;
+            var trackInfo = await _musicService.PlayNext();
+            await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title, trackInfo.Requester.Nickname()));
         }
 
         [Command("pause")]
         public async Task MusicPause()
         {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
-                return;
-            }
-
             if (!await CanPerform()) return;
 
-            await ReplyAsync(_lang.GetMessage(await AudioService.Pause() ? "Music paused" : "Music is paused"));
+            try
+            {
+                await _musicService.Pause();
+                await ReplyAsync(_localization.GetMessage("Music paused"));
+            }
+            catch (Exception e) when (e is InvalidPlayerException || e is InvalidTrackException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music not active"));
+            }
+            catch (InvalidOperationException)
+            {
+                await ReplyAsync("Music already paused");
+            }
         }
 
-        [Command("unpause")]
-        public async Task MusicUnPause()
+        [Command("resume")]
+        public async Task MusicResume()
         {
-            if (!AudioService.IsPlaying)
+            if (!await CanPerform()) return;
+
+            try
             {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
+                await _musicService.Resume();
+                await ReplyAsync(_localization.GetMessage("Music resumed"));
+            }
+            catch (Exception e) when (e is InvalidPlayerException || e is InvalidTrackException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music not active"));
+            }
+            catch (InvalidOperationException)
+            {
+                await ReplyAsync("Music not paused");
+            }
+        }
+
+        [Command("stop")]
+        public async Task MusicStop()
+        {
+            if (!await CanPerform()) return;
+            try
+            {
+                await _musicService.Stop();
+                await ReplyAsync(_localization.GetMessage("Music stop command"));
+            }
+            catch (Exception e) when (e is InvalidPlayerException || e is InvalidTrackException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music not active"));
+            }
+        }
+
+
+        [Alias("now")]
+        [Command("playing")]
+        public async Task MusicPlaying()
+        {
+            var currentTrack = _musicService.GetCurrentTrack();
+            if (currentTrack == null) await ReplyAsync(_localization.GetMessage("Music not active"));
+            else await ReplyAsync(_localization.GetMessage("Music current", currentTrack.Title));
+        }
+        
+        [Command("queue")]
+        public async Task MusicQueue()
+        {
+            if (!_musicService.IsActive)
+            {
+                await ReplyAsync(_localization.GetMessage("Music not active"));
                 return;
             }
 
+            var queue = _musicService.GetQueue();
+            if (!queue.Any())
+            {
+                await ReplyAsync(_localization.GetMessage("Music queue empty"));
+                return;
+            }
+
+            var position = 1;
+            var msg = "";
+            foreach (var item in queue)
+            {
+                msg += _localization.GetMessage("Music queue item", position, item.Track.Title, item.Track.Duration);
+                msg += "\n";
+                if (position >= 15) break;
+                position++;
+            }
+            await ReplyAsync(msg);
+            if (queue.Count - 15 > 0) await ReplyAsync(_localization.GetMessage("Music queue remaining", queue.Count - 15));
+        }
+
+
+        [Command("shuffle")]
+        public async Task MusicShuffle()
+        {
+            if (!await CanPerform()) return;
+            if (!_musicService.HasQueue)
+            {
+                await ReplyAsync(_localization.GetMessage("Music queue empty"));
+                return;
+            }
+
+            var notice = await ReplyAsync(_localization.GetMessage("Music shuffling"));
+            _musicService.Shuffle();
+            await notice.DeleteAsync();
+            await ReplyAsync(_localization.GetMessage("Music shuffled"));
+        }
+
+        [Command("skip")]
+        public async Task MusicSkip()
+        {
             if (!await CanPerform()) return;
 
-            await ReplyAsync(_lang.GetMessage(await AudioService.Play() ? "Music unpaused" : "Music is paused"));
+            try
+            {
+                var trackInfo = await _musicService.Skip();
+                if (trackInfo == null) return;
+                await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title, trackInfo.Requester.Nickname()));
+            }
+            catch (InvalidTrackException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music not active"));
+            }
         }
+
+        [Command("skip")]
+        public async Task MusicSkip(int amount)
+        {
+            if (!await CanPerform()) return;
+
+            try
+            {
+                var trackInfo = await _musicService.Skip(amount);
+                if (trackInfo == null) return;
+                await ReplyAsync(_localization.GetMessage("Music skipped", amount));
+                await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title, trackInfo.Requester.Nickname()));
+            }
+            catch (Exception e) when (e is InvalidPlayerException || e is InvalidTrackException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music not active"));
+            }
+        }
+
+        [Command("clear")]
+        public async Task MusicClear()
+        {
+            if (!await CanPerform()) return;
+
+            if (!_musicService.HasQueue)
+            {
+                await ReplyAsync(_localization.GetMessage("Music queue empty"));
+                return;
+            }
+
+            _musicService.Clear();
+            await ReplyAsync(_localization.GetMessage("Music queue cleared"));
+        }
+
 
         [Command("volume")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task MusicVolume(ushort volume)
         {
-            if (!AudioService.IsPlaying)
-            {
-                await ReplyAsync(_lang.GetMessage("Music not active"));
-                return;
-            }
-
             if (!await CanPerform()) return;
-            if (volume > 150) volume = 150;
-            await AudioService.ChangeVolume(volume);
 
-            await ReplyAsync(_lang.GetMessage("Music volume", volume));
+            try
+            {
+                if (volume > 150) volume = 150;
+                await _musicService.ChangeVolume(volume);
+                await ReplyAsync(_localization.GetMessage("Music volume", volume));
+            }
+            catch (InvalidPlayerException)
+            {
+                await ReplyAsync(_localization.GetMessage("Music not active"));
+            }
         }
+
 
         private async Task<bool> CanPerform()
         {
             var user = Context.User as SocketGuildUser;
-            var voiceChannel = AudioService.VoiceChannel;
+            var voiceChannel = _musicService.Player.VoiceChannel;
             if (voiceChannel != null)
             {
                 if (user?.VoiceChannel != null && voiceChannel.Id.Equals(user.VoiceChannel.Id)) return true;
-                await ReplyAsync(_lang.GetMessage("Music channel same"));
+                await ReplyAsync(_localization.GetMessage("Music channel same"));
                 return false;
             }
 
             if (user?.VoiceChannel != null) return true;
-            await ReplyAsync(_lang.GetMessage("Music channel none"));
+            await ReplyAsync(_localization.GetMessage("Music channel none"));
             return false;
         }
     }

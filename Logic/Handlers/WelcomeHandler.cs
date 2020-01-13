@@ -1,5 +1,5 @@
 ﻿using Discord.WebSocket;
-using IDal.Interfaces.Database;
+using IDal.Database;
 using Logic.Extensions;
 using System.Threading.Tasks;
 
@@ -7,23 +7,24 @@ namespace Logic.Handlers
 {
     public class WelcomeHandler : BaseHandler
     {
-        private ICommand _command;
-        private IWelcome _welcome;
+        private readonly IDbCommand _command;
+        private readonly IDbWelcome _welcome;
 
-        public WelcomeHandler(DiscordSocketClient client, ICommand command, IWelcome welcome) : base(client)
+        public WelcomeHandler(DiscordSocketClient client, IDbCommand command, IDbWelcome welcome) : base(client)
         {
             _command = command;
             _welcome = welcome;
         }
 
-        public override async Task Initialize()
+        public override Task Initialize()
         {
             Client.UserJoined += OnUserJoined;
+            return Task.CompletedTask;
         }
 
         private async Task OnUserJoined(SocketGuildUser user)
         {
-            var welcome = _welcome.GetWelcomeSettings(user.Guild.Id);
+            var welcome = await _welcome.GetWelcomeSettings(user.Guild.Id);
             if (welcome.ChannelId == null) return;
             if (!(user.Guild.GetChannel((ulong) welcome.ChannelId) is ISocketMessageChannel channel))
             {
@@ -38,7 +39,7 @@ namespace Logic.Handlers
 
         private async Task DisableWelcomeMessage(SocketGuild guild)
         {
-            _welcome.Disable(guild.Id);
+            await _welcome.Disable(guild.Id);
 
             var owner = guild.Owner;
             await owner.SendDM($@"I'm sorry to bother you, but it seems like something went wrong with the welcome message for `{guild.Name}`.

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace Dal.Json
 {
     public abstract class Json
     {
-        protected T Read<T>(string directory, string file)
+        protected async Task<T> ReadAsync<T>(string directory, string file)
         {
             if (string.IsNullOrWhiteSpace(file)) return default;
 
@@ -14,14 +15,14 @@ namespace Dal.Json
             if (!File.Exists($"{path}"))
             {
                 var data = Activator.CreateInstance<T>();
-                Write(data, directory, file);
+                await WriteAsync(data, directory, file);
             }
             
             var json = File.ReadAllText($"{path}");
             return JsonConvert.DeserializeObject<T>(json);
         }
 
-        protected void Write<T>(T data, string directory, string file)
+        protected async Task WriteAsync<T>(T data, string directory, string file)
         {
             if (string.IsNullOrWhiteSpace(file)) return;
             
@@ -32,7 +33,7 @@ namespace Dal.Json
             
             var json = JsonConvert.SerializeObject(data, Formatting.Indented);
             var path = string.IsNullOrWhiteSpace(directory) ? file : Path.Combine(directory, file);
-            File.WriteAllText(path, json);
+            await File.WriteAllTextAsync(path, json);
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using System;
-using ILogic;
+﻿using ILogic;
 using LogicFactory;
+using System;
 using System.Threading.Tasks;
 
 namespace Yuno
@@ -11,8 +11,15 @@ namespace Yuno
 
         private static async Task Main(string[] args)
         {
+            AppDomain.CurrentDomain.ProcessExit += OnExit;
+
             Console.Title = "Yuno Discord Bot";
             await Bot.Start();
+        }
+
+        private static async void OnExit(object sender, EventArgs e)
+        {
+            await Bot.Stop();
         }
     }
 }

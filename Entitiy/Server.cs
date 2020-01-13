@@ -33,6 +33,8 @@ namespace Entity
         [Required]
         public virtual PermaRole PermaRole { get; set; }
 
+        public virtual List<CustomCommand> CustomCommands { get; set; }
+
         public virtual List<GeneratedChannel> GeneratedChannels { get; set; }
 
         public virtual List<RoleIgnore> IgnoredUsers { get; set; }

@@ -1,45 +1,57 @@
 ﻿using Discord.Commands;
-using Logic.Handlers;
-using System.Threading.Tasks;
+using IDal.Database;
 using Logic.Services;
+using System.Threading.Tasks;
 
 namespace Logic.Modules
 {
     [RequireOwner]
     public class RestartModule : ModuleBase<SocketCommandContext>
     {
-        private Localization.Localization _lang;
+        private readonly RestartService _service;
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
-        public RestartService Service { get; set; }
+        public RestartModule(RestartService service, IDbLanguage language, LocalizationService localization)
+        {
+            _service = service;
+            _language = language;
+            _localization = localization;
+        }
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            _lang = new Localization.Localization(Context.Guild.Id);
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
+        }
+
+        private async Task Prepare()
+        {
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 
         [Command("restart")]
         public async Task RestartCommand()
         {
             await Context.Message.DeleteAsync();
-            await ReplyAsync(_lang.GetMessage("Restart default"));
-            Service.Restart();
+            await ReplyAsync(_localization.GetMessage("Restart default"));
+            _service.Restart();
         }
 
         [Command("hardrestart")]
         public async Task RestartHardCommand()
         {
             await Context.Message.DeleteAsync();
-            await ReplyAsync(_lang.GetMessage("Restart default"));
-            Service.HardRestart();
+            await ReplyAsync(_localization.GetMessage("Restart default"));
+            _service.HardRestart();
         }
 
         [Command("shutdown")]
         public async Task ShutdownCommand()
         {
             await Context.Message.DeleteAsync();
-            await ReplyAsync(_lang.GetMessage("Shutdown default"));
-            Service.Shutdown();
+            await ReplyAsync(_localization.GetMessage("Shutdown default"));
+            _service.Shutdown();
         }
     }
 }

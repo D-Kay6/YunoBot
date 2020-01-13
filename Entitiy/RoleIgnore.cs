@@ -13,5 +13,8 @@ namespace Entity
 
         [ForeignKey(nameof(ServerId))] 
         public virtual Server Server { get; set; }
+
+        [ForeignKey(nameof(UserId))] 
+        public virtual User User { get; set; }
     }
 }
