@@ -1,18 +1,13 @@
-﻿using Dal.Database.MySql.EF.SingleThreaded;
-using IDal.Database;
+﻿using Dal.Database.RavenDB.Repositories;
+using IDal.Database.Raven;
 
 namespace DalFactory
 {
-    public class DatabaseFactory
+    public class RavenDBFactory
     {
         public static IDbServer GenerateServer()
         {
             return new ServerRepository();
-        }
-
-        public static IDbUser GenerateUser()
-        {
-            return new UserRepository();
         }
 
         public static IDbBan GenerateBan()

@@ -100,8 +100,8 @@ namespace Logic.Modules
         }
 
 
-        [Alias("request")]
         [Command("play")]
+        [Alias("request")]
         [Summary("Requests a song to be played")]
         public async Task MusicPlay([Remainder] string query)
         {
