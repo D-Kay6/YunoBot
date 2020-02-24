@@ -1,4 +1,5 @@
-﻿using Dal.Json;
+﻿using System.Threading.Tasks;
+using Dal.Json;
 using Entity;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +7,8 @@ namespace Dal.Database.MySql.EF
 {
     public class DataContext : DbContext
     {
+        private static string _connection;
+
         public DbSet<Server> Servers { get; set; }
         public DbSet<User> Users { get; set; }
 
@@ -24,12 +27,17 @@ namespace Dal.Database.MySql.EF
         public DbSet<PermaRole> PermaRoles { get; set; }
         public DbSet<RoleIgnore> IgnoredUsers { get; set; }
 
-        protected override async void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        static DataContext()
         {
             var database = new Database<Connection>();
-            var connection = await database.Read();
-            var connectionString = connection.CreateConnectionString();
-            optionsBuilder.UseMySql(connectionString);
+            var settings = database.Read();
+            settings.Wait();
+            _connection = settings.Result.CreateConnectionString();
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseMySql(_connection);
             optionsBuilder.UseLazyLoadingProxies();
         }
 

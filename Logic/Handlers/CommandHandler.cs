@@ -39,9 +39,6 @@ namespace Logic.Handlers
 
         private async Task HandleCommandAsync(SocketMessage s)
         {
-#if DEBUG
-            if (!s.Author.Id.Equals(255453041531158538)) return;
-#endif
             try
             {
                 if (s.Author.IsBot) return;
@@ -51,6 +48,13 @@ namespace Logic.Handlers
                 var argPos = 0;
                 if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
 
+#if DEBUG
+                if (!s.Author.Id.Equals(255453041531158538))
+                {
+                    await context.Channel.SendMessageAsync("Sorry, I cannot do that right now. I'm under development");
+                    return;
+                }
+#endif
                 await _logs.Write("Commands", context.Guild, $"{context.User.Username} executed command '{context.Message}'.");
                 var result = await _service.ExecuteAsync(context, argPos, _serviceProvider);
                 if (result.IsSuccess) return;

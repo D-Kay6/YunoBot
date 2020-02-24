@@ -36,7 +36,7 @@ namespace Logic.Handlers
         {
             //await UpdateRaven();
 #if RELEASE
-            await UpdateServers();
+            //await UpdateServers();
 #endif
         }
 
