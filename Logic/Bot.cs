@@ -1,7 +1,6 @@
 ﻿using DalFactory;
 using Discord;
 using Discord.WebSocket;
-using IDal;
 using ILogic;
 using Logic.Handlers;
 using Logic.Services;
@@ -10,6 +9,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Logic.Exceptions;
 
 namespace Logic
 {
@@ -17,15 +17,12 @@ namespace Logic
     {
         private readonly DiscordSocketClient _client;
 
-        private readonly IConfig _config;
         private readonly IServiceProvider _services;
 
         private readonly HandlerCollection _handlers;
 
         public Bot()
         {
-            _config = ConfigFactory.GenerateConfig();
-            
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Verbose
@@ -42,6 +39,7 @@ namespace Logic
         {
             var restartService = _services.GetService<RestartService>();
             var logsService = _services.GetService<LogsService>();
+            var configService = _services.GetService<ConfigurationService>();
             await _handlers.Initialize();
 
             while (restartService.KeepAlive)
@@ -49,14 +47,18 @@ namespace Logic
                 try
                 {
                     DownloadPrerequisites();
-                    var config = await _config.Read();
-                    if (string.IsNullOrWhiteSpace(config.Token)) return;
+                    var token = await configService.GetToken();
 
                     await _handlers.Start();
-                    await _client.LoginAsync(TokenType.Bot, config.Token);
+                    await _client.LoginAsync(TokenType.Bot, token);
                     await _client.StartAsync();
 
                     await restartService.AwaitRestart();
+                }
+                catch (InvalidTokenException e)
+                {
+                    await logsService.Write("Main", "The bot token in the config file could not be read.");
+                    break;
                 }
                 catch (Exception e)
                 {
@@ -89,14 +91,17 @@ namespace Logic
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateChannel());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRole());
 
-            serviceCollection.AddSingleton(_client);
-            serviceCollection.AddSingleton(_config);
+            serviceCollection.AddTransient(serviceProvider => ConfigFactory.GenerateConfig());
+            serviceCollection.AddTransient(serviceProvider => LocalizationFactory.GenerateLocalization());
 
-            var logsService = new LogsService();
+            serviceCollection.AddSingleton(_client);
+
+            serviceCollection.AddSingleton<ConfigurationService>();
+            serviceCollection.AddSingleton<LogsService>();
+            serviceCollection.AddSingleton<RestartService>();
+            serviceCollection.AddSingleton<MusicService>();
+
             serviceCollection.AddTransient<LocalizationService>();
-            serviceCollection.AddSingleton(logsService);
-            serviceCollection.AddSingleton(new RestartService(logsService));
-            serviceCollection.AddSingleton(new MusicService(_client));
 
             return serviceCollection.BuildServiceProvider();
         }

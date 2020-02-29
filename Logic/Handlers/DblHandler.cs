@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 using DiscordBotsList.Api;
-using IDal;
+using Logic.Exceptions;
 using Logic.Services;
 using System;
 using System.Threading.Tasks;
@@ -9,23 +9,31 @@ namespace Logic.Handlers
 {
     public class DblHandler : BaseHandler
     {
-        private readonly IConfig _config;
+        private readonly ConfigurationService _configuration;
         private readonly LogsService _logs;
 
         private bool _isRunning;
 
         public AuthDiscordBotListApi DblApi { get; private set; }
 
-        public DblHandler(DiscordSocketClient client, IConfig config, LogsService logs) : base(client)
+        public DblHandler(DiscordSocketClient client, ConfigurationService configuration, LogsService logs) : base(client)
         {
-            _config = config;
+            _configuration = configuration;
             _logs = logs;
         }
 
         public override async Task Initialize()
         {
-            var settings = await _config.Read();
-            DblApi = new AuthDiscordBotListApi(settings.ClientId, settings.DiscordBotsToken);
+            try
+            {
+                var token = await _configuration.GetDblToken();
+                DblApi = new AuthDiscordBotListApi(Client.CurrentUser.Id, token);
+            }
+            catch (InvalidTokenException e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
 
             Client.Ready += OnReady;
             Client.JoinedGuild += OnGuildJoined;

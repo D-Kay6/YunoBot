@@ -1,6 +1,5 @@
 ﻿using Core.Entity;
 using Core.Enum;
-using DalFactory;
 using IDal;
 using Logic.Extensions;
 using System.Threading.Tasks;
@@ -13,9 +12,9 @@ namespace Logic.Services
 
         private Localization _data;
 
-        public LocalizationService()
+        public LocalizationService(ILocalization localization)
         {
-            _localization = LocalizationFactory.GenerateLocalization();
+            _localization = localization;
         }
 
         public async Task Load(Language language)
