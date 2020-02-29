@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using Entity;
+﻿using Core.Entity;
 using IDal.Database;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Dal.Database.MySql.EF.SingleThreaded
 {

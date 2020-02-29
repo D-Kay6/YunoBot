@@ -1,4 +1,4 @@
-﻿namespace Entity.RavenDB
+﻿namespace Core.Entity
 {
     public class Configuration
     {

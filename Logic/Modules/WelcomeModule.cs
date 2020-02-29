@@ -1,7 +1,7 @@
-﻿using Discord;
+﻿using Core.Entity;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Entity;
 using IDal.Database;
 using Logic.Extensions;
 using Logic.Services;

@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Entity;
+﻿using Core.Enum;
+using System.Threading.Tasks;
 
 namespace IDal.Database
 {

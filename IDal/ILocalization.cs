@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using Core.Entity;
+using System.Threading.Tasks;
 
 namespace IDal
 {
     public interface ILocalization
     {
-        Task<Entity.Localization> Read(string language);
+        Task<Localization> Read(string language);
     }
 }

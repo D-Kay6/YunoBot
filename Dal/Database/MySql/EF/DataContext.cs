@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Core.Entity;
 using Dal.Json;
-using Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dal.Database.MySql.EF

@@ -1,10 +1,9 @@
-﻿namespace Entity.RavenDB
+﻿namespace Core.Entity
 {
     public class AutoRole : Automatization
     {
         public AutoRole()
         {
-            this.Enabled = true;
             this.Prefix = "👾";
         }
     }

@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
-using Entity;
+﻿using Core.Enum;
 using IDal.Database;
+using System.Threading.Tasks;
 
 namespace Dal.Database.MySql.EF.MultiThreaded
 {

@@ -1,8 +1,9 @@
-﻿using DalFactory;
-using Entity;
+﻿using Core.Entity;
+using Core.Enum;
+using DalFactory;
+using IDal;
 using Logic.Extensions;
 using System.Threading.Tasks;
-using IDal;
 
 namespace Logic.Services
 {

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Core.Entity;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Entity;
 
 namespace IDal.Database
 {

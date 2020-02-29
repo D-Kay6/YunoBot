@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Entity;
+﻿using Core.Entity;
+using System.Threading.Tasks;
 
 namespace IDal
 {

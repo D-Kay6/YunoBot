@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Core.Entity;
+using IDal.Database;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Entity;
-using IDal.Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace Dal.Database.MySql.EF.Mixture
 {

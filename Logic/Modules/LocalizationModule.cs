@@ -1,6 +1,6 @@
-﻿using Discord;
+﻿using Core.Enum;
+using Discord;
 using Discord.Commands;
-using Entity;
 using IDal.Database;
 using Logic.Extensions;
 using Logic.Services;

@@ -1,10 +1,9 @@
-﻿namespace Entity.RavenDB
+﻿namespace Core.Entity
 {
     public class PermaRole : Automatization
     {
         public PermaRole()
         {
-            this.Enabled = true;
             this.Prefix = "🎮";
         }
     }

@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Addons.Interactive" Version="1.0.1" />
+    <PackageReference Include="Discord.Addons.Interactive" Version="2.0.0-dev-00013" />
     <PackageReference Include="Discord.Net" Version="2.2.0-dev-20191226.1" />
     <PackageReference Include="DiscordBotsList.Api" Version="1.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.2" />
@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\DalFactory\DalFactory.csproj" />
     <ProjectReference Include="..\IDal\IDal.csproj" />
     <ProjectReference Include="..\ILogic\ILogic.csproj" />

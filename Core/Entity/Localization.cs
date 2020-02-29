@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Entity.RavenDB
+namespace Core.Entity
 {
     public class Localization
     {

@@ -1,16 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Entity.RavenDB
+namespace Core.Entity
 {
     public class CommandSetting
     {
+        [Key]
+        public ulong ServerId { get; set; }
+
+        [Required, MaxLength(20)]
         public string Prefix { get; set; }
-        public Dictionary<string, string> CustomResponses { get; set; }
+
+        [ForeignKey(nameof(ServerId))]
+        public virtual Server Server { get; set; }
 
         public CommandSetting()
         {
             this.Prefix = "/";
-            this.CustomResponses = new Dictionary<string, string>();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Entity;
+﻿using Core.Entity;
 using IDal;
 using System;
 using System.IO;

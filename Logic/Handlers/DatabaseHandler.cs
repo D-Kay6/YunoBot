@@ -1,11 +1,11 @@
-﻿using Discord.WebSocket;
+﻿using DalFactory;
+using Discord.WebSocket;
+using Entity.RavenDB;
 using IDal.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DalFactory;
-using Entity.RavenDB;
 
 namespace Logic.Handlers
 {

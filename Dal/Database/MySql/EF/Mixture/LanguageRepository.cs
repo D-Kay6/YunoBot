@@ -1,4 +1,4 @@
-﻿using Entity;
+﻿using Core.Enum;
 using IDal.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;

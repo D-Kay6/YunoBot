@@ -1,9 +1,9 @@
 ﻿using Discord.WebSocket;
 using IDal.Database;
+using Logic.Services;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
-using Logic.Services;
 
 namespace Logic.Handlers
 {

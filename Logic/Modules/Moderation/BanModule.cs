@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Modules.Moderation
 {
     [Group("Ban")]
     [RequireUserPermission(GuildPermission.BanMembers)]

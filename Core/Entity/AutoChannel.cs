@@ -1,19 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace Entity.RavenDB
+namespace Core.Entity
 {
     public class AutoChannel : Automatization
     {
+        [Required, MaxLength(100)]
         public string Name { get; set; }
 
-        public List<ulong> Channels { get; set; }
+        public virtual List<GeneratedChannel> Channels { get; set; }
 
         public AutoChannel()
         {
-            this.Enabled = true;
             this.Prefix = "➕";
             this.Name = "--channel";
-            this.Channels = new List<ulong>();
+            this.Channels = new List<GeneratedChannel>();
         }
     }
 }

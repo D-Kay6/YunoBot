@@ -1,4 +1,4 @@
-﻿using Entity;
+﻿using Core.Entity;
 using IDal.Database;
 using Microsoft.EntityFrameworkCore;
 using System;

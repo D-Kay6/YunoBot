@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Core.Entity;
+using IDal.Database;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Entity;
-using IDal.Database;
 
 namespace Dal.Database.MySql.EF.MultiThreaded
 {
