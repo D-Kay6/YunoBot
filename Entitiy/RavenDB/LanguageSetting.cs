@@ -1,4 +1,6 @@
-﻿namespace Entity.RavenDB
+﻿using Core.Enum;
+
+namespace Entity.RavenDB
 {
     public class LanguageSetting
     {

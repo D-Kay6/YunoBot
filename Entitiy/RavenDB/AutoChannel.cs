@@ -2,7 +2,7 @@
 
 namespace Entity.RavenDB
 {
-    public class AutoChannel : Automatization
+    public class AutoChannel : Automation
     {
         public string Name { get; set; }
 

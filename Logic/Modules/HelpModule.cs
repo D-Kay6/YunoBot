@@ -5,19 +5,20 @@ using Logic.Extensions;
 using Logic.Services;
 using System;
 using System.Threading.Tasks;
+using CommandService = Logic.Services.CommandService;
 
 namespace Logic.Modules
 {
     [Group("help")]
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
-        private readonly IDbCommand _command;
+        private readonly CommandService _command;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
 
         private string _prefix;
 
-        public HelpModule(IDbCommand command, IDbLanguage language, LocalizationService localization)
+        public HelpModule(CommandService command, IDbLanguage language, LocalizationService localization)
         {
             _command = command;
             _language = language;
@@ -26,17 +27,13 @@ namespace Logic.Modules
 
         protected override void BeforeExecute(CommandInfo command)
         {
-            Task.WaitAll(LoadPrefix(), Prepare());
+            Task.WaitAll(Prepare());
             base.BeforeExecute(command);
-        }
-
-        private async Task LoadPrefix()
-        {
-            _prefix = await _command.GetPrefix(Context.Guild.Id);
         }
 
         private async Task Prepare()
         {
+            _prefix = await _command.GetPrefix(Context.Guild.Id);
             await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
         }
 

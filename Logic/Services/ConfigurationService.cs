@@ -40,5 +40,19 @@ namespace Logic.Services
 
             return data.DiscordBotsToken;
         }
+
+        /// <summary>
+        /// Read the client id from the configuration file.
+        /// </summary>
+        /// <returns>The client id of the bot.</returns>
+        /// <exception cref="InvalidIdException">Thrown if the id is not valid to use.</exception>
+        public async Task<ulong> GetClientId()
+        {
+            var data = await _config.Read();
+            if (data.ClientId == 0)
+                throw new InvalidIdException("The client id in the configuration file is not valid.");
+
+            return data.ClientId;
+        }
     }
 }

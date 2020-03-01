@@ -1,16 +1,17 @@
 ﻿using Discord.WebSocket;
 using IDal.Database;
 using Logic.Extensions;
+using Logic.Services;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers
 {
     public class WelcomeHandler : BaseHandler
     {
-        private readonly IDbCommand _command;
+        private readonly CommandService _command;
         private readonly IDbWelcome _welcome;
 
-        public WelcomeHandler(DiscordSocketClient client, IDbCommand command, IDbWelcome welcome) : base(client)
+        public WelcomeHandler(DiscordSocketClient client, CommandService command, IDbWelcome welcome) : base(client)
         {
             _command = command;
             _welcome = welcome;

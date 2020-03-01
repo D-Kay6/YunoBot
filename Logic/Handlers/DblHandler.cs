@@ -27,9 +27,15 @@ namespace Logic.Handlers
             try
             {
                 var token = await _configuration.GetDblToken();
-                DblApi = new AuthDiscordBotListApi(Client.CurrentUser.Id, token);
+                var clientId = await _configuration.GetClientId();
+                DblApi = new AuthDiscordBotListApi(clientId, token);
             }
             catch (InvalidTokenException e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+            catch (InvalidIdException e)
             {
                 Console.WriteLine(e.Message);
                 return;

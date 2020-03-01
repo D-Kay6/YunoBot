@@ -1,6 +1,6 @@
 ﻿namespace Entity.RavenDB
 {
-    public class PermaChannel : Automatization
+    public class PermaChannel : Automation
     {
         public string Name { get; set; }
 

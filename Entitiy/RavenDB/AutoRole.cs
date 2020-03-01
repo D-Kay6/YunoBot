@@ -1,6 +1,6 @@
 ﻿namespace Entity.RavenDB
 {
-    public class AutoRole : Automatization
+    public class AutoRole : Automation
     {
         public AutoRole()
         {

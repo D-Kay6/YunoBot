@@ -86,7 +86,8 @@ namespace Logic
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateUser());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateBan());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateLanguage());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommand());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommandSetting());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommandCustom());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateWelcome());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateChannel());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRole());
@@ -97,6 +98,7 @@ namespace Logic
             serviceCollection.AddSingleton(_client);
 
             serviceCollection.AddSingleton<ConfigurationService>();
+            serviceCollection.AddSingleton<CommandService>();
             serviceCollection.AddSingleton<LogsService>();
             serviceCollection.AddSingleton<RestartService>();
             serviceCollection.AddSingleton<MusicService>();

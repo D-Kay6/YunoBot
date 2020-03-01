@@ -25,9 +25,14 @@ namespace DalFactory
             return new LanguageRepository();
         }
 
-        public static IDbCommand GenerateCommand()
+        public static IDbCommandSetting GenerateCommandSetting()
         {
-            return new CommandRepository();
+            return new CommandSettingRepository();
+        }
+
+        public static IDbCommandCustom GenerateCommandCustom()
+        {
+            return new CustomCommandRepository();
         }
 
         public static IDbWelcome GenerateWelcome()
