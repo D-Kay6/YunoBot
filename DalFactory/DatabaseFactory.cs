@@ -1,4 +1,4 @@
-﻿using Dal.Database.MySql.EF.SingleThreaded;
+﻿using Dal.Database.MySql.EF.Repositories;
 using IDal.Database;
 
 namespace DalFactory

@@ -3,24 +3,26 @@ using IDal.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace Dal.Database.MySql.EF.SingleThreaded
+namespace Dal.Database.MySql.EF.Repositories
 {
-    public class ChannelRepository : BaseRepository, IDbChannel
+    public class ChannelRepository : IDbChannel
     {
         public async Task<bool> IsAutoEnabled(ulong serverId)
         {
-            var ac = await Context.AutoChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var ac = await context.AutoChannels.FindAsync(serverId);
             return ac != null && ac.Enabled;
         }
 
         public async Task<bool> SetAutoEnabled(ulong serverId, bool enabled)
         {
-            var ac = await Context.AutoChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var ac = await context.AutoChannels.FindAsync(serverId);
             if (ac == null) return false;
             try
             {
                 ac.Enabled = enabled;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -31,18 +33,20 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<string> GetAutoPrefix(ulong serverId)
         {
-            var ac = await Context.AutoChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var ac = await context.AutoChannels.FindAsync(serverId);
             return ac?.Prefix;
         }
 
         public async Task<bool> SetAutoPrefix(ulong serverId, string prefix)
         {
-            var ac = await Context.AutoChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var ac = await context.AutoChannels.FindAsync(serverId);
             if (ac == null) return false;
             try
             {
                 ac.Prefix = prefix;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -53,18 +57,20 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<string> GetAutoName(ulong serverId)
         {
-            var ac = await Context.AutoChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var ac = await context.AutoChannels.FindAsync(serverId);
             return ac?.Name;
         }
 
         public async Task<bool> SetAutoName(ulong serverId, string name)
         {
-            var ac = await Context.AutoChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var ac = await context.AutoChannels.FindAsync(serverId);
             if (ac == null) return false;
             try
             {
                 ac.Name = name;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -76,19 +82,21 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<bool> IsPermaEnabled(ulong serverId)
         {
-            var pc = await Context.PermaChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var pc = await context.PermaChannels.FindAsync(serverId);
             if (pc == null) return false;
             return pc.Enabled;
         }
 
         public async Task<bool> SetPermaEnabled(ulong serverId, bool enabled)
         {
-            var pc = await Context.PermaChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var pc = await context.PermaChannels.FindAsync(serverId);
             if (pc == null) return false;
             try
             {
                 pc.Enabled = enabled;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -99,18 +107,20 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<string> GetPermaPrefix(ulong serverId)
         {
-            var pc = await Context.PermaChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var pc = await context.PermaChannels.FindAsync(serverId);
             return pc?.Prefix;
         }
 
         public async Task<bool> SetPermaPrefix(ulong serverId, string prefix)
         {
-            var pc = await Context.PermaChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var pc = await context.PermaChannels.FindAsync(serverId);
             if (pc == null) return false;
             try
             {
                 pc.Prefix = prefix;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -121,18 +131,20 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<string> GetPermaName(ulong serverId)
         {
-            var pc = await Context.PermaChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var pc = await context.PermaChannels.FindAsync(serverId);
             return pc?.Name;
         }
 
         public async Task<bool> SetPermaName(ulong serverId, string name)
         {
-            var pc = await Context.PermaChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            var pc = await context.PermaChannels.FindAsync(serverId);
             if (pc == null) return false;
             try
             {
                 pc.Name = name;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -144,20 +156,22 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<bool> IsGeneratedChannel(ulong serverId, ulong channelId)
         {
-            var channel = await Context.GeneratedChannels.FindAsync(serverId, channelId);
+            await using var context = new DataContext();
+            var channel = await context.GeneratedChannels.FindAsync(serverId, channelId);
             return channel != null;
         }
 
         public async Task<bool> AddGeneratedChannel(ulong serverId, ulong channelId)
         {
+            await using var context = new DataContext();
             try
             {
-                Context.GeneratedChannels.Add(new GeneratedChannel
+                context.GeneratedChannels.Add(new GeneratedChannel
                 {
                     ServerId = serverId,
                     ChannelId = channelId
                 });
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -168,12 +182,13 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<bool> RemoveGeneratedChannel(ulong serverId, ulong channelId)
         {
-            var channel = await Context.GeneratedChannels.FindAsync(serverId, channelId);
+            await using var context = new DataContext();
+            var channel = await context.GeneratedChannels.FindAsync(serverId, channelId);
             if (channel == null) return false;
             try
             {
-                Context.GeneratedChannels.Remove(channel);
-                await Context.SaveChangesAsync();
+                context.GeneratedChannels.Remove(channel);
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -185,12 +200,14 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<AutoChannel> GetAutoChannel(ulong serverId)
         {
-            return await Context.AutoChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            return await context.AutoChannels.FindAsync(serverId);
         }
 
         public async Task<PermaChannel> GetPermaChannel(ulong serverId)
         {
-            return await Context.PermaChannels.FindAsync(serverId);
+            await using var context = new DataContext();
+            return await context.PermaChannels.FindAsync(serverId);
         }
     }
 }

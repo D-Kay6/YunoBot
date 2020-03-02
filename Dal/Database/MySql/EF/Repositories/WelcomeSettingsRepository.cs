@@ -3,18 +3,19 @@ using IDal.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace Dal.Database.MySql.EF.SingleThreaded
+namespace Dal.Database.MySql.EF.Repositories
 {
-    public class WelcomeSettingsRepository : BaseRepository, IDbWelcome
+    public class WelcomeSettingsRepository : IDbWelcome
     {
         public async Task<bool> Enable(ulong serverId, ulong channelId)
         {
-            var settings = await Context.WelcomeMessages.FindAsync(serverId);
+            await using var context = new DataContext();
+            var settings = await context.WelcomeMessages.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.ChannelId = channelId;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -25,12 +26,13 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<bool> Disable(ulong serverId)
         {
-            var settings = await Context.WelcomeMessages.FindAsync(serverId);
+            await using var context = new DataContext();
+            var settings = await context.WelcomeMessages.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.ChannelId = null;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -41,12 +43,13 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<bool> UseImage(ulong serverId, bool value)
         {
-            var settings = await Context.WelcomeMessages.FindAsync(serverId);
+            await using var context = new DataContext();
+            var settings = await context.WelcomeMessages.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.UseImage = value;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -57,12 +60,13 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<bool> SetWelcomeMessage(ulong serverId, string message)
         {
-            var settings = await Context.WelcomeMessages.FindAsync(serverId);
+            await using var context = new DataContext();
+            var settings = await context.WelcomeMessages.FindAsync(serverId);
             if (settings == null) return false;
             try
             {
                 settings.Message = message;
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateException)
@@ -73,7 +77,8 @@ namespace Dal.Database.MySql.EF.SingleThreaded
 
         public async Task<WelcomeMessage> GetWelcomeSettings(ulong serverId)
         {
-            return await Context.WelcomeMessages.FindAsync(serverId);
+            await using var context = new DataContext();
+            return await context.WelcomeMessages.FindAsync(serverId);
         }
     }
 }

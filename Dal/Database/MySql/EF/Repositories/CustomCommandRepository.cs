@@ -1,13 +1,13 @@
-﻿using System;
-using Core.Entity;
+﻿using Core.Entity;
 using IDal.Database;
+using IDal.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IDal.Exceptions;
 
-namespace Dal.Database.MySql.EF.SingleThreaded
+namespace Dal.Database.MySql.EF.Repositories
 {
     public class CustomCommandRepository : IDbCommandCustom
     {

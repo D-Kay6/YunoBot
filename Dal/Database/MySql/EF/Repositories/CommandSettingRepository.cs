@@ -2,9 +2,9 @@
 using IDal.Database;
 using System.Threading.Tasks;
 
-namespace Dal.Database.MySql.EF.SingleThreaded
+namespace Dal.Database.MySql.EF.Repositories
 {
-    public class CommandSettingRepository : BaseRepository, IDbCommandSetting
+    public class CommandSettingRepository : IDbCommandSetting
     {
         public async Task Add(CommandSetting value)
         {
