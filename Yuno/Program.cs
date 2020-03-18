@@ -9,7 +9,7 @@
     {
         private static readonly IBot Bot = BotFactory.GenerateBot();
 
-        private static async Task Main(string[] args)
+        private static async Task Main()
         {
             AppDomain.CurrentDomain.ProcessExit += OnExit;
 

@@ -36,7 +36,7 @@
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(_connection);
+            optionsBuilder.UseMySql(_connection, x => x.EnableRetryOnFailure());
             optionsBuilder.UseLazyLoadingProxies();
         }
 

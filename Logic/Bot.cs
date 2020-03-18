@@ -54,7 +54,7 @@
 
                     await restartService.AwaitRestart();
                 }
-                catch (InvalidTokenException e)
+                catch (InvalidTokenException)
                 {
                     await logsService.Write("Main", "The bot token in the config file could not be read.");
                     break;
@@ -87,8 +87,12 @@
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommandSetting());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommandCustom());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateWelcome());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateChannel());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateAutoChannel());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateGeneratedChannel());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GeneratePermaChannel());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateAutoRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GeneratePermaRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRoleIgnore());
 
             serviceCollection.AddTransient(serviceProvider => ConfigFactory.GenerateConfig());
             serviceCollection.AddTransient(serviceProvider => LocalizationFactory.GenerateLocalization());
@@ -97,6 +101,8 @@
 
             serviceCollection.AddSingleton<ConfigurationService>();
             serviceCollection.AddSingleton<CommandService>();
+            serviceCollection.AddSingleton<ChannelService>();
+            serviceCollection.AddSingleton<RoleService>();
             serviceCollection.AddSingleton<LogsService>();
             serviceCollection.AddSingleton<RestartService>();
             serviceCollection.AddSingleton<MusicService>();
@@ -108,15 +114,13 @@
 
         private void DownloadPrerequisites()
         {
-            using (var client = new WebClient())
-            {
-                var file = "libsodium.dll";
-                if (!File.Exists(file))
-                    client.DownloadFile("https://discord.foxbot.me/binaries/win64/libsodium.dll", file);
+            using var client = new WebClient();
+            var file = "libsodium.dll";
+            if (!File.Exists(file))
+                client.DownloadFile("https://discord.foxbot.me/binaries/win64/libsodium.dll", file);
 
-                file = "opus.dll";
-                if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
-            }
+            file = "opus.dll";
+            if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
         }
 
         private async Task OnReady()

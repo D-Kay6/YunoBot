@@ -40,14 +40,34 @@
             return new WelcomeSettingsRepository();
         }
 
-        public static IDbChannel GenerateChannel()
+        public static IDbAutoChannel GenerateAutoChannel()
         {
             return new AutoChannelRepository();
         }
 
-        public static IDbAutoRole GenerateRole()
+        public static IDbGeneratedChannel GenerateGeneratedChannel()
         {
-            return new RoleRepository();
+            return new GeneratedChannelRepository();
+        }
+
+        public static IDbPermaChannel GeneratePermaChannel()
+        {
+            return new PermaChannelRepository();
+        }
+
+        public static IDbAutoRole GenerateAutoRole()
+        {
+            return new AutoRoleRepository();
+        }
+
+        public static IDbPermaRole GeneratePermaRole()
+        {
+            return new PermaRoleRepository();
+        }
+
+        public static IDbRoleIgnore GenerateRoleIgnore()
+        {
+            return new RoleIgnoreRepository();
         }
     }
 }

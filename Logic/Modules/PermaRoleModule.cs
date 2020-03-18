@@ -1,9 +1,11 @@
 ﻿namespace Logic.Modules
 {
+    using Core.Entity;
     using System;
     using System.Threading.Tasks;
     using Discord;
     using Discord.Commands;
+    using Exceptions;
     using IDal.Database;
     using Services;
 
@@ -41,11 +43,13 @@
         [Group("prefix")]
         public class PermaRolePrefixModule : ModuleBase<SocketCommandContext>
         {
+            private readonly RoleService _role;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
-            private readonly IDbAutoRole _role;
 
-            public PermaRolePrefixModule(IDbAutoRole role, IDbLanguage language, LocalizationService localization)
+            private PermaRole _data;
+
+            public PermaRolePrefixModule(RoleService role, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
                 _language = language;
@@ -61,25 +65,34 @@
             private async Task Prepare()
             {
                 await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
+                _data = await _role.LoadPerma(Context.Guild.Id);
             }
 
             [Command]
             public async Task DefaultPermaRolePrefix()
             {
-                await ReplyAsync(_localization.GetMessage("Permarole prefix default",
-                    await _role.GetPermaPrefix(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Permarole prefix default", _data.Prefix));
             }
 
             [Command("set")]
             public async Task PermaRolePrefixSet([Remainder] string message)
             {
-                if (message.Equals(await _role.GetPermaPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
+                _data.Prefix = message;
+                try
                 {
-                    await ReplyAsync(_localization.GetMessage("Invalid ar/pr prefix"));
+                    await _role.Save(_data);
+                }
+                catch (InvalidPrefixException)
+                {
+                    await ReplyAsync(_localization.GetMessage("Permarole prefix invalid empty", message));
+                    return;
+                }
+                catch (PrefixExistsException)
+                {
+                    await ReplyAsync(_localization.GetMessage("Permarole prefix invalid auto", message));
                     return;
                 }
 
-                await _role.SetPermaPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_localization.GetMessage("Permarole prefix set", message));
             }
         }

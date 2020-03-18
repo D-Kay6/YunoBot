@@ -5,15 +5,14 @@
     using System.Threading.Tasks;
     using Discord.WebSocket;
     using Extensions;
-    using IDal.Database;
     using Services;
 
     public class RoleHandler : BaseHandler
     {
         private readonly LogsService _logs;
-        private readonly IDbAutoRole _role;
+        private readonly RoleService _role;
 
-        public RoleHandler(DiscordSocketClient client, IDbAutoRole role, LogsService logs) : base(client)
+        public RoleHandler(DiscordSocketClient client, RoleService role, LogsService logs) : base(client)
         {
             _role = role;
             _logs = logs;
@@ -40,7 +39,7 @@
             try
             {
                 if (user.Activity == null) return;
-                var roleData = await _role.GetAutoChannel(user.Guild.Id);
+                var roleData = await _role.LoadAuto(user.Guild.Id);
                 var roles = user.Roles.Where(r =>
                     r.Name.StartsWith(roleData.Prefix, StringComparison.OrdinalIgnoreCase) &&
                     r.Name.ContainsIgnoreCase(user.Activity.Name));
@@ -60,17 +59,17 @@
         {
             try
             {
-                if (await _role.IsIgnoringRoles(user.Guild.Id, user.Id)) return;
+                if (await _role.IsRoleIgnore(user.Guild.Id, user.Id)) return;
                 if (user.Activity == null) return;
 
-                var autoPrefix = await _role.GetAutoPrefix(user.Guild.Id);
-                var permaPrefix = await _role.GetPermaPrefix(user.Guild.Id);
+                var auto = await _role.LoadAuto(user.Guild.Id);
+                var perma = await _role.LoadPerma(user.Guild.Id);
                 foreach (var role in user.Guild.Roles)
                 {
                     if (!role.Name.ContainsIgnoreCase(user.Activity.Name)) continue;
                     if (user.Roles.Contains(role)) continue;
-                    if (!role.Name.StartsWith(autoPrefix, StringComparison.OrdinalIgnoreCase) &&
-                        !role.Name.StartsWith(permaPrefix, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (!role.Name.StartsWith(auto.Prefix, StringComparison.OrdinalIgnoreCase) &&
+                        !role.Name.StartsWith(perma.Prefix, StringComparison.OrdinalIgnoreCase)) continue;
                     await user.AddRoleAsync(role);
                     await _logs.Write("Roles", user.Guild, $"{user.Nickname()} got role `{role.Name}`.");
                 }

@@ -1,11 +1,12 @@
 ﻿namespace Logic.Modules
 {
-    using System;
-    using System.Threading.Tasks;
+    using Core.Entity;
     using Discord;
     using Discord.Commands;
+    using Exceptions;
     using IDal.Database;
     using Services;
+    using System.Threading.Tasks;
 
     [Alias("pc")]
     [Group("permachannel")]
@@ -41,11 +42,13 @@
         [Group("prefix")]
         public class PermaChannelPrefixModule : ModuleBase<SocketCommandContext>
         {
-            private IDbChannel _channel;
+            private readonly ChannelService _channel;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
-            public PermaChannelPrefixModule(IDbChannel channel, IDbLanguage language, LocalizationService localization)
+            private PermaChannel _data;
+
+            public PermaChannelPrefixModule(ChannelService channel, IDbLanguage language, LocalizationService localization)
             {
                 _channel = channel;
                 _language = language;
@@ -61,25 +64,34 @@
             private async Task Prepare()
             {
                 await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
+                _data = await _channel.LoadPerma(Context.Guild.Id);
             }
 
             [Command]
             public async Task DefaultPermaChannelPrefix()
             {
-                await ReplyAsync(_localization.GetMessage("Permachannel prefix default",
-                    await _channel.GetPermaPrefix(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Permachannel prefix default", _data.Prefix));
             }
 
             [Command("set")]
             public async Task PermaChannelPrefixSet([Remainder] string message)
             {
-                if (message.Equals(await _channel.GetPermaPrefix(Context.Guild.Id), StringComparison.OrdinalIgnoreCase))
+                _data.Prefix = message;
+                try
                 {
-                    await ReplyAsync(_localization.GetMessage("Invalid ac/pc prefic"));
+                    await _channel.Save(_data);
+                }
+                catch (InvalidPrefixException)
+                {
+                    await ReplyAsync(_localization.GetMessage("Permachannel prefix invalid empty", message));
+                    return;
+                }
+                catch (PrefixExistsException)
+                {
+                    await ReplyAsync(_localization.GetMessage("Permachannel prefix invalid auto", message));
                     return;
                 }
 
-                await _channel.SetPermaPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_localization.GetMessage("Permachannel prefix set", message));
             }
         }
@@ -87,11 +99,13 @@
         [Group("name")]
         public class PermaChannelNameModule : ModuleBase<SocketCommandContext>
         {
-            private IDbChannel _channel;
+            private readonly ChannelService _channel;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
-            public PermaChannelNameModule(IDbChannel channel, IDbLanguage language, LocalizationService localization)
+            private PermaChannel _data;
+
+            public PermaChannelNameModule(ChannelService channel, IDbLanguage language, LocalizationService localization)
             {
                 _channel = channel;
                 _language = language;
@@ -107,19 +121,28 @@
             private async Task Prepare()
             {
                 await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
+                _data = await _channel.LoadPerma(Context.Guild.Id);
             }
 
             [Command]
             public async Task DefaultPermaChannelName()
             {
-                await ReplyAsync(_localization.GetMessage("Permachannel name default",
-                    await _channel.GetPermaName(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Permachannel name default", _data.Name));
             }
 
             [Command("set")]
             public async Task PermaChannelNameSet([Remainder] string message)
             {
-                await _channel.SetPermaName(Context.Guild.Id, message);
+                _data.Name = message;
+                try
+                {
+                    await _channel.Save(_data);
+                }
+                catch (InvalidNameException)
+                {
+                    await ReplyAsync(_localization.GetMessage("Permachannel name invalid empty", message));
+                }
+
                 await ReplyAsync(_localization.GetMessage("Permachannel name set", message));
             }
         }

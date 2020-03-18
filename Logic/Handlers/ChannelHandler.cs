@@ -14,14 +14,12 @@
     public class ChannelHandler : BaseHandler
     {
         private readonly ChannelService _channel;
-
         private readonly HashSet<ulong> _channels;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
         private readonly LogsService _logs;
 
-        public ChannelHandler(DiscordSocketClient client, ChannelService channel, IDbLanguage language,
-            LocalizationService localization, LogsService logs) : base(client)
+        public ChannelHandler(DiscordSocketClient client, ChannelService channel, IDbLanguage language, LocalizationService localization, LogsService logs) : base(client)
         {
             _channel = channel;
             _language = language;
@@ -67,7 +65,7 @@
 
                 while (_channels.Contains(channel.Id)) await Task.Delay(100);
 
-                if (!await _channel.IsAuto(channel)) return;
+                if (!await _channel.IsGeneratedChannel(channel)) return;
                 await _logs.Write("Channels", channel.Guild, $"{user.Nickname()} left channel '{channel.Name}'.");
                 if (channel.Guild.GetChannel(channel.Id) == null) return;
                 await channel.DeleteAsync();
@@ -87,7 +85,7 @@
             try
             {
                 var auto = await _channel.LoadAuto(channel.Guild.Id);
-                if (await _channel.IsAuto(channel))
+                if (channel.Name.StartsWith(auto.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     newChannel = await DuplicateChannel(channel, user, auto.Name);
                     await _channel.AddGeneratedChannel(channel.Guild.Id, newChannel.Id);
@@ -142,11 +140,10 @@
             }
         }
 
-        private async Task<RestVoiceChannel> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user,
-            string name)
+        private async Task<RestVoiceChannel> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
         {
             await _logs.Write("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
-            var newChannel = await channel.Guild.CreateVoiceChannelAsync(, p =>
+            var newChannel = await channel.Guild.CreateVoiceChannelAsync(name, p =>
             {
                 p.Bitrate = channel.Bitrate;
                 p.CategoryId = channel.CategoryId;
