@@ -1,21 +1,21 @@
-﻿using Discord;
-using Logic.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Logic.Models.Music
+﻿namespace Logic.Models.Music
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Discord;
+    using Extensions;
+
     public class Queue
     {
-        private Dictionary<ulong, Queue<IPlayable>> _queues;
-
-        public Queue<IPlayable> this[IGuild guild] => GetQueue(guild);
+        private readonly Dictionary<ulong, Queue<IPlayable>> _queues;
 
         public Queue()
         {
             _queues = new Dictionary<ulong, Queue<IPlayable>>();
         }
+
+        public Queue<IPlayable> this[IGuild guild] => GetQueue(guild);
 
         public Queue<IPlayable> GetQueue(IGuild guild)
         {
@@ -69,10 +69,7 @@ namespace Logic.Models.Music
             var queue = GetQueue(guild);
             if (!queue.Any()) throw new InvalidOperationException("There are no items remaining in the queue.");
             if (queue.Count < amount) amount = queue.Count;
-            for (var i = 0; i < amount; i++)
-            {
-                queue.Dequeue();
-            }
+            for (var i = 0; i < amount; i++) queue.Dequeue();
         }
 
         public void Shuffle(IGuild guild)

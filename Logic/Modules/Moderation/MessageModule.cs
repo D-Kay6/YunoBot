@@ -1,17 +1,17 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-
-namespace Logic.Modules.Moderation
+﻿namespace Logic.Modules.Moderation
 {
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     [RequireUserPermission(GuildPermission.ManageMessages)]
     [Group("Message")]
     public class MessageModule : ModuleBase<SocketCommandContext>
@@ -39,10 +39,9 @@ namespace Logic.Modules.Moderation
         [Group("Move")]
         public class MessageMoveModule : ModuleBase<SocketCommandContext>
         {
-            private readonly string[] ImageExtensions = { "jpg", "jpeg", "png", "gif" };
-
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
+            private readonly string[] ImageExtensions = {"jpg", "jpeg", "png", "gif"};
 
             public MessageMoveModule(IDbLanguage language, LocalizationService localization)
             {
@@ -135,10 +134,7 @@ namespace Logic.Modules.Moderation
 
             private async Task<IMessage> GetMessage(ulong messageId = 0)
             {
-                if (messageId > 0)
-                {
-                    return await Context.Channel.GetMessageAsync(messageId);
-                }
+                if (messageId > 0) return await Context.Channel.GetMessageAsync(messageId);
 
                 var result = Context.Channel.GetMessagesAsync(Context.Message, Direction.Before, 1);
                 var messages = await result.Skip(1).FirstOrDefaultAsync();
@@ -172,7 +168,8 @@ namespace Logic.Modules.Moderation
                 using var webClient = new WebClient();
                 var file = await webClient.DownloadDataTaskAsync(new Uri(attachment.Url));
                 await using var memoryStream = new MemoryStream(file);
-                await channel.SendFileAsync(memoryStream, attachment.Filename, string.Empty, embed: embedBuilder.Build());
+                await channel.SendFileAsync(memoryStream, attachment.Filename, string.Empty,
+                    embed: embedBuilder.Build());
             }
 
             private async Task MoveMessageText(IMessage message, SocketTextChannel channel)
@@ -181,7 +178,7 @@ namespace Logic.Modules.Moderation
                 var attachment = message.Attachments.FirstOrDefault();
 
                 var msg = string.Format("{0} - {1:HH:mm:ss yyyy/MM/dd}  •  {2}\n{3}",
-                    author.Nickname(), 
+                    author.Nickname(),
                     message.Timestamp.DateTime,
                     Context.Channel.Name,
                     message.Content);

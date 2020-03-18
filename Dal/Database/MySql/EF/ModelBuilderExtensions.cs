@@ -1,16 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-
-namespace Dal.Database.MySql.EF
+﻿namespace Dal.Database.MySql.EF
 {
+    using Microsoft.EntityFrameworkCore;
+
     public static class ModelBuilderExtensions
     {
         public static void RemovePluralizingTableNameConvention(this ModelBuilder modelBuilder)
         {
-            foreach (IMutableEntityType entity in modelBuilder.Model.GetEntityTypes())
-            {
-                entity.SetTableName(entity.DisplayName());
-            }
+            foreach (var entity in modelBuilder.Model.GetEntityTypes()) entity.SetTableName(entity.DisplayName());
         }
     }
 }

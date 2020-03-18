@@ -1,10 +1,10 @@
-﻿using Discord.Commands;
-using IDal.Database;
-using Logic.Services;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System.Threading.Tasks;
+    using Discord.Commands;
+    using IDal.Database;
+    using Services;
+
     [Group("support")]
     public class SupportModule : ModuleBase<SocketCommandContext>
     {

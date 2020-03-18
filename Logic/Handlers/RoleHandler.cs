@@ -1,19 +1,19 @@
-﻿using Discord.WebSocket;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Discord.WebSocket;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     public class RoleHandler : BaseHandler
     {
-        private readonly IDbRole _role;
         private readonly LogsService _logs;
+        private readonly IDbAutoRole _role;
 
-        public RoleHandler(DiscordSocketClient client, IDbRole role, LogsService logs) : base(client)
+        public RoleHandler(DiscordSocketClient client, IDbAutoRole role, LogsService logs) : base(client)
         {
             _role = role;
             _logs = logs;
@@ -41,7 +41,9 @@ namespace Logic.Handlers
             {
                 if (user.Activity == null) return;
                 var roleData = await _role.GetAutoChannel(user.Guild.Id);
-                var roles = user.Roles.Where(r => r.Name.StartsWith(roleData.Prefix, StringComparison.OrdinalIgnoreCase) && r.Name.ContainsIgnoreCase(user.Activity.Name));
+                var roles = user.Roles.Where(r =>
+                    r.Name.StartsWith(roleData.Prefix, StringComparison.OrdinalIgnoreCase) &&
+                    r.Name.ContainsIgnoreCase(user.Activity.Name));
                 foreach (var role in roles)
                 {
                     await user.RemoveRoleAsync(role);

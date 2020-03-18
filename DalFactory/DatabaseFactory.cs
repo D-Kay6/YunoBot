@@ -1,8 +1,8 @@
-﻿using Dal.Database.MySql.EF.Repositories;
-using IDal.Database;
-
-namespace DalFactory
+﻿namespace DalFactory
 {
+    using Dal.Database.MySql.EF.Repositories;
+    using IDal.Database;
+
     public class DatabaseFactory
     {
         public static IDbServer GenerateServer()
@@ -42,10 +42,10 @@ namespace DalFactory
 
         public static IDbChannel GenerateChannel()
         {
-            return new ChannelRepository();
+            return new AutoChannelRepository();
         }
 
-        public static IDbRole GenerateRole()
+        public static IDbAutoRole GenerateRole()
         {
             return new RoleRepository();
         }

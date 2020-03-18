@@ -1,14 +1,14 @@
-﻿using Discord;
-using Discord.Commands;
-using IDal.Database;
-using Logic.Exceptions;
-using Logic.Services;
-using System.Linq;
-using System.Threading.Tasks;
-using CommandService = Logic.Services.CommandService;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using Exceptions;
+    using IDal.Database;
+    using Services;
+    using CommandService = Services.CommandService;
+
     [Group("Command")]
     public class CommandModule : ModuleBase<SocketCommandContext>
     {
@@ -41,7 +41,8 @@ namespace Logic.Modules
             [Command]
             public async Task CommandPrefixDefault()
             {
-                await ReplyAsync(_localization.GetMessage("Command prefix default", await _command.GetPrefix(Context.Guild.Id), Context.Guild.Name));
+                await ReplyAsync(_localization.GetMessage("Command prefix default",
+                    await _command.GetPrefix(Context.Guild.Id), Context.Guild.Name));
             }
 
             [Command("set")]
@@ -55,9 +56,9 @@ namespace Logic.Modules
         [Group("custom")]
         public class CommandCustomModule : ModuleBase<SocketCommandContext>
         {
-            private CommandService _command;
-            private IDbLanguage _language;
-            private LocalizationService _localization;
+            private readonly CommandService _command;
+            private readonly IDbLanguage _language;
+            private readonly LocalizationService _localization;
 
             public CommandCustomModule(CommandService command, IDbLanguage language, LocalizationService localization)
             {
@@ -80,7 +81,8 @@ namespace Logic.Modules
             [Command]
             public async Task CommandCustomDefault()
             {
-                await ReplyAsync(_localization.GetMessage("Command custom default", (await _command.GetAllCustom(Context.Guild.Id)).Count));
+                await ReplyAsync(_localization.GetMessage("Command custom default",
+                    (await _command.GetAllCustom(Context.Guild.Id)).Count));
             }
 
             [Command("list")]

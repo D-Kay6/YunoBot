@@ -1,16 +1,16 @@
-﻿using Core.Entity;
-using IDal.Database;
-using IDal.Exceptions;
-using Logic.Exceptions;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Logic.Services
+﻿namespace Logic.Services
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Core.Entity;
+    using Exceptions;
+    using IDal.Database;
+    using IDal.Exceptions;
+
     public class CommandService
     {
-        private readonly IDbCommandSetting _dbSetting;
         private readonly IDbCommandCustom _dbCustom;
+        private readonly IDbCommandSetting _dbSetting;
 
         public CommandService(IDbCommandSetting dbSetting, IDbCommandCustom dbCustom)
         {
@@ -19,7 +19,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Set the prefix of a server.
+        ///     Set the prefix of a server.
         /// </summary>
         /// <param name="serverId">The id of the server.</param>
         /// <param name="prefix">the new prefix.</param>
@@ -34,8 +34,8 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Get the prefix for a server.
-        /// Will reset the prefix to default if it is corrupted.
+        ///     Get the prefix for a server.
+        ///     Will reset the prefix to default if it is corrupted.
         /// </summary>
         /// <param name="serverId">The id of the server.</param>
         /// <returns>The prefix used for the server.</returns>
@@ -44,10 +44,7 @@ namespace Logic.Services
             var result = await _dbSetting.Get(serverId);
             if (string.IsNullOrWhiteSpace(result?.Prefix))
             {
-                result = new CommandSetting
-                {
-                    ServerId = serverId
-                };
+                result.Prefix = "/";
                 await _dbSetting.Update(result);
             }
 
@@ -55,7 +52,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Add a custom command to a server.
+        ///     Add a custom command to a server.
         /// </summary>
         /// <param name="serverId">The id of the server.</param>
         /// <param name="command">The command key.</param>
@@ -79,7 +76,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Remove a custom command from a server.
+        ///     Remove a custom command from a server.
         /// </summary>
         /// <param name="serverId">the id of the server.</param>
         /// <param name="command">The command key.</param>
@@ -101,7 +98,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Get the response for a custom command of a server.
+        ///     Get the response for a custom command of a server.
         /// </summary>
         /// <param name="serverId">the id of the server.</param>
         /// <param name="command">The command key.</param>
@@ -117,7 +114,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Get a list of all custom commands of a server.
+        ///     Get a list of all custom commands of a server.
         /// </summary>
         /// <param name="serverId">The id of the server.</param>
         /// <returns>A list of all custom commands.</returns>

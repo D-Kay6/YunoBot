@@ -1,12 +1,12 @@
-﻿using Discord.WebSocket;
-using DiscordBotsList.Api;
-using Logic.Exceptions;
-using Logic.Services;
-using System;
-using System.Threading.Tasks;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System;
+    using System.Threading.Tasks;
+    using Discord.WebSocket;
+    using DiscordBotsList.Api;
+    using Exceptions;
+    using Services;
+
     public class DblHandler : BaseHandler
     {
         private readonly ConfigurationService _configuration;
@@ -14,13 +14,14 @@ namespace Logic.Handlers
 
         private bool _isRunning;
 
-        public AuthDiscordBotListApi DblApi { get; private set; }
-
-        public DblHandler(DiscordSocketClient client, ConfigurationService configuration, LogsService logs) : base(client)
+        public DblHandler(DiscordSocketClient client, ConfigurationService configuration, LogsService logs) :
+            base(client)
         {
             _configuration = configuration;
             _logs = logs;
         }
+
+        public AuthDiscordBotListApi DblApi { get; private set; }
 
         public override async Task Initialize()
         {

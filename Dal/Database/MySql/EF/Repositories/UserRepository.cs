@@ -1,42 +1,38 @@
-﻿using Core.Entity;
-using IDal.Database;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Dal.Database.MySql.EF.Repositories
+﻿namespace Dal.Database.MySql.EF.Repositories
 {
-    public class UserRepository : IDbUser
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Core.Entity;
+    using IDal.Database;
+    using Microsoft.EntityFrameworkCore;
+
+    public class UserRepository : BaseRepository, IDbUser
     {
         public async Task AddUser(ulong id, string name)
         {
-            await using var context = new DataContext();
-            context.Users.Add(new User
+            Context.Users.Add(new User
             {
                 Id = id,
                 Name = name
             });
-            await context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         public async Task AddUser(User user)
         {
-            await using var context = new DataContext();
             try
             {
-                context.Users.Add(user);
-                await context.SaveChangesAsync();
+                Context.Users.Add(user);
+                await Context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-
             }
         }
 
         public async Task UpdateUser(ulong id, string name)
         {
-            await using var context = new DataContext();
-            var user = await context.Users.FindAsync(id);
+            var user = await Context.Users.FindAsync(id);
             if (user == null)
             {
                 await AddUser(id, name);
@@ -44,26 +40,23 @@ namespace Dal.Database.MySql.EF.Repositories
             }
 
             user.Name = name;
-            await context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         public async Task UpdateUser(User user)
         {
-            await using var context = new DataContext();
-            context.Users.Update(user);
-            await context.SaveChangesAsync();
+            Context.Users.Update(user);
+            await Context.SaveChangesAsync();
         }
 
         public async Task<User> GetUser(ulong id)
         {
-            await using var context = new DataContext();
-            return await context.Users.FindAsync(id);
+            return await Context.Users.FindAsync(id);
         }
 
         public async Task<List<User>> GetUsers()
         {
-            await using var context = new DataContext();
-            return await context.Users.ToListAsync();
+            return await Context.Users.ToListAsync();
         }
     }
 }

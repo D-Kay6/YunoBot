@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using Entity.RavenDB;
-
-namespace IDal.Database.Raven
+﻿namespace IDal.Database.Raven
 {
+    using System.Threading.Tasks;
+    using Entity.RavenDB;
+
     public interface IDbWelcome
     {
         Task Add(WelcomeMessage value);

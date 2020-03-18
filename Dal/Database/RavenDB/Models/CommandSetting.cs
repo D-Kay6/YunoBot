@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-
-namespace Dal.Database.RavenDB.Models
+﻿namespace Dal.Database.RavenDB.Models
 {
+    using System.Collections.Generic;
+
     public class CommandSetting
     {
-        public string Prefix { get; set; }
-        public Dictionary<string, string> CustomResponses { get; set; }
-
         public CommandSetting()
         {
-            this.Prefix = "/";
-            this.CustomResponses = new Dictionary<string, string>();
+            Prefix = "/";
+            CustomResponses = new Dictionary<string, string>();
         }
+
+        public string Prefix { get; set; }
+        public Dictionary<string, string> CustomResponses { get; set; }
     }
 }

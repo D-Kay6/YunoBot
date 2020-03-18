@@ -1,22 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Core.Entity
+﻿namespace Core.Entity
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
     public class CommandSetting
     {
-        [Key]
-        public ulong ServerId { get; set; }
-
-        [Required, MaxLength(20)]
-        public string Prefix { get; set; }
-
-        [ForeignKey(nameof(ServerId))]
-        public virtual Server Server { get; set; }
-
         public CommandSetting()
         {
-            this.Prefix = "/";
+            Prefix = "/";
         }
+
+        [Key] public ulong ServerId { get; set; }
+
+        [Required] [MaxLength(20)] public string Prefix { get; set; }
+
+        [ForeignKey(nameof(ServerId))] public virtual Server Server { get; set; }
     }
 }

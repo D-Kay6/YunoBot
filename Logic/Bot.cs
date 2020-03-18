@@ -1,25 +1,25 @@
-﻿using DalFactory;
-using Discord;
-using Discord.WebSocket;
-using ILogic;
-using Logic.Handlers;
-using Logic.Services;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
-using Logic.Exceptions;
-
-namespace Logic
+﻿namespace Logic
 {
+    using System;
+    using System.IO;
+    using System.Net;
+    using System.Threading.Tasks;
+    using DalFactory;
+    using Discord;
+    using Discord.WebSocket;
+    using Exceptions;
+    using Handlers;
+    using ILogic;
+    using Microsoft.Extensions.DependencyInjection;
+    using Services;
+
     public class Bot : IBot
     {
         private readonly DiscordSocketClient _client;
 
-        private readonly IServiceProvider _services;
-
         private readonly HandlerCollection _handlers;
+
+        private readonly IServiceProvider _services;
 
         public Bot()
         {
@@ -43,7 +43,6 @@ namespace Logic
             await _handlers.Initialize();
 
             while (restartService.KeepAlive)
-            {
                 try
                 {
                     DownloadPrerequisites();
@@ -68,7 +67,6 @@ namespace Logic
                 {
                     await _client.StopAsync();
                 }
-            }
         }
 
         public Task Stop()
@@ -113,7 +111,8 @@ namespace Logic
             using (var client = new WebClient())
             {
                 var file = "libsodium.dll";
-                if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/libsodium.dll", file);
+                if (!File.Exists(file))
+                    client.DownloadFile("https://discord.foxbot.me/binaries/win64/libsodium.dll", file);
 
                 file = "opus.dll";
                 if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
@@ -124,7 +123,8 @@ namespace Logic
         {
             var logService = _services.GetService<LogsService>();
             var shardCount = await _client.GetRecommendedShardCountAsync();
-            if (shardCount > 1) await logService.Write("Main", $"Probably time to think about creating shards. {shardCount}");
+            if (shardCount > 1)
+                await logService.Write("Main", $"Probably time to think about creating shards. {shardCount}");
         }
 
         private Task Log(LogMessage msg)

@@ -1,14 +1,14 @@
-﻿using Core.Enum;
-
-namespace Entity.RavenDB
+﻿namespace Entity.RavenDB
 {
+    using Core.Enum;
+
     public class LanguageSetting
     {
-        public Language Language { get; set; }
-
         public LanguageSetting()
         {
-            this.Language = Language.English;
+            Language = Language.English;
         }
+
+        public Language Language { get; set; }
     }
 }

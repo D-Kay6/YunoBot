@@ -1,13 +1,13 @@
-﻿using Discord;
-using Discord.Commands;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     public class PickModule : ModuleBase<SocketCommandContext>
     {
         private readonly IDbLanguage _language;

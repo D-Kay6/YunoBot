@@ -1,18 +1,18 @@
-﻿using System.Collections.Generic;
-
-namespace Core.Entity
+﻿namespace Core.Entity
 {
+    using System.Collections.Generic;
+
     public class Localization
     {
+        public List<string> GroupPraises;
         public Dictionary<string, string> Messages;
         public List<string> UserPraises;
-        public List<string> GroupPraises;
 
         public Localization()
         {
-            this.Messages = new Dictionary<string, string>();
-            this.UserPraises = new List<string>();
-            this.GroupPraises = new List<string>();
+            Messages = new Dictionary<string, string>();
+            UserPraises = new List<string>();
+            GroupPraises = new List<string>();
         }
     }
 }

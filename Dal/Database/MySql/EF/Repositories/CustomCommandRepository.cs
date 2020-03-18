@@ -1,28 +1,27 @@
-﻿using Core.Entity;
-using IDal.Database;
-using IDal.Exceptions;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Dal.Database.MySql.EF.Repositories
+﻿namespace Dal.Database.MySql.EF.Repositories
 {
-    public class CustomCommandRepository : IDbCommandCustom
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Core.Entity;
+    using IDal.Database;
+    using IDal.Exceptions;
+    using Microsoft.EntityFrameworkCore;
+
+    public class CustomCommandRepository : BaseRepository, IDbCommandCustom
     {
         public async Task Add(CustomCommand value)
         {
-            await using var context = new DataContext();
             try
             {
-                context.CustomCommands.Add(value);
-                await context.SaveChangesAsync();
+                Context.CustomCommands.Add(value);
+                await Context.SaveChangesAsync();
             }
             catch (DbUpdateException e)
             {
                 Exception exception = e;
-                while (exception.InnerException != null) 
+                while (exception.InnerException != null)
                     exception = exception.InnerException;
 
                 if (exception.Message.Contains("Duplicate entry"))
@@ -32,40 +31,40 @@ namespace Dal.Database.MySql.EF.Repositories
 
         public async Task Update(CustomCommand value)
         {
-            await using var context = new DataContext();
-            context.CustomCommands.Update(value);
-            await context.SaveChangesAsync();
+            Context.CustomCommands.Update(value);
+            await Context.SaveChangesAsync();
         }
 
         public async Task Remove(CustomCommand value)
         {
-            await using var context = new DataContext();
             try
             {
-                context.CustomCommands.Remove(value);
-                await context.SaveChangesAsync();
+                Context.CustomCommands.Remove(value);
+                await Context.SaveChangesAsync();
             }
             catch (DbUpdateException e)
             {
                 Exception exception = e;
-                while (exception.InnerException != null) 
+                while (exception.InnerException != null)
                     exception = exception.InnerException;
 
-                if (exception.Message.Contains("Database operation expected to affect 1 row(s) but actually affected 0 row(s)."))
+                if (exception.Message.Contains(
+                    "Database operation expected to affect 1 row(s) but actually affected 0 row(s)."))
                     throw new InvalidItemException("the item does not exist in the database.");
             }
         }
 
         public async Task<CustomCommand> Get(ulong serverId, string command)
         {
-            await using var context = new DataContext();
-            return await context.CustomCommands.FindAsync(serverId, command);
+            return await Context.CustomCommands
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.ServerId == serverId && x.Command == command);
         }
 
         public async Task<List<CustomCommand>> List(ulong serverId)
         {
-            await using var context = new DataContext();
-            return await context.CustomCommands
+            return await Context.CustomCommands
+                .AsNoTracking()
                 .Where(x => x.ServerId == serverId)
                 .ToListAsync();
         }

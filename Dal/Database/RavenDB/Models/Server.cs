@@ -1,7 +1,7 @@
-﻿using Entity.RavenDB;
-
-namespace Dal.Database.RavenDB.Models
+﻿namespace Dal.Database.RavenDB.Models
 {
+    using Entity.RavenDB;
+
     public class Server
     {
         public string Id { get; set; }

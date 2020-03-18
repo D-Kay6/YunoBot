@@ -1,12 +1,12 @@
-﻿using Discord;
-using Discord.Commands;
-using IDal.Database;
-using Logic.Services;
-using System;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using IDal.Database;
+    using Services;
+
     [Alias("pc")]
     [Group("permachannel")]
     [RequireUserPermission(GuildPermission.Administrator)]
@@ -42,8 +42,8 @@ namespace Logic.Modules
         public class PermaChannelPrefixModule : ModuleBase<SocketCommandContext>
         {
             private IDbChannel _channel;
-            private IDbLanguage _language;
-            private LocalizationService _localization;
+            private readonly IDbLanguage _language;
+            private readonly LocalizationService _localization;
 
             public PermaChannelPrefixModule(IDbChannel channel, IDbLanguage language, LocalizationService localization)
             {
@@ -66,7 +66,8 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultPermaChannelPrefix()
             {
-                await ReplyAsync(_localization.GetMessage("Permachannel prefix default", await _channel.GetPermaPrefix(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Permachannel prefix default",
+                    await _channel.GetPermaPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
@@ -77,6 +78,7 @@ namespace Logic.Modules
                     await ReplyAsync(_localization.GetMessage("Invalid ac/pc prefic"));
                     return;
                 }
+
                 await _channel.SetPermaPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_localization.GetMessage("Permachannel prefix set", message));
             }
@@ -86,8 +88,8 @@ namespace Logic.Modules
         public class PermaChannelNameModule : ModuleBase<SocketCommandContext>
         {
             private IDbChannel _channel;
-            private IDbLanguage _language;
-            private LocalizationService _localization;
+            private readonly IDbLanguage _language;
+            private readonly LocalizationService _localization;
 
             public PermaChannelNameModule(IDbChannel channel, IDbLanguage language, LocalizationService localization)
             {
@@ -110,7 +112,8 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultPermaChannelName()
             {
-                await ReplyAsync(_localization.GetMessage("Permachannel name default", await _channel.GetPermaName(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Permachannel name default",
+                    await _channel.GetPermaName(Context.Guild.Id)));
             }
 
             [Command("set")]

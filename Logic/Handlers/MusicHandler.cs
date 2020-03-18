@@ -1,24 +1,25 @@
-﻿using Discord;
-using Discord.WebSocket;
-using IDal.Database;
-using Logic.Exceptions;
-using Logic.Extensions;
-using Logic.Models.Music;
-using Logic.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.WebSocket;
+    using Exceptions;
+    using Extensions;
+    using IDal.Database;
+    using Models.Music;
+    using Services;
+
     public class MusicHandler : BaseHandler
     {
-        private readonly MusicService _music;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
         private readonly LogsService _logs;
+        private readonly MusicService _music;
 
-        public MusicHandler(DiscordSocketClient client, MusicService music, IDbLanguage language, LocalizationService localization, LogsService logs) : base(client)
+        public MusicHandler(DiscordSocketClient client, MusicService music, IDbLanguage language,
+            LocalizationService localization, LogsService logs) : base(client)
         {
             _music = music;
             _language = language;
@@ -48,7 +49,8 @@ namespace Logic.Handlers
             await _music.Prepare(guild);
         }
 
-        private async Task OnChangeVoiceChannel(SocketUser user, SocketVoiceState leaveState, SocketVoiceState joinState)
+        private async Task OnChangeVoiceChannel(SocketUser user, SocketVoiceState leaveState,
+            SocketVoiceState joinState)
         {
             var voiceChannel = leaveState.VoiceChannel;
             var textChannel = _music.Player.TextChannel;
@@ -71,7 +73,8 @@ namespace Logic.Handlers
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"Failed to handle voice channel change for music handler. Reason: {e.Message}, StackTrace: {e.StackTrace}");
+                await _logs.Write("Crashes",
+                    $"Failed to handle voice channel change for music handler. Reason: {e.Message}, StackTrace: {e.StackTrace}");
             }
         }
 
@@ -80,7 +83,8 @@ namespace Logic.Handlers
             await _logs.Write("Crashes", $"Could not play track {e.Track.Title}. Reason: {e.Message}");
             await Prepare(e.Player.VoiceChannel.Guild);
             var track = await _music.PlayNext();
-            await track.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", track.Track.Title, track.Requester.Nickname()));
+            await track.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", track.Track.Title,
+                track.Requester.Nickname()));
         }
 
         private async Task OnTrackStuck(TrackStuckEventArgs e)
@@ -88,7 +92,8 @@ namespace Logic.Handlers
             await _logs.Write("Crashes", $"Track {e.Track.Title} got stuck. Time: {e.Duration}");
             await Prepare(e.Player.VoiceChannel.Guild);
             var track = await _music.PlayNext();
-            await track.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", track.Track.Title, track.Requester.Nickname()));
+            await track.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", track.Track.Title,
+                track.Requester.Nickname()));
         }
 
         private async Task OnTrackEnded(TrackEndedEventArgs e)
@@ -115,7 +120,8 @@ namespace Logic.Handlers
 
             if (track == null) return;
 
-            await track.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", track.Track.Title, track.Requester.Nickname()));
+            await track.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", track.Track.Title,
+                track.Requester.Nickname()));
         }
     }
 }

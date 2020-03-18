@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Logic.Extensions
+﻿namespace Logic.Extensions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class IEnumerableExtensions
     {
         public static IEnumerable<TSource> Foreach<TSource>(this IEnumerable<TSource> source, Action<TSource> action)

@@ -1,10 +1,9 @@
-﻿using Entity.RavenDB;
-using Raven.Client.Documents.Indexes;
-using System.Linq;
-using Server = Dal.Database.RavenDB.Models.Server;
-
-namespace Dal.Database.RavenDB.Indexes
+﻿namespace Dal.Database.RavenDB.Indexes
 {
+    using System.Linq;
+    using Models;
+    using Raven.Client.Documents.Indexes;
+
     internal class Servers_ById : AbstractIndexCreationTask<Server>
     {
         public Servers_ById()

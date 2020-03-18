@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace Dal.Text
+﻿namespace Dal.Text
 {
+    using System;
+    using System.IO;
+    using System.Threading.Tasks;
+
     internal class TextStream
     {
         public async Task WriteAsync(string path, string data)
@@ -37,7 +37,7 @@ namespace Dal.Text
             using (var stream = new StreamReader(path))
             {
                 var text = await stream.ReadToEndAsync();
-                return (T)Convert.ChangeType(text, typeof(T));
+                return (T) Convert.ChangeType(text, typeof(T));
             }
         }
     }

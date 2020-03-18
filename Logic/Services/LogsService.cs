@@ -1,10 +1,10 @@
-﻿using DalFactory;
-using Discord;
-using IDal;
-using System.Threading.Tasks;
-
-namespace Logic.Services
+﻿namespace Logic.Services
 {
+    using System.Threading.Tasks;
+    using DalFactory;
+    using Discord;
+    using IDal;
+
     public class LogsService
     {
         private readonly ILogs _logs;

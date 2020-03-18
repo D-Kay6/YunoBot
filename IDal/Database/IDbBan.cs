@@ -1,10 +1,10 @@
-﻿using Core.Entity;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace IDal.Database
+﻿namespace IDal.Database
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Core.Entity;
+
     public interface IDbBan
     {
         Task<bool> IsBanned(ulong userId, ulong serverId);

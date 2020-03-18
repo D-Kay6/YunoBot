@@ -1,12 +1,20 @@
-﻿using Core.Entity;
-using Dal.Json;
-using Microsoft.EntityFrameworkCore;
-
-namespace Dal.Database.MySql.EF
+﻿namespace Dal.Database.MySql.EF
 {
+    using Core.Entity;
+    using Json;
+    using Microsoft.EntityFrameworkCore;
+
     public class DataContext : DbContext
     {
-        private static string _connection;
+        private static readonly string _connection;
+
+        static DataContext()
+        {
+            var database = new Database<Connection>();
+            var settings = database.Read();
+            settings.Wait();
+            _connection = settings.Result.CreateConnectionString();
+        }
 
         public DbSet<Server> Servers { get; set; }
         public DbSet<User> Users { get; set; }
@@ -26,14 +34,6 @@ namespace Dal.Database.MySql.EF
         public DbSet<PermaRole> PermaRoles { get; set; }
         public DbSet<RoleIgnore> IgnoredUsers { get; set; }
 
-        static DataContext()
-        {
-            var database = new Database<Connection>();
-            var settings = database.Read();
-            settings.Wait();
-            _connection = settings.Result.CreateConnectionString();
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseMySql(_connection);
@@ -44,10 +44,10 @@ namespace Dal.Database.MySql.EF
         {
             modelBuilder.RemovePluralizingTableNameConvention();
 
-            modelBuilder.Entity<CustomCommand>().HasKey(x => new { x.ServerId, x.Command });
-            modelBuilder.Entity<Ban>().HasKey(x => new { x.UserId, x.ServerId });
-            modelBuilder.Entity<GeneratedChannel>().HasKey(x => new { x.ServerId, x.ChannelId });
-            modelBuilder.Entity<RoleIgnore>().HasKey(x => new { x.ServerId, x.UserId });
+            modelBuilder.Entity<CustomCommand>().HasKey(x => new {x.ServerId, x.Command});
+            modelBuilder.Entity<Ban>().HasKey(x => new {x.UserId, x.ServerId});
+            modelBuilder.Entity<GeneratedChannel>().HasKey(x => new {x.ServerId, x.ChannelId});
+            modelBuilder.Entity<RoleIgnore>().HasKey(x => new {x.ServerId, x.UserId});
         }
     }
 }

@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-
-namespace ILogic
+﻿namespace ILogic
 {
+    using System.Threading.Tasks;
+
     public interface IBot
     {
         Task Start();

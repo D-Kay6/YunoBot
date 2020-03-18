@@ -1,25 +1,26 @@
-﻿using Discord.Commands;
-using Discord.WebSocket;
-using IDal.Database;
-using Logic.Services;
-using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using CommandService = Logic.Services.CommandService;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System;
+    using System.Reflection;
+    using System.Threading.Tasks;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using IDal.Database;
+    using Services;
+    using CommandService = Services.CommandService;
+
     public class CommandHandler : BaseHandler
     {
         private readonly CommandService _commandService;
+
+        private readonly Discord.Commands.CommandService _dcService;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
         private readonly LogsService _logs;
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly Discord.Commands.CommandService _dcService;
-
-        public CommandHandler(DiscordSocketClient client, CommandService commandService, IDbLanguage language, LocalizationService localization, LogsService logs, IServiceProvider serviceProvider) : base(client)
+        public CommandHandler(DiscordSocketClient client, CommandService commandService, IDbLanguage language,
+            LocalizationService localization, LogsService logs, IServiceProvider serviceProvider) : base(client)
         {
             _commandService = commandService;
             _language = language;
@@ -47,7 +48,8 @@ namespace Logic.Handlers
                 var context = new SocketCommandContext(Client, msg);
                 var prefix = await _commandService.GetPrefix(context.Guild.Id);
                 var argPos = 0;
-                if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
+                if (!msg.HasStringPrefix(prefix, ref argPos) &&
+                    !msg.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
 
 #if DEBUG
                 if (!s.Author.Id.Equals(255453041531158538))
@@ -56,7 +58,8 @@ namespace Logic.Handlers
                     return;
                 }
 #endif
-                await _logs.Write("Commands", context.Guild, $"{context.User.Username} executed command '{context.Message}'.");
+                await _logs.Write("Commands", context.Guild,
+                    $"{context.User.Username} executed command '{context.Message}'.");
                 var result = await _dcService.ExecuteAsync(context, argPos, _serviceProvider);
                 if (result.IsSuccess) return;
                 await _logs.Write("Commands", context.Guild, $"Execution failed. Error code: {result.ErrorReason}.");
@@ -67,7 +70,8 @@ namespace Logic.Handlers
                         await context.Channel.SendMessageAsync(_localization.GetMessage("Command invalid permissions"));
                         break;
                     case CommandError.BadArgCount:
-                        await context.Channel.SendMessageAsync(_localization.GetMessage("Command invalid arguments", prefix));
+                        await context.Channel.SendMessageAsync(_localization.GetMessage("Command invalid arguments",
+                            prefix));
                         break;
                     default:
                         if (await SendCustomCommand(context, argPos)) return;

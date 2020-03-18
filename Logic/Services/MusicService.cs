@@ -1,16 +1,16 @@
-﻿using Discord;
-using Discord.WebSocket;
-using Logic.Exceptions;
-using Logic.Models.Music;
-using Logic.Models.Music.Player;
-using Logic.Models.Music.Search;
-using Logic.Models.Music.Track;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Logic.Services
+﻿namespace Logic.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.WebSocket;
+    using Exceptions;
+    using Models.Music;
+    using Models.Music.Player;
+    using Models.Music.Search;
+    using Models.Music.Track;
+
     public class MusicService
     {
         private readonly IMusicPlayer _player;
@@ -18,15 +18,15 @@ namespace Logic.Services
 
         private IGuild _guild;
 
-        public IPlayer Player => _player;
-        public bool IsActive => _player.IsConnected;
-        public bool HasQueue => _queue.HasItems(_guild);
-
         public MusicService(DiscordSocketClient client)
         {
             _player = new VictoriaPlayer(client);
             _queue = new Queue();
         }
+
+        public IPlayer Player => _player;
+        public bool IsActive => _player.IsConnected;
+        public bool HasQueue => _queue.HasItems(_guild);
 
         public async Task Prepare(IGuild guild)
         {
@@ -36,7 +36,7 @@ namespace Logic.Services
 
 
         /// <summary>
-        /// Search for a track or playlist.
+        ///     Search for a track or playlist.
         /// </summary>
         /// <param name="query">The value to search for</param>
         /// <returns>Returns a SearchResult containing the track(s) found.</returns>
@@ -47,7 +47,7 @@ namespace Logic.Services
 
 
         /// <summary>
-        /// Connect to a voice channel.
+        ///     Connect to a voice channel.
         /// </summary>
         /// <param name="channel">The voice channel to connect to.</param>
         /// <exception cref="InvalidPlayerException">Thrown if already connected to a voice channel.</exception>
@@ -57,21 +57,21 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Move to a different voice channel.
+        ///     Move to a different voice channel.
         /// </summary>
         /// <param name="channel">The voice channel to connect to.</param>
         /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
-        /// <exception cref="InvalidChannelException">Thrown if already connected to the specified voice channel.</exception>
+        /// <exception cref="InvalidAudioChannelException">Thrown if already connected to the specified voice channel.</exception>
         public async Task Move(IVoiceChannel channel)
         {
             await _player.Move(channel);
         }
 
         /// <summary>
-        /// Disconnect from the voice channel.
+        ///     Disconnect from the voice channel.
         /// </summary>
         /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
-        /// <exception cref="InvalidChannelException">Thrown if not connected to the specified voice channel.</exception>
+        /// <exception cref="InvalidAudioChannelException">Thrown if not connected to the specified voice channel.</exception>
         public async Task Leave(IVoiceChannel channel)
         {
             _queue.Clear(channel.Guild);
@@ -80,7 +80,7 @@ namespace Logic.Services
 
 
         /// <summary>
-        /// Play the next track in the queue. 
+        ///     Play the next track in the queue.
         /// </summary>
         /// <returns>The track that will be played.</returns>
         /// <exception cref="InvalidTrackException">Thrown if the track is not of the correct type for the player.</exception>
@@ -97,17 +97,14 @@ namespace Logic.Services
                 return null;
             }
 
-            if (!_player.IsConnected)
-            {
-                await _player.Join(track.Requester.VoiceChannel);
-            }
+            if (!_player.IsConnected) await _player.Join(track.Requester.VoiceChannel);
 
             await _player.Play(track);
             return track;
         }
 
         /// <summary>
-        /// Pause playing the current track.
+        ///     Pause playing the current track.
         /// </summary>
         /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
         /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
@@ -118,7 +115,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Resume playing the current track.
+        ///     Resume playing the current track.
         /// </summary>
         /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
         /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
@@ -129,9 +126,9 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Stop playing the current track.
-        /// Remove any tracks remaining in the queue.
-        /// Disconnects from the voice channel.
+        ///     Stop playing the current track.
+        ///     Remove any tracks remaining in the queue.
+        ///     Disconnects from the voice channel.
         /// </summary>
         /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>
         /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
@@ -143,7 +140,7 @@ namespace Logic.Services
 
 
         /// <summary>
-        /// Add a track to the queue of a server.
+        ///     Add a track to the queue of a server.
         /// </summary>
         /// <param name="item">The track to add to the queue.</param>
         /// <returns>The index of the track that was added.</returns>
@@ -154,7 +151,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Add a list of tracks to the queue of a server. The server is determined by the first track in the list.
+        ///     Add a list of tracks to the queue of a server. The server is determined by the first track in the list.
         /// </summary>
         /// <param name="items">The tracks to add to the queue.</param>
         public int Queue(IEnumerable<IPlayable> items)
@@ -163,7 +160,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Get the current track that is playing.
+        ///     Get the current track that is playing.
         /// </summary>
         /// <returns>The track that is playing.</returns>
         public ITrack GetCurrentTrack()
@@ -172,7 +169,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Get the queue for the server.
+        ///     Get the queue for the server.
         /// </summary>
         /// <returns>The list of tracks for the server.</returns>
         public IReadOnlyCollection<IPlayable> GetQueue()
@@ -182,7 +179,7 @@ namespace Logic.Services
 
 
         /// <summary>
-        /// Shuffle the tracks in the queue.
+        ///     Shuffle the tracks in the queue.
         /// </summary>
         public void Shuffle()
         {
@@ -190,7 +187,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Skip one or more tracks and play the next track in the queue.
+        ///     Skip one or more tracks and play the next track in the queue.
         /// </summary>
         /// <param name="amount">The amount of tracks to skip</param>
         /// <exception cref="InvalidTrackException">Thrown if there is no track playing.</exception>
@@ -203,7 +200,7 @@ namespace Logic.Services
         }
 
         /// <summary>
-        /// Remove the remaining tracks in the queue.
+        ///     Remove the remaining tracks in the queue.
         /// </summary>
         public void Clear()
         {
@@ -212,7 +209,7 @@ namespace Logic.Services
 
 
         /// <summary>
-        /// Change the volume of the player.
+        ///     Change the volume of the player.
         /// </summary>
         /// <param name="volume">The new volume. Min: 0, Max: 150</param>
         /// <exception cref="InvalidPlayerException">Thrown if not connected to a voice channel.</exception>

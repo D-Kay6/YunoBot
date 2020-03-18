@@ -1,8 +1,8 @@
-﻿using Dal.Database.RavenDB.Repositories;
-using IDal.Database.Raven;
-
-namespace DalFactory
+﻿namespace DalFactory
 {
+    using Dal.Database.RavenDB.Repositories;
+    using IDal.Database.Raven;
+
     public class RavenDBFactory
     {
         public static IDbServer GenerateServer()

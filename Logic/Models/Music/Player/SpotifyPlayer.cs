@@ -1,20 +1,16 @@
-﻿using Discord;
-using IDal;
-using Logic.Models.Music.Search;
-using Logic.Models.Music.Track;
-using SpotifyAPI.Web;
-using SpotifyAPI.Web.Auth;
-using System;
-using System.Threading.Tasks;
-
-namespace Logic.Models.Music.Player
+﻿namespace Logic.Models.Music.Player
 {
+    using System;
+    using System.Threading.Tasks;
+    using Discord;
+    using IDal;
+    using Search;
+    using SpotifyAPI.Web;
+    using SpotifyAPI.Web.Auth;
+    using Track;
+
     public class SpotifyPlayer : IMusicPlayer
     {
-        public event Func<TrackEndedEventArgs, Task> TrackEnded;
-        public event Func<TrackStuckEventArgs, Task> TrackStuck;
-        public event Func<TrackExceptionEventArgs, Task> TrackException;
-
         private readonly IConfig _config;
 
         private SpotifyWebAPI _spotify;
@@ -23,6 +19,10 @@ namespace Logic.Models.Music.Player
         {
             _config = config;
         }
+
+        public event Func<TrackEndedEventArgs, Task> TrackEnded;
+        public event Func<TrackStuckEventArgs, Task> TrackStuck;
+        public event Func<TrackExceptionEventArgs, Task> TrackException;
 
         public bool IsConnected { get; }
         public bool IsPlaying { get; }

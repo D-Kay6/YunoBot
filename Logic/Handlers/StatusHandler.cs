@@ -1,20 +1,20 @@
-﻿using Discord;
-using Discord.WebSocket;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Timers;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Timers;
+    using Discord;
+    using Discord.WebSocket;
+
     public class StatusHandler : BaseHandler
     {
-        private readonly Timer _timer;
         private readonly Random _random;
+        private readonly Timer _timer;
 
         public StatusHandler(DiscordSocketClient client) : base(client)
         {
-            _timer = new Timer { Interval = TimeSpan.FromMinutes(5).TotalMilliseconds };
+            _timer = new Timer {Interval = TimeSpan.FromMinutes(5).TotalMilliseconds};
             _random = new Random();
         }
 
@@ -54,13 +54,13 @@ namespace Logic.Handlers
                     activity = new Game("Yukiteru Diary", ActivityType.Watching);
                     break;
                 case 2:
-                    activity = new Game($"on {this.Client.Guilds.Count} servers", ActivityType.Playing);
+                    activity = new Game($"on {Client.Guilds.Count} servers");
                     break;
                 case 3:
                     activity = new Game("some music", ActivityType.Listening);
                     break;
                 case 4:
-                    activity = new Game("with her knife", ActivityType.Playing);
+                    activity = new Game("with her knife");
                     break;
                 case 5:
                     var userCount = Client.Guilds.Sum(guild => guild.MemberCount);
@@ -71,6 +71,7 @@ namespace Logic.Handlers
                     activity = new Game("new updates", ActivityType.Watching);
                     break;
             }
+
             await Client.SetActivityAsync(activity);
         }
     }

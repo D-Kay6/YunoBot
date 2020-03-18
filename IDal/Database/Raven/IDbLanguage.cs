@@ -1,8 +1,8 @@
-﻿using Entity.RavenDB;
-using System.Threading.Tasks;
-
-namespace IDal.Database.Raven
+﻿namespace IDal.Database.Raven
 {
+    using System.Threading.Tasks;
+    using Entity.RavenDB;
+
     public interface IDbLanguage
     {
         Task Add(LanguageSetting value);

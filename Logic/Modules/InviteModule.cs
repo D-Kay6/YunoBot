@@ -1,11 +1,11 @@
-﻿using Discord.Commands;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System.Threading.Tasks;
+    using Discord.Commands;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     [Group("Invite")]
     public class InviteModule : ModuleBase<SocketCommandContext>
     {

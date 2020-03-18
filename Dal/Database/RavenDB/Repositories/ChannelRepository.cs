@@ -1,11 +1,10 @@
-﻿using Entity.RavenDB;
-using IDal.Database.Raven;
-using Raven.Client.Documents;
-using Raven.Client.Documents.Linq;
-using System.Threading.Tasks;
-
-namespace Dal.Database.RavenDB.Repositories
+﻿namespace Dal.Database.RavenDB.Repositories
 {
+    using System.Threading.Tasks;
+    using Entity.RavenDB;
+    using IDal.Database.Raven;
+    using Raven.Client.Documents;
+
     public class ChannelRepository : BaseRepository, IDbChannel
     {
         public async Task Add(ChannelAutomation value)

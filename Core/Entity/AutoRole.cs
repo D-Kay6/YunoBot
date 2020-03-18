@@ -4,7 +4,7 @@
     {
         public AutoRole()
         {
-            this.Prefix = "👾";
+            Prefix = "👾";
         }
     }
 }

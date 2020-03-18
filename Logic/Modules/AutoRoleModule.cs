@@ -1,12 +1,12 @@
-﻿using Discord;
-using Discord.Commands;
-using IDal.Database;
-using Logic.Services;
-using System;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using IDal.Database;
+    using Services;
+
     [Alias("ar")]
     [Group("autorole")]
     public class AutoRoleModule : ModuleBase<SocketCommandContext>
@@ -42,11 +42,11 @@ namespace Logic.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public class AutoRolePrefixModule : ModuleBase<SocketCommandContext>
         {
-            private IDbRole _role;
-            private IDbLanguage _language;
-            private LocalizationService _localization;
+            private readonly IDbLanguage _language;
+            private readonly LocalizationService _localization;
+            private readonly IDbAutoRole _role;
 
-            public AutoRolePrefixModule(IDbRole role, IDbLanguage language, LocalizationService localization)
+            public AutoRolePrefixModule(IDbAutoRole role, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
                 _language = language;
@@ -67,7 +67,8 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultAutoRolePrefix()
             {
-                await ReplyAsync(_localization.GetMessage("Autorole prefix default", await _role.GetAutoPrefix(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Autorole prefix default",
+                    await _role.GetAutoPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
@@ -78,6 +79,7 @@ namespace Logic.Modules
                     await ReplyAsync(_localization.GetMessage("Invalid ar/pr prefix"));
                     return;
                 }
+
                 await _role.SetAutoPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_localization.GetMessage("Autorole prefix set", message));
             }
@@ -86,11 +88,11 @@ namespace Logic.Modules
         [Group("ignore")]
         public class AutoRoleIgnoreModule : ModuleBase<SocketCommandContext>
         {
-            private IDbRole _role;
-            private IDbLanguage _language;
-            private LocalizationService _localization;
+            private readonly IDbLanguage _language;
+            private readonly LocalizationService _localization;
+            private readonly IDbAutoRole _role;
 
-            public AutoRoleIgnoreModule(IDbRole role, IDbLanguage language, LocalizationService localization)
+            public AutoRoleIgnoreModule(IDbAutoRole role, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
                 _language = language;
@@ -120,12 +122,12 @@ namespace Logic.Modules
             {
                 if (await _role.IsIgnoringRoles(Context.Guild.Id, Context.User.Id))
                 {
-                    await ReplyAsync(_localization.GetMessage($"RoleIgnore is on"));
+                    await ReplyAsync(_localization.GetMessage("RoleIgnore is on"));
                     return;
                 }
 
                 await _role.AddIgnoringRoles(Context.Guild.Id, Context.User.Id);
-                await ReplyAsync(_localization.GetMessage($"RoleIgnore turned on"));
+                await ReplyAsync(_localization.GetMessage("RoleIgnore turned on"));
             }
 
             [Command("off")]
@@ -133,12 +135,12 @@ namespace Logic.Modules
             {
                 if (!await _role.IsIgnoringRoles(Context.Guild.Id, Context.User.Id))
                 {
-                    await ReplyAsync(_localization.GetMessage($"RoleIgnore is off"));
+                    await ReplyAsync(_localization.GetMessage("RoleIgnore is off"));
                     return;
                 }
 
                 await _role.RemoveIgnoringRoles(Context.Guild.Id, Context.User.Id);
-                await ReplyAsync(_localization.GetMessage($"RoleIgnore turned off"));
+                await ReplyAsync(_localization.GetMessage("RoleIgnore turned off"));
             }
         }
     }

@@ -1,12 +1,12 @@
-﻿using Discord.WebSocket;
-using IDal.Database;
-using Logic.Services;
-using System;
-using System.Threading.Tasks;
-using System.Timers;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System;
+    using System.Threading.Tasks;
+    using System.Timers;
+    using Discord.WebSocket;
+    using IDal.Database;
+    using Services;
+
     public class BanHandler : BaseHandler
     {
         private readonly IDbBan _ban;
@@ -50,6 +50,7 @@ namespace Logic.Handlers
             {
                 await _logs.Write("Crashes", $"Could not handle tick for bans. {ex.Message}, {ex.StackTrace}");
             }
+
             _isRunning = false;
         }
     }

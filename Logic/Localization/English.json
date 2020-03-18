@@ -1,31 +1,36 @@
 {
-	"Messages": {
-		"Invalid user": "I could not find a user by the name of `{0}`.",
-		"Invalid role": "I could not find a role with the name `{0}`.",
-		"Invalid message": "I cannot send an empty message.",
-		"Invalid ac/pc prefix": "I am not able to use the same prefix for both autochannels and permachannels.",
-		"Invalid ar/pr prefix": "I am not able to use the same prefix for both autoroles and permaroles.",
-
-		
-		"Channel no permission": "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
-Either remove the prefix from `{1}` or give me the `Manage channels` permission.",
+  "Messages": {
+    "Invalid user": "I could not find a user by the name of `{0}`.",
+    "Invalid role": "I could not find a role with the name `{0}`.",
+    "Invalid message": "I cannot send an empty message.",
+    "Invalid ac/pc prefix": "I am not able to use the same prefix for both autochannels and permachannels.",
+    "Invalid ar/pr prefix": "I am not able to use the same prefix for both autoroles and permaroles.",
 
 
-		"Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
-		"Command invalid arguments": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
-		"Command invalid": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
+    "Channel no permission":
+      "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
+    Either remove the prefix from `{1}` or give me the `Manage channels` permission.",
 
-		
-		"Autochannel default": "Autochannels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
-These autochannels are voice channels that have a prefix in their name, so I can recognize them.
-When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the autochannel is in.
-I will also give the user permission to modify the channel.
-Once everything's done I will move the user to the new channel.
-When all users have left the generated voice channel, I will remove it.
 
-When setting up an autochannel, you need to make sure I have at least the `manage channels` permission.
-If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
-Create a channel with the autochannel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
+    "Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
+    "Command invalid arguments":
+      "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
+    "Command invalid": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
+
+
+    "Autochannel default":
+      "Autochannels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
+    These autochannels are voice channels that have a prefix in their name, so I can recognize them.
+    When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings
+    in the category the autochannel is in.
+    I will also give the user permission to modify the channel.
+    Once everything's done I will move the user to the new channel.
+    When all users have left the generated voice channel, I will remove it.
+
+    When setting up an autochannel, you need to make sure I have at least the `manage channels` permission.
+    If you never changed my standard permissions, I should have the `administrator` permission, which works just as well
+    .
+    Create a channel with the autochannel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
 You can set-up your own prefix for autochannels with `/autochannel prefix set <prefix>`.
 
 You can customize the name generated channels have with `/autochannel name set <name>`.

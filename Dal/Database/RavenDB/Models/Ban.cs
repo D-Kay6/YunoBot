@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Dal.Database.RavenDB.Models
+﻿namespace Dal.Database.RavenDB.Models
 {
+    using System;
+
     public class Ban
     {
         public string Id { get; set; }

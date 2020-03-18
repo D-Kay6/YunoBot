@@ -1,15 +1,15 @@
-﻿using Discord.WebSocket;
-using System.Threading.Tasks;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System.Threading.Tasks;
+    using Discord.WebSocket;
+
     public abstract class BaseHandler
     {
         protected DiscordSocketClient Client;
 
         protected BaseHandler(DiscordSocketClient client)
         {
-            this.Client = client;
+            Client = client;
         }
 
         public abstract Task Initialize();

@@ -1,14 +1,14 @@
-﻿using Core.Enum;
-using Discord;
-using Discord.Commands;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System;
+    using System.Threading.Tasks;
+    using Core.Enum;
+    using Discord;
+    using Discord.Commands;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     [Group("language")]
     [Alias("lang")]
     [RequireUserPermission(GuildPermission.Administrator)]
@@ -38,7 +38,8 @@ namespace Logic.Modules
         public async Task DefaultLanguage()
         {
             var language = await _language.GetLanguage(Context.Guild.Id);
-            await ReplyAsync(_localization.GetMessage("Language default", language, Context.Guild.Name, string.Join(", ", Enum.GetNames(typeof(Language)))));
+            await ReplyAsync(_localization.GetMessage("Language default", language, Context.Guild.Name,
+                string.Join(", ", Enum.GetNames(typeof(Language)))));
         }
 
         [Command("set")]

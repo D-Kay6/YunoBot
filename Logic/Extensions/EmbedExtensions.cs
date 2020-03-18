@@ -1,7 +1,7 @@
-﻿using Discord;
-
-namespace Logic.Extensions
+﻿namespace Logic.Extensions
 {
+    using Discord;
+
     public static class EmbedExtensions
     {
         public static Embed CreateEmbed(string title, string message)

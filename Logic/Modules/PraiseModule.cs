@@ -1,36 +1,16 @@
-﻿using Discord.Commands;
-using Discord.WebSocket;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     [Group("praise")]
     public class PraiseModule : ModuleBase<SocketCommandContext>
     {
-        private readonly IDbLanguage _language;
-        private readonly LocalizationService _localization;
-
-        public PraiseModule(IDbLanguage language, LocalizationService localization)
-        {
-            _language = language;
-            _localization = localization;
-        }
-
-        protected override void BeforeExecute(CommandInfo command)
-        {
-            Task.WaitAll(Prepare());
-            base.BeforeExecute(command);
-        }
-
-        private async Task Prepare()
-        {
-            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
-        }
-
         // source: https://www.happier.com/blog/nice-things-to-say-100-compliments/
         private readonly List<string> _groupMessages = new List<string>
         {
@@ -65,6 +45,9 @@ namespace Logic.Modules
             "That color is perfect on you, {0}.",
             "Hanging out with you is always a blast, {0}."*/
         };
+
+        private readonly IDbLanguage _language;
+        private readonly LocalizationService _localization;
 
         private readonly List<string> _soloMessages = new List<string>
         {
@@ -175,6 +158,23 @@ namespace Logic.Modules
             //"Thank you for being you."
         };
 
+        public PraiseModule(IDbLanguage language, LocalizationService localization)
+        {
+            _language = language;
+            _localization = localization;
+        }
+
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            Task.WaitAll(Prepare());
+            base.BeforeExecute(command);
+        }
+
+        private async Task Prepare()
+        {
+            await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
+        }
+
         [Priority(-1)]
         [Command]
         public async Task DefaultPraise([Remainder] string name)
@@ -254,7 +254,8 @@ namespace Logic.Modules
         [Command("wizard")]
         public async Task PraiseJim()
         {
-            await ReplyAsync("I cannot imagine he deserves it but, \nAll hail our powerful and destructive wizard, jim.");
+            await ReplyAsync(
+                "I cannot imagine he deserves it but, \nAll hail our powerful and destructive wizard, jim.");
         }
     }
 }

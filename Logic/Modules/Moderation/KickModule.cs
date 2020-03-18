@@ -1,12 +1,12 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using IDal.Database;
-using Logic.Services;
-using System.Threading.Tasks;
-
-namespace Logic.Modules.Moderation
+﻿namespace Logic.Modules.Moderation
 {
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using IDal.Database;
+    using Services;
+
     [Group("Kick")]
     [RequireUserPermission(GuildPermission.KickMembers)]
     public class KickModule : ModuleBase<SocketCommandContext>

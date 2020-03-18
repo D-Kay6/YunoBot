@@ -1,8 +1,8 @@
-﻿using Discord;
-using Logic.Models.Music.Track;
-
-namespace Logic.Models.Music
+﻿namespace Logic.Models.Music
 {
+    using Discord;
+    using Track;
+
     public interface IPlayable
     {
         ITrack Track { get; }

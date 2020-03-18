@@ -1,14 +1,14 @@
-﻿using DalFactory;
-using Discord.WebSocket;
-using Entity.RavenDB;
-using IDal.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using DalFactory;
+    using Discord.WebSocket;
+    using Entity.RavenDB;
+    using IDal.Database;
+
     public class DatabaseHandler : BaseHandler
     {
         private readonly IDbServer _server;
@@ -142,6 +142,7 @@ namespace Logic.Handlers
                 };
                 await dbServer.Add(rServer);
             }
+
             Console.WriteLine("Done transferring database.");
         }
 
@@ -157,14 +158,13 @@ namespace Logic.Handlers
                     Console.WriteLine("Loading guild data hasn't finished yet. Waiting 1 second...");
                     await Task.Delay(1000);
                 }
+
                 await _server.UpdateServer(guild.Id, guild.Name);
             }
 
             var users = await _user.GetUsers();
             foreach (var user in users.Select(dbUser => Client.GetUser(dbUser.Id)).Where(user => user != null))
-            {
                 await _user.UpdateUser(user.Id, user.Username);
-            }
 
             _isBusy = false;
             Console.WriteLine("Done updating database.");

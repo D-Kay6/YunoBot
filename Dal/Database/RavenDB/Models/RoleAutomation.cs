@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace Dal.Database.RavenDB.Models
+﻿namespace Dal.Database.RavenDB.Models
 {
+    using System.Collections.Generic;
+
     public class RoleAutomation
     {
         public string Id { get; set; }

@@ -1,12 +1,12 @@
-﻿using Discord;
-using Discord.Commands;
-using IDal.Database;
-using Logic.Services;
-using System;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using IDal.Database;
+    using Services;
+
     [Alias("pr")]
     [Group("permarole")]
     [RequireUserPermission(GuildPermission.Administrator)]
@@ -41,11 +41,11 @@ namespace Logic.Modules
         [Group("prefix")]
         public class PermaRolePrefixModule : ModuleBase<SocketCommandContext>
         {
-            private IDbRole _role;
-            private IDbLanguage _language;
-            private LocalizationService _localization;
+            private readonly IDbLanguage _language;
+            private readonly LocalizationService _localization;
+            private readonly IDbAutoRole _role;
 
-            public PermaRolePrefixModule(IDbRole role, IDbLanguage language, LocalizationService localization)
+            public PermaRolePrefixModule(IDbAutoRole role, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
                 _language = language;
@@ -66,7 +66,8 @@ namespace Logic.Modules
             [Command]
             public async Task DefaultPermaRolePrefix()
             {
-                await ReplyAsync(_localization.GetMessage("Permarole prefix default", await _role.GetPermaPrefix(Context.Guild.Id)));
+                await ReplyAsync(_localization.GetMessage("Permarole prefix default",
+                    await _role.GetPermaPrefix(Context.Guild.Id)));
             }
 
             [Command("set")]
@@ -77,6 +78,7 @@ namespace Logic.Modules
                     await ReplyAsync(_localization.GetMessage("Invalid ar/pr prefix"));
                     return;
                 }
+
                 await _role.SetPermaPrefix(Context.Guild.Id, message);
                 await ReplyAsync(_localization.GetMessage("Permarole prefix set", message));
             }

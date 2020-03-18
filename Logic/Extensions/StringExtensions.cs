@@ -1,10 +1,10 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Text.RegularExpressions;
-
-namespace Logic.Extensions
+﻿namespace Logic.Extensions
 {
+    using System;
+    using System.Globalization;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+
     public static class StringExtensions
     {
         public static bool ContainsIgnoreCase(this string item, string value)

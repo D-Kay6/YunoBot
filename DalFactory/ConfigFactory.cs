@@ -1,8 +1,8 @@
-﻿using Dal.Json;
-using IDal;
-
-namespace DalFactory
+﻿namespace DalFactory
 {
+    using Dal.Json;
+    using IDal;
+
     public class ConfigFactory
     {
         public static IConfig GenerateConfig()

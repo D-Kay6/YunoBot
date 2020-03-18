@@ -3,6 +3,6 @@
     public enum Language
     {
         English,
-        Dutch,
+        Dutch
     }
 }

@@ -1,15 +1,16 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using IDal;
-
-namespace Dal.Text
+﻿namespace Dal.Text
 {
+    using System;
+    using System.IO;
+    using System.Threading.Tasks;
+    using IDal;
+
     public class Logs : ILogs
     {
-        private string Directory => Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents", "Yuno Bot", "Logs");
-
         private readonly TextStream _stream = new TextStream();
+
+        private string Directory => Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents",
+            "Yuno Bot", "Logs");
 
         public async Task Write(string file, string data)
         {

@@ -1,8 +1,8 @@
-﻿using Dal.Text;
-using IDal;
-
-namespace DalFactory
+﻿namespace DalFactory
 {
+    using Dal.Text;
+    using IDal;
+
     public static class LogsFactory
     {
         public static ILogs GenerateLogs()

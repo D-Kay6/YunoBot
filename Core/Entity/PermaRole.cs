@@ -4,7 +4,7 @@
     {
         public PermaRole()
         {
-            this.Prefix = "🎮";
+            Prefix = "🎮";
         }
     }
 }

@@ -1,16 +1,16 @@
-﻿using Discord.Commands;
-using IDal.Database;
-using Logic.Services;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System.Threading.Tasks;
+    using Discord.Commands;
+    using IDal.Database;
+    using Services;
+
     [RequireOwner]
     public class RestartModule : ModuleBase<SocketCommandContext>
     {
-        private readonly RestartService _service;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
+        private readonly RestartService _service;
 
         public RestartModule(RestartService service, IDbLanguage language, LocalizationService localization)
         {
@@ -33,7 +33,6 @@ namespace Logic.Modules
         [Command("restart")]
         public async Task RestartCommand()
         {
-            await Context.Message.DeleteAsync();
             await ReplyAsync(_localization.GetMessage("Restart default"));
             _service.Restart();
         }
@@ -41,7 +40,6 @@ namespace Logic.Modules
         [Command("hardrestart")]
         public async Task RestartHardCommand()
         {
-            await Context.Message.DeleteAsync();
             await ReplyAsync(_localization.GetMessage("Restart default"));
             _service.HardRestart();
         }
@@ -49,7 +47,6 @@ namespace Logic.Modules
         [Command("shutdown")]
         public async Task ShutdownCommand()
         {
-            await Context.Message.DeleteAsync();
             await ReplyAsync(_localization.GetMessage("Shutdown default"));
             _service.Shutdown();
         }

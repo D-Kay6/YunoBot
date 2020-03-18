@@ -1,23 +1,23 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Logic.Modules.Moderation
+﻿namespace Logic.Modules.Moderation
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     [Group("Ban")]
     [RequireUserPermission(GuildPermission.BanMembers)]
     public class BanModule : ModuleBase<SocketCommandContext>
     {
         private readonly IDbBan _ban;
-        private readonly IDbUser _user;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
+        private readonly IDbUser _user;
 
         public BanModule(IDbBan ban, IDbUser user, IDbLanguage language, LocalizationService localization)
         {
@@ -82,17 +82,11 @@ namespace Logic.Modules.Moderation
 
             var parts = message.Split(' ');
             var duration = parts[0].GetDuration();
-            var endDate = duration > TimeSpan.Zero ? DateTime.Now + duration : (DateTime?)null;
-            if (endDate != null)
-            {
-                time = endDate.Value.ToString();
-            }
+            var endDate = duration > TimeSpan.Zero ? DateTime.Now + duration : (DateTime?) null;
+            if (endDate != null) time = endDate.Value.ToString();
 
             message = string.Join(' ', parts.Skip(1));
-            if (!string.IsNullOrEmpty(message))
-            {
-                reason = message;
-            }
+            if (!string.IsNullOrEmpty(message)) reason = message;
 
             builder.AddField(_localization.GetMessage("Ban duration"), time);
             builder.AddField(_localization.GetMessage("Ban reason"), reason);

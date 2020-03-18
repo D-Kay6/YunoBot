@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
+
     public class HandlerCollection
     {
-        private readonly IServiceProvider _services;
         private readonly Collection<BaseHandler> _handlers;
+        private readonly IServiceProvider _services;
 
         public HandlerCollection(IServiceProvider services)
         {

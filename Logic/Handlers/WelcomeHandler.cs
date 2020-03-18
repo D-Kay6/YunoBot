@@ -1,11 +1,11 @@
-﻿using Discord.WebSocket;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System.Threading.Tasks;
-
-namespace Logic.Handlers
+﻿namespace Logic.Handlers
 {
+    using System.Threading.Tasks;
+    using Discord.WebSocket;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     public class WelcomeHandler : BaseHandler
     {
         private readonly CommandService _command;
@@ -43,7 +43,8 @@ namespace Logic.Handlers
             await _welcome.Disable(guild.Id);
 
             var owner = guild.Owner;
-            await owner.SendDM($@"I'm sorry to bother you, but it seems like something went wrong with the welcome message for `{guild.Name}`.
+            await owner.SendDM(
+                $@"I'm sorry to bother you, but it seems like something went wrong with the welcome message for `{guild.Name}`.
 This could have happened due to an accidental deletion and re-creation of the channel.
 As a result of this, I had to disable the feature.
 You can re-enable it by executing the command `{_command.GetPrefix(guild.Id)}welcome enable <channel>` on your server again.

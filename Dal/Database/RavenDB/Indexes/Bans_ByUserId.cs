@@ -1,10 +1,9 @@
-﻿using Entity.RavenDB;
-using Raven.Client.Documents.Indexes;
-using System.Linq;
-using Ban = Dal.Database.RavenDB.Models.Ban;
-
-namespace Dal.Database.RavenDB.Indexes
+﻿namespace Dal.Database.RavenDB.Indexes
 {
+    using System.Linq;
+    using Models;
+    using Raven.Client.Documents.Indexes;
+
     internal class Bans_ByUserId : AbstractIndexCreationTask<Ban>
     {
         public Bans_ByUserId()

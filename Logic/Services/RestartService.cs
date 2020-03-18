@@ -1,21 +1,21 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace Logic.Services
+﻿namespace Logic.Services
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+
     public class RestartService
     {
         private readonly LogsService _logs;
 
         private CancellationTokenSource _restartToken;
 
-        public bool KeepAlive { get; private set; }
-
         public RestartService(LogsService logs)
         {
             _logs = logs;
             KeepAlive = true;
         }
+
+        public bool KeepAlive { get; private set; }
 
         public void Restart()
         {

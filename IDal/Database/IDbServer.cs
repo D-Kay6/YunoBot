@@ -1,8 +1,8 @@
-﻿using Core.Entity;
-using System.Threading.Tasks;
-
-namespace IDal.Database
+﻿namespace IDal.Database
 {
+    using System.Threading.Tasks;
+    using Core.Entity;
+
     public interface IDbServer
     {
         Task AddServer(ulong id, string name);

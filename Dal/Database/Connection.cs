@@ -2,20 +2,20 @@
 {
     internal abstract class Connection
     {
-        public string Url;
-        public string Ip;
-        public string Port;
         public string Database;
-        public string Username;
+        public string Ip;
         public string Password;
+        public string Port;
+        public string Url;
+        public string Username;
 
         protected Connection()
         {
-            this.Url = "";
-            this.Port = "";
-            this.Database = "";
-            this.Username = "";
-            this.Password = "";
+            Url = "";
+            Port = "";
+            Database = "";
+            Username = "";
+            Password = "";
         }
 
         public abstract string CreateConnectionString();

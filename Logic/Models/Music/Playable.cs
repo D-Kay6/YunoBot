@@ -1,10 +1,19 @@
-﻿using Discord;
-using Logic.Models.Music.Track;
-
-namespace Logic.Models.Music
+﻿namespace Logic.Models.Music
 {
+    using Discord;
+    using Track;
+
     public class Playable : IPlayable
     {
+        public Playable(ITrack track, IGuildUser requester, ITextChannel textChannel, int volume = 25)
+        {
+            Track = track;
+            Guild = requester.Guild;
+            Requester = requester;
+            TextChannel = textChannel;
+            Volume = volume;
+        }
+
         public ITrack Track { get; }
 
         public IGuild Guild { get; }
@@ -14,14 +23,5 @@ namespace Logic.Models.Music
         public ITextChannel TextChannel { get; }
 
         public int Volume { get; }
-
-        public Playable(ITrack track, IGuildUser requester, ITextChannel textChannel, int volume = 25)
-        {
-            Track = track;
-            Guild = requester.Guild;
-            Requester = requester;
-            TextChannel = textChannel;
-            Volume = volume;
-        }
     }
 }

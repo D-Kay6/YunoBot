@@ -1,12 +1,12 @@
-﻿using Discord.Commands;
-using Discord.WebSocket;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System.Threading.Tasks;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     [Group("birthday")]
     public class BirthdayModule : ModuleBase<SocketCommandContext>
     {

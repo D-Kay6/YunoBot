@@ -1,15 +1,15 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.Net;
-using IDal.Database;
-using Logic.Extensions;
-using Logic.Services;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using Discord.Net;
+    using Extensions;
+    using IDal.Database;
+    using Services;
+
     [Group("announce")]
     public class AnnounceModule : ModuleBase<SocketCommandContext>
     {
@@ -58,7 +58,7 @@ namespace Logic.Modules
                 await ReplyAsync(_localization.GetMessage("Invalid message"));
                 return;
             }
-            
+
             var users = new List<IUser>();
             foreach (var guild in Context.Client.Guilds)
             {
@@ -66,6 +66,7 @@ namespace Logic.Modules
                 if (users.Any(u => u.Id.Equals(guild.OwnerId))) continue;
                 users.Add(guild.Owner);
             }
+
             await SendAnnouncement(users, message, "Update notice");
         }
 

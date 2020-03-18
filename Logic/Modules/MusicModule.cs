@@ -1,26 +1,25 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using IDal.Database;
-using Logic.Exceptions;
-using Logic.Extensions;
-using Logic.Models.Music;
-using Logic.Models.Music.Search;
-using Logic.Models.Music.Track;
-using Logic.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Logic.Modules
+﻿namespace Logic.Modules
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Discord;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using Exceptions;
+    using Extensions;
+    using IDal.Database;
+    using Models.Music;
+    using Models.Music.Search;
+    using Models.Music.Track;
+    using Services;
+
     [Group("music")]
     public class MusicModule : ModuleBase<SocketCommandContext>
     {
-        private readonly MusicService _musicService;
-
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
+        private readonly MusicService _musicService;
 
         public MusicModule(MusicService musicService, IDbLanguage language, LocalizationService localization)
         {
@@ -75,7 +74,7 @@ namespace Logic.Modules
             {
                 await ReplyAsync(_localization.GetMessage("Music connection none"));
             }
-            catch (InvalidChannelException)
+            catch (InvalidAudioChannelException)
             {
                 await ReplyAsync(_localization.GetMessage("Music connection same"));
             }
@@ -93,7 +92,7 @@ namespace Logic.Modules
             {
                 await ReplyAsync(_localization.GetMessage("Music connection none"));
             }
-            catch (InvalidChannelException)
+            catch (InvalidAudioChannelException)
             {
                 await ReplyAsync(_localization.GetMessage("Music connection different"));
             }
@@ -107,12 +106,13 @@ namespace Logic.Modules
         {
             if (!await CanPerform()) return;
 
-            var message = await ReplyAsync(_localization.GetMessage("Music search", query)); 
-            if (query.Contains("&list=")) query = query.Substring(0, query.IndexOf("&list=", StringComparison.CurrentCulture));
+            var message = await ReplyAsync(_localization.GetMessage("Music search", query));
+            if (query.Contains("&list="))
+                query = query.Substring(0, query.IndexOf("&list=", StringComparison.CurrentCulture));
             var result = await _musicService.Search(query);
             await message.DeleteAsync();
 
-            var user = (SocketGuildUser)Context.User;
+            var user = (SocketGuildUser) Context.User;
             var index = 0;
             ITrack track = null;
             var isPlaying = _musicService.GetCurrentTrack() != null;
@@ -129,28 +129,35 @@ namespace Logic.Modules
                     index = _musicService.Queue(new Playable(track, user, Context.Channel as ITextChannel));
                     if (isPlaying)
                     {
-                        await ReplyAsync(_localization.GetMessage("Music queued song", index, track.Title, track.Duration));
+                        await ReplyAsync(_localization.GetMessage("Music queued song", index, track.Title,
+                            track.Duration));
                         return;
                     }
+
                     break;
                 case ResultStatus.SingleTrack:
                     track = result.Tracks.First();
                     index = _musicService.Queue(new Playable(track, user, Context.Channel as ITextChannel));
                     if (isPlaying)
                     {
-                        await ReplyAsync(_localization.GetMessage("Music queued song", index, track.Title, track.Duration));
+                        await ReplyAsync(_localization.GetMessage("Music queued song", index, track.Title,
+                            track.Duration));
                         return;
                     }
+
                     break;
                 case ResultStatus.Playlist:
-                    index = _musicService.Queue(result.Tracks.Select(t => new Playable(t, user, Context.Channel as ITextChannel)));
-                    await Context.Channel.SendMessageAsync(_localization.GetMessage("Music queued playlist", result.Tracks.Count));
+                    index = _musicService.Queue(result.Tracks.Select(t =>
+                        new Playable(t, user, Context.Channel as ITextChannel)));
+                    await Context.Channel.SendMessageAsync(_localization.GetMessage("Music queued playlist",
+                        result.Tracks.Count));
                     break;
             }
 
             if (isPlaying) return;
             var trackInfo = await _musicService.PlayNext();
-            await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title, trackInfo.Requester.Nickname()));
+            await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title,
+                trackInfo.Requester.Nickname()));
         }
 
         [Command("pause")]
@@ -217,7 +224,7 @@ namespace Logic.Modules
             if (currentTrack == null) await ReplyAsync(_localization.GetMessage("Music not active"));
             else await ReplyAsync(_localization.GetMessage("Music current", currentTrack.Title));
         }
-        
+
         [Command("queue")]
         public async Task MusicQueue()
         {
@@ -243,8 +250,10 @@ namespace Logic.Modules
                 if (position >= 15) break;
                 position++;
             }
+
             await ReplyAsync(msg);
-            if (queue.Count - 15 > 0) await ReplyAsync(_localization.GetMessage("Music queue remaining", queue.Count - 15));
+            if (queue.Count - 15 > 0)
+                await ReplyAsync(_localization.GetMessage("Music queue remaining", queue.Count - 15));
         }
 
 
@@ -273,7 +282,8 @@ namespace Logic.Modules
             {
                 var trackInfo = await _musicService.Skip();
                 if (trackInfo == null) return;
-                await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title, trackInfo.Requester.Nickname()));
+                await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title,
+                    trackInfo.Requester.Nickname()));
             }
             catch (InvalidTrackException)
             {
@@ -291,7 +301,8 @@ namespace Logic.Modules
                 var trackInfo = await _musicService.Skip(amount);
                 if (trackInfo == null) return;
                 await ReplyAsync(_localization.GetMessage("Music skipped", amount));
-                await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title, trackInfo.Requester.Nickname()));
+                await ReplyAsync(_localization.GetMessage("Music now playing", trackInfo.Track.Title,
+                    trackInfo.Requester.Nickname()));
             }
             catch (Exception e) when (e is InvalidPlayerException || e is InvalidTrackException)
             {

@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
-
-namespace Entity.RavenDB
+﻿namespace Entity.RavenDB
 {
+    using System.Collections.Generic;
+
     public class AutoChannel : Automation
     {
+        public AutoChannel()
+        {
+            Enabled = true;
+            Prefix = "➕";
+            Name = "--channel";
+            Channels = new List<ulong>();
+        }
+
         public string Name { get; set; }
 
         public List<ulong> Channels { get; set; }
-
-        public AutoChannel()
-        {
-            this.Enabled = true;
-            this.Prefix = "➕";
-            this.Name = "--channel";
-            this.Channels = new List<ulong>();
-        }
     }
 }
