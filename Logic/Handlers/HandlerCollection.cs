@@ -20,14 +20,15 @@
 
         public void GenerateHandlers()
         {
+            CreateInstance<LoggingHandler>();
             CreateInstance<DatabaseHandler>();
             CreateInstance<BanHandler>();
             CreateInstance<CommandHandler>();
             CreateInstance<DblHandler>();
+            CreateInstance<MusicHandler>();
             CreateInstance<ChannelHandler>();
             CreateInstance<RoleHandler>();
             CreateInstance<WelcomeHandler>();
-            CreateInstance<MusicHandler>();
             CreateInstance<StatusHandler>();
         }
 

@@ -12,6 +12,14 @@
         event Func<TrackStuckEventArgs, Task> TrackStuck;
         event Func<TrackExceptionEventArgs, Task> TrackException;
 
-        Task Ready();
+        /// <summary>
+        ///     Connect to the player.
+        /// </summary>
+        Task Connect();
+
+        /// <summary>
+        ///     Disconnect from the player.
+        /// </summary>
+        Task Disconnect();
     }
 }

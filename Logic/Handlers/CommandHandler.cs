@@ -1,4 +1,6 @@
-﻿namespace Logic.Handlers
+﻿using Logic.Exceptions;
+
+namespace Logic.Handlers
 {
     using System;
     using System.Reflection;
@@ -89,9 +91,15 @@
         private async Task<bool> SendCustomCommand(SocketCommandContext context, int argPos)
         {
             var command = context.Message.Content.Substring(argPos);
-            var response = await _commandService.GetResponse(context.Guild.Id, command);
-            if (response == null) return false;
-            await context.Channel.SendMessageAsync(response);
+            try
+            {
+                var response = await _commandService.GetResponse(context.Guild.Id, command);
+                await context.Channel.SendMessageAsync(response);
+            }
+            catch (InvalidCommandException)
+            {
+                return false;
+            }
             return true;
         }
     }

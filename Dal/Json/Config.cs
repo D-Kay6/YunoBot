@@ -9,7 +9,7 @@
     public class Config : Json, IConfig
     {
 #if DEBUG
-        private const string File = "Config.Debug.json";
+        private const string File = "Config.json";
 #else
         private const string File = "Config.json";
 #endif

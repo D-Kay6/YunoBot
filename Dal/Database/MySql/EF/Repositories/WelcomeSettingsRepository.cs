@@ -3,75 +3,28 @@
     using System.Threading.Tasks;
     using Core.Entity;
     using IDal.Database;
-    using Microsoft.EntityFrameworkCore;
 
     public class WelcomeSettingsRepository : BaseRepository, IDbWelcome
     {
-        public async Task<bool> Enable(ulong serverId, ulong channelId)
+        public async Task Add(WelcomeMessage value)
         {
-            var settings = await Context.WelcomeMessages.FindAsync(serverId);
-            if (settings == null) return false;
-            try
-            {
-                settings.ChannelId = channelId;
-                await Context.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                return false;
-            }
+            Context.WelcomeMessages.Add(value);
+            await Context.SaveChangesAsync();
         }
 
-        public async Task<bool> Disable(ulong serverId)
+        public async Task Update(WelcomeMessage value)
         {
-            var settings = await Context.WelcomeMessages.FindAsync(serverId);
-            if (settings == null) return false;
-            try
-            {
-                settings.ChannelId = null;
-                await Context.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                return false;
-            }
+            Context.WelcomeMessages.Update(value);
+            await Context.SaveChangesAsync();
         }
 
-        public async Task<bool> UseImage(ulong serverId, bool value)
+        public async Task Remove(WelcomeMessage value)
         {
-            var settings = await Context.WelcomeMessages.FindAsync(serverId);
-            if (settings == null) return false;
-            try
-            {
-                settings.UseImage = value;
-                await Context.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                return false;
-            }
+            Context.WelcomeMessages.Remove(value);
+            await Context.SaveChangesAsync();
         }
 
-        public async Task<bool> SetWelcomeMessage(ulong serverId, string message)
-        {
-            var settings = await Context.WelcomeMessages.FindAsync(serverId);
-            if (settings == null) return false;
-            try
-            {
-                settings.Message = message;
-                await Context.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                return false;
-            }
-        }
-
-        public async Task<WelcomeMessage> GetWelcomeSettings(ulong serverId)
+        public async Task<WelcomeMessage> Get(ulong serverId)
         {
             return await Context.WelcomeMessages.FindAsync(serverId);
         }

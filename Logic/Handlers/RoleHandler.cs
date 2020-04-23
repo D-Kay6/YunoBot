@@ -51,7 +51,7 @@
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"Removing a role broke. {e.Message}");
+                await _logs.Write("Crashes", $"Removing a role broke. {e.Message} - {e.StackTrace}");
             }
         }
 
@@ -76,7 +76,7 @@
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"Adding a role broke. {e.Message}");
+                await _logs.Write("Crashes", $"Adding a role broke. {e.Message} - {e.StackTrace}");
             }
         }
     }

@@ -14,6 +14,10 @@
         bool IsPaused { get; }
         ITrack CurrentTrack { get; }
 
+        /// <summary>
+        ///     Prepare the music player to work for the selected guild.
+        /// </summary>
+        /// <param name="guild">The guild to load the music player for.</param>
         Task Prepare(IGuild guild);
 
         /// <summary>

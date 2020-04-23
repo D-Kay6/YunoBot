@@ -218,7 +218,6 @@ This time, you do not need to write it within double quotes if you have a comman
 		"Support default": "I'm sorry to hear you have problems with me. Come join my support server 'https://discord.gg/YFqUMDT'. Maybe someone there can help you.",
 
 
-		"Welcome exception": "No welcome settings could be found. Please go to my support discord to have this fixed.",
 		"Welcome enable": "I will now welcome any new member in {0}.",
 		"Welcome disable": "The welcome message has now been disabled. You can still send a welcome message with my normal command.",
 		"Welcome message default": "The welcome message for {2} is:
@@ -230,6 +229,7 @@ When setting your custom welcome message, you can use `{0}` as a variable where 
 ```
 {0}
 ```",
+		"Welcome message invalid": "The message may not be empty.",
 		"Welcome image default": "I am currently set to {0} the standard welcome image.",
 		"Welcome image use": "use",
 		"Welcome image use not": "not use",

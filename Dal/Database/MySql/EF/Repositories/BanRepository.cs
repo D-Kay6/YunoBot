@@ -10,62 +10,34 @@
 
     public class BanRepository : BaseRepository, IDbBan
     {
-        public async Task<bool> IsBanned(ulong userId, ulong serverId)
+        public async Task Add(Ban value)
         {
-            var ban = await Context.Bans.FindAsync(userId, serverId);
-            return ban != null && (ban.EndDate == null || ban.EndDate > DateTime.Now);
+            Context.Bans.Add(value);
+            await Context.SaveChangesAsync();
         }
 
-        public async Task<bool> AddBan(ulong userId, ulong serverId, DateTime? endDate = null, string reason = null)
+        public async Task Update(Ban value)
         {
-            try
-            {
-                Context.Bans.Add(new Ban
-                {
-                    UserId = userId,
-                    ServerId = serverId,
-                    EndDate = endDate,
-                    Reason = reason
-                });
-                await Context.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                return false;
-            }
+            Context.Bans.Update(value);
+            await Context.SaveChangesAsync();
         }
 
-        public async Task<bool> RemoveBan(ulong userId, ulong serverId)
+        public async Task Remove(Ban value)
         {
-            var ban = await Context.Bans.FindAsync(userId, serverId);
-            if (ban == null) return false;
-            return await RemoveBan(ban);
+            Context.Bans.Remove(value);
+            await Context.SaveChangesAsync();
         }
 
-        public async Task<bool> RemoveBan(Ban ban)
-        {
-            try
-            {
-                Context.Bans.Remove(ban);
-                await Context.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                return false;
-            }
-        }
-
-        public async Task<Ban> GetBan(ulong userId, ulong serverId)
+        public async Task<Ban> Get(ulong userId, ulong serverId)
         {
             return await Context.Bans.FindAsync(userId, serverId);
         }
 
-        public async Task<List<Ban>> GetBans(bool expiredOnly = true)
+        public async Task<List<Ban>> List(ulong? serverId = null, bool expiredOnly = true)
         {
             var query = Context.Bans.AsQueryable();
 
+            if (serverId.HasValue) query = query.Where(x => x.ServerId == serverId.Value);
             if (expiredOnly) query = query.Where(x => x.EndDate < DateTime.Now);
 
             return await query.ToListAsync();

@@ -7,7 +7,7 @@
     {
         public WelcomeMessage()
         {
-            UseImage = true;
+            UseImage = false;
             Message = "Welcome to the party {0}. Hope you will have a good time with us.";
         }
 

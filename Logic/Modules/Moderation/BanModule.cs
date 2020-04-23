@@ -14,15 +14,15 @@
     [RequireUserPermission(GuildPermission.BanMembers)]
     public class BanModule : ModuleBase<SocketCommandContext>
     {
-        private readonly IDbBan _ban;
+        private readonly UserService _users;
+        private readonly LogsService _logs;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
-        private readonly IDbUser _user;
 
-        public BanModule(IDbBan ban, IDbUser user, IDbLanguage language, LocalizationService localization)
+        public BanModule(UserService users, LogsService logs, IDbLanguage language, LocalizationService localization)
         {
-            _ban = ban;
-            _user = user;
+            _users = users;
+            _logs = logs;
             _language = language;
             _localization = localization;
         }
@@ -64,6 +64,8 @@
             builder.AddField(_localization.GetMessage("Ban reason"), reason);
             await ReplyAsync(null, false, builder.Build());
             await user.BanAsync();
+
+            await _logs.Write("Bans", Context.Guild, $"{Context.User.Username} banned {user.Nickname}.");
         }
 
         [Command]
@@ -91,10 +93,13 @@
             builder.AddField(_localization.GetMessage("Ban duration"), time);
             builder.AddField(_localization.GetMessage("Ban reason"), reason);
 
+            if (endDate != null)
+                await _users.Ban(user, endDate.Value, reason);
+
             await ReplyAsync(null, false, builder.Build());
-            await _user.UpdateUser(user.Id, user.Username);
-            await _ban.AddBan(user.Id, user.Guild.Id, endDate, reason);
             await user.BanAsync(0, string.IsNullOrEmpty(message) ? null : reason);
+
+            await _logs.Write("Bans", Context.Guild, $"{Context.User.Username} banned {user.Nickname} for {time}. Reason: {reason}.");
         }
     }
 }

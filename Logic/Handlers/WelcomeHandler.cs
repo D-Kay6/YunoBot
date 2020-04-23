@@ -1,17 +1,18 @@
-﻿namespace Logic.Handlers
+﻿using Logic.Exceptions;
+
+namespace Logic.Handlers
 {
     using System.Threading.Tasks;
     using Discord.WebSocket;
     using Extensions;
-    using IDal.Database;
     using Services;
 
     public class WelcomeHandler : BaseHandler
     {
         private readonly CommandService _command;
-        private readonly IDbWelcome _welcome;
+        private readonly WelcomeService _welcome;
 
-        public WelcomeHandler(DiscordSocketClient client, CommandService command, IDbWelcome welcome) : base(client)
+        public WelcomeHandler(DiscordSocketClient client, CommandService command, WelcomeService welcome) : base(client)
         {
             _command = command;
             _welcome = welcome;
@@ -25,22 +26,25 @@
 
         private async Task OnUserJoined(SocketGuildUser user)
         {
-            var welcome = await _welcome.GetWelcomeSettings(user.Guild.Id);
-            if (welcome.ChannelId == null) return;
-            if (!(user.Guild.GetChannel((ulong) welcome.ChannelId) is ISocketMessageChannel channel))
+            try
+            {
+                await _welcome.Welcome(user);
+            }
+            catch (InvalidChannelException)
             {
                 await DisableWelcomeMessage(user.Guild);
-                return;
             }
-
-            var msg = string.Format(welcome.Message, user.Mention);
-            if (!welcome.UseImage) await channel.SendMessageAsync(msg);
-            else await channel.SendFileAsync(ImageExtensions.GetImagePath("GasaiYunoWelcome.jpg"), msg);
+            catch (InvalidWelcomeException)
+            {
+                // Ignore
+            }
         }
 
         private async Task DisableWelcomeMessage(SocketGuild guild)
         {
-            await _welcome.Disable(guild.Id);
+            var settings = await _welcome.Load(guild.Id);
+            settings.ChannelId = null;
+            await _welcome.Save(settings);
 
             var owner = guild.Owner;
             await owner.SendDM(

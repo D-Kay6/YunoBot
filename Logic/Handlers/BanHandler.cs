@@ -1,24 +1,25 @@
-﻿namespace Logic.Handlers
+﻿using Logic.Exceptions;
+
+namespace Logic.Handlers
 {
     using System;
     using System.Threading.Tasks;
     using System.Timers;
     using Discord.WebSocket;
-    using IDal.Database;
     using Services;
 
     public class BanHandler : BaseHandler
     {
-        private readonly IDbBan _ban;
+        private readonly UserService _users;
         private readonly LogsService _logs;
 
         private readonly Timer _timer;
 
         private bool _isRunning;
 
-        public BanHandler(DiscordSocketClient client, IDbBan ban, LogsService logs) : base(client)
+        public BanHandler(DiscordSocketClient client, UserService users, LogsService logs) : base(client)
         {
-            _ban = ban;
+            _users = users;
             _logs = logs;
             _timer = new Timer(10 * 1000);
         }
@@ -30,25 +31,22 @@
             return Task.CompletedTask;
         }
 
-        private async void OnTick(object sender, ElapsedEventArgs e)
+        private async void OnTick(object sender, ElapsedEventArgs eventArgs)
         {
             if (_isRunning) return;
-
             _isRunning = true;
+
             try
             {
-                var bans = await _ban.GetBans();
-                foreach (var ban in bans)
-                {
-                    var server = Client.GetGuild(ban.ServerId);
-                    if (server == null) continue;
-                    await server.RemoveBanAsync(ban.UserId);
-                    await _ban.RemoveBan(ban);
-                }
+                await _users.CheckBans();
             }
-            catch (Exception ex)
+            catch (InvalidBanException e)
             {
-                await _logs.Write("Crashes", $"Could not handle tick for bans. {ex.Message}, {ex.StackTrace}");
+                await _logs.Write("Bans", e.Message);
+            }
+            catch (Exception e)
+            {
+                await _logs.Write("Crashes", $"Could not handle tick for bans. {e.Message}, {e.StackTrace}");
             }
 
             _isRunning = false;

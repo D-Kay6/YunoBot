@@ -31,6 +31,8 @@
         {
             Client.Ready += OnReady;
             Client.UserVoiceStateUpdated += OnChangeVoiceChannel;
+            Client.Connected += Connected;
+            Client.Disconnected += Disconnected;
 
             _music.Player.TrackException += OnTrackException;
             _music.Player.TrackStuck += OnTrackStuck;
@@ -38,9 +40,19 @@
             return Task.CompletedTask;
         }
 
-        private async Task OnReady()
+        private Task OnReady()
         {
-            await _music.Player.Ready();
+            return _music.Player.Connect();
+        }
+
+        private Task Connected()
+        {
+            return _music.Player.Connect();
+        }
+
+        private async Task Disconnected(Exception arg)
+        {
+            await _music.Player.Disconnect();
         }
 
         private async Task Prepare(IGuild guild)
@@ -49,8 +61,7 @@
             await _music.Prepare(guild);
         }
 
-        private async Task OnChangeVoiceChannel(SocketUser user, SocketVoiceState leaveState,
-            SocketVoiceState joinState)
+        private async Task OnChangeVoiceChannel(SocketUser user, SocketVoiceState leaveState, SocketVoiceState joinState)
         {
             var voiceChannel = leaveState.VoiceChannel;
             var textChannel = _music.Player.TextChannel;
@@ -73,14 +84,13 @@
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes",
-                    $"Failed to handle voice channel change for music handler. Reason: {e.Message}, StackTrace: {e.StackTrace}");
+                await _logs.Write("Crashes", $"Failed to handle voice channel change for music handler. Reason: {e.Message}, StackTrace: {e.StackTrace}");
             }
         }
 
         private async Task OnTrackException(TrackExceptionEventArgs e)
         {
-            await _logs.Write("Crashes", $"Could not play track {e.Track.Title}. Reason: {e.Message}");
+            await _logs.Write("Music", $"Could not play track {e.Track.Title}. Reason: {e.Message}");
             await Prepare(e.Player.VoiceChannel.Guild);
             var track = await _music.PlayNext();
             await track.TextChannel.SendMessageAsync(_localization.GetMessage("Music now playing", track.Track.Title,

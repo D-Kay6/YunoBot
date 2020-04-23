@@ -22,8 +22,9 @@
                 certificate = new X509Certificate2(Path.Combine(Directory, File), string.Empty,
                     X509KeyStorageFlags.UserKeySet);
             }
-            catch (Exception e)
+            catch (Exception)
             {
+                //ignore
             }
 
             Task.Run(async () =>

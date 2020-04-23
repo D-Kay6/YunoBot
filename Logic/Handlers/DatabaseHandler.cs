@@ -1,4 +1,6 @@
-﻿namespace Logic.Handlers
+﻿using Logic.Services;
+
+namespace Logic.Handlers
 {
     using System;
     using System.Collections.Generic;
@@ -7,16 +9,15 @@
     using DalFactory;
     using Discord.WebSocket;
     using Entity.RavenDB;
-    using IDal.Database;
 
     public class DatabaseHandler : BaseHandler
     {
-        private readonly IDbServer _server;
-        private readonly IDbUser _user;
+        private readonly ServerService _server;
+        private readonly UserService _user;
 
         private bool _isBusy;
 
-        public DatabaseHandler(DiscordSocketClient client, IDbServer server, IDbUser user) : base(client)
+        public DatabaseHandler(DiscordSocketClient client, ServerService server, UserService user) : base(client)
         {
             _server = server;
             _user = user;
@@ -32,38 +33,39 @@
             return Task.CompletedTask;
         }
 
-        private async Task OnReady()
+        private Task OnReady()
         {
             //await UpdateRaven();
 #if RELEASE
             //await UpdateServers();
 #endif
+            return Task.CompletedTask;
         }
 
         private async Task OnUserUpdated(SocketUser oldState, SocketUser newState)
         {
             if (_isBusy) return;
             if (oldState.Username.Equals(newState.Username)) return;
-            await _user.UpdateUser(newState.Id, newState.Username);
+            await _user.Update(newState);
         }
 
         private async Task OnGuildJoined(SocketGuild guild)
         {
             if (_isBusy) return;
-            await _server.AddServer(guild.Id, guild.Name);
+            await _server.Update(guild);
         }
 
         private async Task OnGuildLeft(SocketGuild guild)
         {
             if (_isBusy) return;
-            await _server.DeleteServer(guild.Id);
+            await _server.Leave(guild);
         }
 
         private async Task OnGuildUpdated(SocketGuild oldGuild, SocketGuild newGuild)
         {
             if (_isBusy) return;
             if (oldGuild.Name.Equals(newGuild.Name)) return;
-            await _server.UpdateServer(newGuild.Id, newGuild.Name);
+            await _server.Update(newGuild);
         }
 
         private async Task UpdateRaven()
@@ -82,7 +84,7 @@
                     await Task.Delay(1000);
                 }
 
-                var server = await _server.GetServer(guild.Id);
+                var server = await _server.Update(guild);
 
                 var channelSettings = new ChannelAutomation
                 {
@@ -151,20 +153,13 @@
             Console.WriteLine("Updating database...");
             _isBusy = true;
 
-            foreach (var guild in Client.Guilds)
-            {
-                while (string.IsNullOrEmpty(guild.Name))
-                {
-                    Console.WriteLine("Loading guild data hasn't finished yet. Waiting 1 second...");
-                    await Task.Delay(1000);
-                }
+            Console.WriteLine("Updating servers...");
+            await _server.Update();
 
-                await _server.UpdateServer(guild.Id, guild.Name);
-            }
-
-            var users = await _user.GetUsers();
-            foreach (var user in users.Select(dbUser => Client.GetUser(dbUser.Id)).Where(user => user != null))
-                await _user.UpdateUser(user.Id, user.Username);
+            //Console.WriteLine("Updating users...");
+            //var users = await _user.GetUsers();
+            //foreach (var user in users.Select(dbUser => Client.GetUser(dbUser.Id)).Where(user => user != null))
+            //    await _user.UpdateUser(user.Id, user.Username);
 
             _isBusy = false;
             Console.WriteLine("Done updating database.");

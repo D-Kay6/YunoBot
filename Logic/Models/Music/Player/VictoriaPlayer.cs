@@ -49,13 +49,36 @@
         public ITrack CurrentTrack => _player?.Track == null ? null : new VictoriaTrack(_player.Track);
 
 
-        public async Task Ready()
+        /// <summary>
+        ///     Connect to the player.
+        /// </summary>
+        public async Task Connect()
         {
             if (_lavaNode.IsConnected) return;
             Console.WriteLine("Loading Victoria Player...");
-            await _lavaNode.ConnectAsync();
+            try
+            {
+                await _lavaNode.ConnectAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to connect to victoria node. Reason {e.Message}");
+            }
         }
 
+        /// <summary>
+        ///     Disconnect from the player.
+        /// </summary>
+        public async Task Disconnect()
+        {
+            if (!_lavaNode.IsConnected) return;
+            await _lavaNode.DisconnectAsync();
+        }
+
+        /// <summary>
+        ///     Prepare the music player to work for the selected guild.
+        /// </summary>
+        /// <param name="guild">The guild to load the music player for.</param>
         public Task Prepare(IGuild guild)
         {
             if (!_lavaNode.TryGetPlayer(guild, out _player)) _player = null;

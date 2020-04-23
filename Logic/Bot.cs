@@ -25,7 +25,8 @@
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
-                LogLevel = LogSeverity.Verbose
+                LogLevel = LogSeverity.Verbose,
+                ConnectionTimeout = 30000
             });
             _client.Log += Log;
             _client.Ready += OnReady;
@@ -99,12 +100,16 @@
 
             serviceCollection.AddSingleton(_client);
 
+            serviceCollection.AddSingleton<LoggingHandler>();
             serviceCollection.AddSingleton<ConfigurationService>();
+            serviceCollection.AddSingleton<ServerService>();
+            serviceCollection.AddSingleton<UserService>();
             serviceCollection.AddSingleton<CommandService>();
             serviceCollection.AddSingleton<ChannelService>();
             serviceCollection.AddSingleton<RoleService>();
             serviceCollection.AddSingleton<LogsService>();
             serviceCollection.AddSingleton<RestartService>();
+            serviceCollection.AddSingleton<WelcomeService>();
             serviceCollection.AddSingleton<MusicService>();
 
             serviceCollection.AddTransient<LocalizationService>();
