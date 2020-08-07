@@ -1,10 +1,10 @@
-﻿namespace WebInterface.Controllers
-{
-    using System.Diagnostics;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
-    using Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using WebInterface.Models;
 
+namespace WebInterface.Controllers
+{
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

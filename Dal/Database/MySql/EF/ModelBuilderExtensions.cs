@@ -1,7 +1,7 @@
-﻿namespace Dal.Database.MySql.EF
-{
-    using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
+namespace Dal.Database.MySql.EF
+{
     public static class ModelBuilderExtensions
     {
         public static void RemovePluralizingTableNameConvention(this ModelBuilder modelBuilder)

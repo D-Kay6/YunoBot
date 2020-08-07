@@ -1,9 +1,9 @@
-﻿namespace Core.Entity
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Core.Entity
+{
     public class Ban
     {
         [Key] [Column(Order = 0)] public ulong UserId { get; set; }

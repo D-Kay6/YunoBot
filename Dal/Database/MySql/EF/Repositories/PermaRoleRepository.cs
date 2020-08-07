@@ -1,10 +1,10 @@
-﻿namespace Dal.Database.MySql.EF.Repositories
-{
-    using System.Threading.Tasks;
-    using Core.Entity;
-    using IDal.Database;
-    using Microsoft.EntityFrameworkCore;
+﻿using Core.Entity;
+using IDal.Database;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
+namespace Dal.Database.MySql.EF.Repositories
+{
     public class PermaRoleRepository : BaseRepository, IDbPermaRole
     {
         public async Task Add(PermaRole value)
@@ -15,6 +15,16 @@
 
         public async Task Update(PermaRole value)
         {
+            try
+            {
+                var entry = Context.Attach(value);
+                entry.State = EntityState.Modified;
+            }
+            catch
+            {
+                //ignore
+            }
+
             Context.PermaRoles.Update(value);
             await Context.SaveChangesAsync();
         }
@@ -27,9 +37,14 @@
 
         public async Task<PermaRole> Get(ulong serverId)
         {
-            return await Context.PermaRoles
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.ServerId == serverId);
+            var value = await Context.PermaRoles.FindAsync(serverId);
+            if (value != null)
+                await Context.Entry(value).ReloadAsync();
+
+            return value;
+            //return await Context.PermaRoles
+            //    .AsNoTracking()
+            //    .FirstOrDefaultAsync(x => x.ServerId == serverId);
         }
     }
 }

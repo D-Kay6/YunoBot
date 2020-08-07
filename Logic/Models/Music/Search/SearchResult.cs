@@ -1,8 +1,8 @@
-﻿namespace Logic.Models.Music.Search
-{
-    using System.Collections.Generic;
-    using Track;
+﻿using Logic.Models.Music.Track;
+using System.Collections.Generic;
 
+namespace Logic.Models.Music.Search
+{
     public class SearchResult
     {
         public SearchResult(IReadOnlyList<ITrack> tracks, ResultStatus resultStatus, Playlist playlist = null,

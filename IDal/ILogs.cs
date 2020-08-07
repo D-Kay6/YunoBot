@@ -1,9 +1,10 @@
-﻿namespace IDal
-{
-    using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
+namespace IDal
+{
     public interface ILogs
     {
-        Task Write(string file, string data);
+        Task Write(string file, string message);
     }
 }

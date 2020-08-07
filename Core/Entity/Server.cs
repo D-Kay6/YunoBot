@@ -1,8 +1,8 @@
-﻿namespace Core.Entity
-{
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
+namespace Core.Entity
+{
     public class Server
     {
         public Server()

@@ -1,23 +1,23 @@
-﻿namespace Logic.Modules.Moderation
-{
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using Extensions;
-    using IDal.Database;
-    using Services;
+﻿using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Logic.Modules.Moderation
+{
     [Group("Ban")]
     [RequireUserPermission(GuildPermission.BanMembers)]
-    public class BanModule : ModuleBase<SocketCommandContext>
+    public class BanModule : ModuleBase<ShardedCommandContext>
     {
-        private readonly UserService _users;
-        private readonly LogsService _logs;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
+        private readonly LogsService _logs;
+        private readonly UserService _users;
 
         public BanModule(UserService users, LogsService logs, IDbLanguage language, LocalizationService localization)
         {
@@ -65,7 +65,7 @@
             await ReplyAsync(null, false, builder.Build());
             await user.BanAsync();
 
-            await _logs.Write("Bans", Context.Guild, $"{Context.User.Username} banned {user.Nickname}.");
+            await _logs.Write("Bans", $"{Context.User.Username} banned {user.Nickname}.", Context.Guild);
         }
 
         [Command]
@@ -99,7 +99,7 @@
             await ReplyAsync(null, false, builder.Build());
             await user.BanAsync(0, string.IsNullOrEmpty(message) ? null : reason);
 
-            await _logs.Write("Bans", Context.Guild, $"{Context.User.Username} banned {user.Nickname} for {time}. Reason: {reason}.");
+            await _logs.Write("Bans", $"{Context.User.Username} banned {user.Nickname} for {time}. Reason: {reason}.", Context.Guild);
         }
     }
 }

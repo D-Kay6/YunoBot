@@ -1,7 +1,7 @@
-﻿namespace Logic.Models.Music.Track
-{
-    using System;
+﻿using System;
 
+namespace Logic.Models.Music.Track
+{
     public interface ITrack
     {
         string Id { get; }

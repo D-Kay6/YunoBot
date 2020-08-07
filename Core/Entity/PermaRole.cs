@@ -1,6 +1,6 @@
 ﻿namespace Core.Entity
 {
-    public class PermaRole : Automatization
+    public class PermaRole : Automation
     {
         public PermaRole()
         {

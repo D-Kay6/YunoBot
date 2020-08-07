@@ -1,9 +1,9 @@
-﻿namespace Core.Entity
-{
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using Enum;
+﻿using Core.Enum;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Core.Entity
+{
     public class LanguageSetting
     {
         public LanguageSetting()

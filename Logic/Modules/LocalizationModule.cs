@@ -1,18 +1,18 @@
-﻿namespace Logic.Modules
-{
-    using System;
-    using System.Threading.Tasks;
-    using Core.Enum;
-    using Discord;
-    using Discord.Commands;
-    using Extensions;
-    using IDal.Database;
-    using Services;
+﻿using Core.Enum;
+using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Group("language")]
     [Alias("lang")]
     [RequireUserPermission(GuildPermission.Administrator)]
-    public class LocalizationModule : ModuleBase<SocketCommandContext>
+    public class LocalizationModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;

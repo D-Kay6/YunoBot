@@ -1,17 +1,18 @@
-﻿namespace Logic.Modules
-{
-    using Core.Entity;
-    using Discord;
-    using Discord.Commands;
-    using Exceptions;
-    using IDal.Database;
-    using Services;
-    using System.Threading.Tasks;
+﻿using Core.Entity;
+using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Services;
+using System;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Alias("pc")]
     [Group("permachannel")]
     [RequireUserPermission(GuildPermission.Administrator)]
-    public class PermaChannelModule : ModuleBase<SocketCommandContext>
+    public class PermaChannelModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
@@ -40,17 +41,19 @@
         }
 
         [Group("prefix")]
-        public class PermaChannelPrefixModule : ModuleBase<SocketCommandContext>
+        public class PermaChannelPrefixModule : ModuleBase<ShardedCommandContext>
         {
             private readonly ChannelService _channel;
+            private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
             private PermaChannel _data;
 
-            public PermaChannelPrefixModule(ChannelService channel, IDbLanguage language, LocalizationService localization)
+            public PermaChannelPrefixModule(ChannelService channel, LogsService logs, IDbLanguage language, LocalizationService localization)
             {
                 _channel = channel;
+                _logs = logs;
                 _language = language;
                 _localization = localization;
             }
@@ -91,21 +94,27 @@
                     await ReplyAsync(_localization.GetMessage("Permachannel prefix invalid auto", message));
                     return;
                 }
+                catch (Exception e)
+                {
+                    await ReplyAsync(_localization.GetMessage("General error"));
+                    await _logs.Write("Errors", "Changing an permachannel name broke.", e, Context.Guild);
+                }
 
                 await ReplyAsync(_localization.GetMessage("Permachannel prefix set", message));
             }
         }
 
         [Group("name")]
-        public class PermaChannelNameModule : ModuleBase<SocketCommandContext>
+        public class PermaChannelNameModule : ModuleBase<ShardedCommandContext>
         {
             private readonly ChannelService _channel;
+            private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
             private PermaChannel _data;
 
-            public PermaChannelNameModule(ChannelService channel, IDbLanguage language, LocalizationService localization)
+            public PermaChannelNameModule(ChannelService channel, LogsService logs, IDbLanguage language, LocalizationService localization)
             {
                 _channel = channel;
                 _language = language;
@@ -141,6 +150,11 @@
                 catch (InvalidNameException)
                 {
                     await ReplyAsync(_localization.GetMessage("Permachannel name invalid empty", message));
+                }
+                catch (Exception e)
+                {
+                    await ReplyAsync(_localization.GetMessage("General error"));
+                    await _logs.Write("Errors", $"Changing an permachannel name broke.", e, Context.Guild);
                 }
 
                 await ReplyAsync(_localization.GetMessage("Permachannel name set", message));

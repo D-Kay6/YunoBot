@@ -1,7 +1,7 @@
-﻿namespace Dal.Database.RavenDB.Models
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Dal.Database.RavenDB.Models
+{
     public class CommandSetting
     {
         public CommandSetting()

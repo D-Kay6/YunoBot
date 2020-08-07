@@ -1,31 +1,28 @@
-﻿using Logic.Exceptions;
+﻿using Discord.WebSocket;
+using Logic.Exceptions;
+using Logic.Services;
+using System;
+using System.Threading.Tasks;
+using System.Timers;
 
 namespace Logic.Handlers
 {
-    using System;
-    using System.Threading.Tasks;
-    using System.Timers;
-    using Discord.WebSocket;
-    using Services;
-
     public class BanHandler : BaseHandler
     {
-        private readonly UserService _users;
-        private readonly LogsService _logs;
-
         private readonly Timer _timer;
+        private readonly UserService _users;
 
         private bool _isRunning;
 
-        public BanHandler(DiscordSocketClient client, UserService users, LogsService logs) : base(client)
+        public BanHandler(DiscordShardedClient client, LogsService logs, UserService users) : base(client, logs)
         {
             _users = users;
-            _logs = logs;
             _timer = new Timer(10 * 1000);
         }
 
         public override Task Initialize()
         {
+            base.Initialize();
             _timer.Elapsed += OnTick;
             _timer.Start();
             return Task.CompletedTask;
@@ -42,11 +39,11 @@ namespace Logic.Handlers
             }
             catch (InvalidBanException e)
             {
-                await _logs.Write("Bans", e.Message);
+                await Logs.Write("Bans", e.Message, e);
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"Could not handle tick for bans. {e.Message}, {e.StackTrace}");
+                await Logs.Write("Crashes", "Could not handle tick for bans.", e);
             }
 
             _isRunning = false;

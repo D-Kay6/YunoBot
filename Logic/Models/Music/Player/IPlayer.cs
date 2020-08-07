@@ -1,9 +1,9 @@
-﻿namespace Logic.Models.Music.Player
-{
-    using System;
-    using System.Threading.Tasks;
-    using Discord;
+﻿using Discord;
+using System;
+using System.Threading.Tasks;
 
+namespace Logic.Models.Music.Player
+{
     public interface IPlayer
     {
         IVoiceChannel VoiceChannel { get; }
@@ -13,9 +13,24 @@
         event Func<TrackExceptionEventArgs, Task> TrackException;
 
         /// <summary>
+        ///     Start the player.
+        /// </summary>\
+        Task Initialize();
+
+        /// <summary>
+        ///     Clean up and close the player.
+        /// </summary>\
+        Task Finish();
+
+        /// <summary>
         ///     Connect to the player.
         /// </summary>
         Task Connect();
+
+        /// <summary>
+        ///     Reconnect to the player.
+        /// </summary>
+        Task Reconnect();
 
         /// <summary>
         ///     Disconnect from the player.

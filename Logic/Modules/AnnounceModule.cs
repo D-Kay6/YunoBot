@@ -1,17 +1,17 @@
-﻿namespace Logic.Modules
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Discord.Net;
-    using Extensions;
-    using IDal.Database;
-    using Services;
+﻿using Discord;
+using Discord.Commands;
+using Discord.Net;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Group("announce")]
-    public class AnnounceModule : ModuleBase<SocketCommandContext>
+    public class AnnounceModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;

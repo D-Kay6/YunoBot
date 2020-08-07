@@ -1,8 +1,8 @@
-﻿namespace Core.Entity
-{
-    using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-    public class PermaChannel : Automatization
+namespace Core.Entity
+{
+    public class PermaChannel : Automation
     {
         public PermaChannel()
         {

@@ -1,10 +1,10 @@
-﻿namespace Dal.Json
-{
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
+namespace Dal.Json
+{
     public abstract class Json
     {
         protected async Task<T> ReadAsync<T>(string directory, string file)

@@ -1,14 +1,14 @@
-﻿namespace Logic.Models.Music.Player
-{
-    using System;
-    using System.Threading.Tasks;
-    using Discord;
-    using IDal;
-    using Search;
-    using SpotifyAPI.Web;
-    using SpotifyAPI.Web.Auth;
-    using Track;
+﻿using Discord;
+using IDal;
+using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
+using SpotifyAPI.Web;
+using SpotifyAPI.Web.Auth;
+using System;
+using System.Threading.Tasks;
 
+namespace Logic.Models.Music.Player
+{
     public class SpotifyPlayer : IMusicPlayer
     {
         private readonly IConfig _config;
@@ -32,6 +32,16 @@
         public ITrack CurrentTrack { get; }
 
 
+        public Task Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Finish()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         ///     Connect to the player.
         /// </summary>
@@ -48,6 +58,11 @@
                 TokenType = token.TokenType
             };
             IsConnected = true;
+        }
+
+        public Task Reconnect()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

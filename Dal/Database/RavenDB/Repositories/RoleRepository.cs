@@ -1,10 +1,10 @@
-﻿namespace Dal.Database.RavenDB.Repositories
-{
-    using System.Threading.Tasks;
-    using Entity.RavenDB;
-    using IDal.Database.Raven;
-    using Raven.Client.Documents;
+﻿using Entity.RavenDB;
+using IDal.Database.Raven;
+using Raven.Client.Documents;
+using System.Threading.Tasks;
 
+namespace Dal.Database.RavenDB.Repositories
+{
     public class RoleRepository : BaseRepository, IDbRole
     {
         public async Task Add(RoleAutomation value)

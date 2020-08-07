@@ -1,10 +1,10 @@
-﻿namespace Dal.Json
-{
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using Database;
+﻿using Dal.Database;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
+namespace Dal.Json
+{
     internal class Database<T> : Json where T : Connection
     {
         private const string File = "Database.json";

@@ -1,8 +1,8 @@
-﻿namespace IDal.Database
-{
-    using System.Threading.Tasks;
-    using Core.Entity;
+﻿using Core.Entity;
+using System.Threading.Tasks;
 
+namespace IDal.Database
+{
     public interface IDbRoleIgnore
     {
         Task Add(RoleIgnore value);

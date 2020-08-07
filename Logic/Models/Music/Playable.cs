@@ -1,8 +1,8 @@
-﻿namespace Logic.Models.Music
-{
-    using Discord;
-    using Track;
+﻿using Discord;
+using Logic.Models.Music.Track;
 
+namespace Logic.Models.Music
+{
     public class Playable : IPlayable
     {
         public Playable(ITrack track, IGuildUser requester, ITextChannel textChannel, int volume = 25)

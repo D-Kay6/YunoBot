@@ -1,10 +1,10 @@
-﻿namespace Yuno
-{
-    using System;
-    using System.Threading.Tasks;
-    using ILogic;
-    using LogicFactory;
+﻿using ILogic;
+using LogicFactory;
+using System;
+using System.Threading.Tasks;
 
+namespace Yuno
+{
     internal class Program
     {
         private static readonly IBot Bot = BotFactory.GenerateBot();

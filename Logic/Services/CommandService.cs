@@ -1,12 +1,13 @@
-﻿namespace Logic.Services
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Core.Entity;
-    using Exceptions;
-    using IDal.Database;
-    using IDal.Exceptions;
+﻿using Core.Entity;
+using IDal.Database;
+using IDal.Exceptions;
+using Logic.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace Logic.Services
+{
     public class CommandService
     {
         private readonly IDbCommandCustom _dbCustom;
@@ -39,9 +40,27 @@
         /// </summary>
         /// <param name="serverId">The id of the server.</param>
         /// <returns>The prefix used for the server.</returns>
+        /// <exception cref="UnknownServerException">Thrown if the main server data could not be found.</exception>
         public async Task<string> GetPrefix(ulong serverId)
         {
             var result = await _dbSetting.Get(serverId);
+
+            if (result == null)
+            {
+                result = new CommandSetting
+                {
+                    ServerId = serverId
+                };
+                try
+                {
+                    await _dbSetting.Add(result);
+                }
+                catch (Exception e)
+                {
+                    throw new UnknownServerException("The database is most likely missing the main server data.", e);
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(result?.Prefix))
             {
                 result.Prefix = "/";

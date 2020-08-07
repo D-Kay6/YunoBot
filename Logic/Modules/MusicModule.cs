@@ -1,21 +1,21 @@
-﻿namespace Logic.Modules
-{
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using Exceptions;
-    using Extensions;
-    using IDal.Database;
-    using Models.Music;
-    using Models.Music.Search;
-    using Models.Music.Track;
-    using Services;
+﻿using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Extensions;
+using Logic.Models.Music;
+using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
+using Logic.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Group("music")]
-    public class MusicModule : ModuleBase<SocketCommandContext>
+    public class MusicModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
@@ -122,7 +122,7 @@
                     await ReplyAsync(_localization.GetMessage("Music exception"));
                     break;
                 case ResultStatus.NoMatch:
-                    await ReplyAsync(_localization.GetMessage("Music invalid song"));
+                    await ReplyAsync(_localization.GetMessage("Music song invalid"));
                     break;
                 case ResultStatus.SearchResult:
                     track = result.Tracks.FirstOrDefault(t => query.Contains(t.Id)) ?? result.Tracks.First();

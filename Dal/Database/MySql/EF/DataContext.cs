@@ -1,9 +1,9 @@
-﻿namespace Dal.Database.MySql.EF
-{
-    using Core.Entity;
-    using Json;
-    using Microsoft.EntityFrameworkCore;
+﻿using Core.Entity;
+using Dal.Json;
+using Microsoft.EntityFrameworkCore;
 
+namespace Dal.Database.MySql.EF
+{
     public class DataContext : DbContext
     {
         private static readonly string _connection;
@@ -38,6 +38,7 @@
         {
             optionsBuilder.UseMySql(_connection, x => x.EnableRetryOnFailure());
             optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

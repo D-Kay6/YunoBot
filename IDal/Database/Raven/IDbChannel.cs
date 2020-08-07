@@ -1,8 +1,8 @@
-﻿namespace IDal.Database.Raven
-{
-    using System.Threading.Tasks;
-    using Entity.RavenDB;
+﻿using Entity.RavenDB;
+using System.Threading.Tasks;
 
+namespace IDal.Database.Raven
+{
     public interface IDbChannel
     {
         Task Add(ChannelAutomation value);

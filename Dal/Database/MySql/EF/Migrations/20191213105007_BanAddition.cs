@@ -1,9 +1,9 @@
-﻿namespace Dal.Database.MySql.EF.Migrations
-{
-    using System;
-    using Microsoft.EntityFrameworkCore.Metadata;
-    using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
+namespace Dal.Database.MySql.EF.Migrations
+{
     public partial class BanAddition : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -1,12 +1,12 @@
-﻿namespace Dal.Database.RavenDB.Repositories
-{
-    using System.Threading.Tasks;
-    using Entity.RavenDB;
-    using IDal.Database.Raven;
-    using Indexes;
-    using Raven.Client.Documents;
-    using Raven.Client.Documents.Linq;
+﻿using Dal.Database.RavenDB.Indexes;
+using Entity.RavenDB;
+using IDal.Database.Raven;
+using Raven.Client.Documents;
+using Raven.Client.Documents.Linq;
+using System.Threading.Tasks;
 
+namespace Dal.Database.RavenDB.Repositories
+{
     public class ServerRepository : BaseRepository, IDbServer
     {
         public async Task Add(Server value)

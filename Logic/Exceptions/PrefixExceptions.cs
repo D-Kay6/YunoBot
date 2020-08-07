@@ -1,7 +1,7 @@
-﻿namespace Logic.Exceptions
-{
-    using System;
+﻿using System;
 
+namespace Logic.Exceptions
+{
     public class InvalidPrefixException : Exception
     {
         public InvalidPrefixException()

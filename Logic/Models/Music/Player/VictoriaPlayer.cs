@@ -1,29 +1,34 @@
-﻿namespace Logic.Models.Music.Player
-{
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.WebSocket;
-    using Exceptions;
-    using Search;
-    using Track;
-    using Victoria;
-    using Victoria.Enums;
+﻿using Discord;
+using Discord.WebSocket;
+using Logic.Exceptions;
+using Logic.Models.Music.Lavalink;
+using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Victoria;
+using Victoria.Enums;
+using Victoria.EventArgs;
 
-    public class VictoriaPlayer : IMusicPlayer
+namespace Logic.Models.Music.Player
+{
+    public class VictoriaPlayer : IMusicPlayer, IAsyncDisposable
     {
-        private readonly DiscordSocketClient _client;
+        private readonly DiscordShardedClient _client;
+        private readonly Client _lavaClient;
 
         private readonly LavaConfig _lavaConfig;
         private readonly LavaNode _lavaNode;
 
         private LavaPlayer _player;
 
-
-        public VictoriaPlayer(DiscordSocketClient client)
+        public VictoriaPlayer(DiscordShardedClient client)
         {
             _client = client;
+
+            _lavaClient = new Client();
+            _lavaClient.ClientException += OnClientException;
 
             _lavaConfig = new LavaConfig();
             _lavaNode = new LavaNode(_client, _lavaConfig);
@@ -31,6 +36,8 @@
             _lavaNode.OnTrackEnded += OnTrackEnded;
             _lavaNode.OnTrackStuck += OnTrackStuck;
             _lavaNode.OnTrackException += OnTrackException;
+
+            _lavaNode.OnWebSocketClosed += LavaNodeOnOnWebSocketClosed;
         }
 
         public event Func<TrackEndedEventArgs, Task> TrackEnded;
@@ -39,7 +46,7 @@
 
 
         public bool IsConnected => _player != null;
-
+        
         public bool IsPlaying =>
             _player?.PlayerState == PlayerState.Playing || _player?.PlayerState == PlayerState.Paused;
 
@@ -48,6 +55,24 @@
         public ITextChannel TextChannel => _player?.TextChannel;
         public ITrack CurrentTrack => _player?.Track == null ? null : new VictoriaTrack(_player.Track);
 
+
+        /// <summary>
+        ///     Start the player.
+        /// </summary>\
+        public Task Initialize()
+        {
+            return Task.CompletedTask;
+            return _lavaClient.Start();
+        }
+
+        /// <summary>
+        ///     Clean up and close the player.
+        /// </summary>\
+        public Task Finish()
+        {
+            return Task.CompletedTask;
+            return _lavaClient.Stop();
+        }
 
         /// <summary>
         ///     Connect to the player.
@@ -59,11 +84,22 @@
             try
             {
                 await _lavaNode.ConnectAsync();
+                if (_lavaNode.IsConnected)
+                    Console.WriteLine("Connected to lavalink.");
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Failed to connect to victoria node. Reason {e.Message}");
             }
+        }
+
+        /// <summary>
+        ///     Reconnect to the player.
+        /// </summary>
+        public async Task Reconnect()
+        {
+            await Disconnect();
+            await Connect();
         }
 
         /// <summary>
@@ -74,6 +110,7 @@
             if (!_lavaNode.IsConnected) return;
             await _lavaNode.DisconnectAsync();
         }
+
 
         /// <summary>
         ///     Prepare the music player to work for the selected guild.
@@ -241,6 +278,14 @@
             await _player.UpdateVolumeAsync(value);
         }
 
+
+        private async Task OnClientException(LavalinkEventArgs arg)
+        {
+            Console.WriteLine("_________________________________________________________________");
+            Console.WriteLine(arg.Message);
+            await Reconnect();
+        }
+
         private async Task OnTrackEnded(Victoria.EventArgs.TrackEndedEventArgs arg)
         {
             if (TrackEnded == null) return;
@@ -250,14 +295,27 @@
         private async Task OnTrackStuck(Victoria.EventArgs.TrackStuckEventArgs arg)
         {
             if (TrackStuck == null) return;
-            await TrackStuck?.Invoke(new TrackStuckEventArgs(new VictoriaTrack(arg.Track), this, arg.Threshold));
+            await TrackStuck.Invoke(new TrackStuckEventArgs(new VictoriaTrack(arg.Track), this, arg.Threshold));
         }
 
         private async Task OnTrackException(Victoria.EventArgs.TrackExceptionEventArgs arg)
         {
             if (TrackException == null) return;
-            await TrackException?.Invoke(new TrackExceptionEventArgs(new VictoriaTrack(arg.Track), this,
+            await TrackException.Invoke(new TrackExceptionEventArgs(new VictoriaTrack(arg.Track), this,
                 arg.ErrorMessage));
+        }
+
+        private async Task LavaNodeOnOnWebSocketClosed(WebSocketClosedEventArgs arg)
+        {
+            Console.WriteLine("_________________________________________________________________");
+            Console.WriteLine(arg.Reason);
+            await Reconnect();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await _lavaNode.DisposeAsync();
+            await _lavaClient.Stop();
         }
     }
 }

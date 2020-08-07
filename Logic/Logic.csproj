@@ -6,17 +6,18 @@
 
   <ItemGroup>
     <None Remove="Handlers\MusicHandler.cs~RF20636e23.TMP" />
+    <None Remove="Services\RoleService.cs~RF1888913.TMP" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Discord.Addons.PassiveInteractive" Version="2.0.4" />
-    <PackageReference Include="Discord.Net" Version="2.3.0-dev-20200417.1" />
+    <PackageReference Include="Discord.Net" Version="2.3.0-dev-20200806.2" />
     <PackageReference Include="DiscordBotsList.Api" Version="1.4.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.3" />
-    <PackageReference Include="SpotifyAPI.Web" Version="5.1.0" />
-    <PackageReference Include="SpotifyAPI.Web.Auth" Version="5.1.0" />
-    <PackageReference Include="Victoria" Version="5.1.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.6" />
+    <PackageReference Include="SpotifyAPI.Web" Version="5.1.1" />
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="5.1.1" />
+    <PackageReference Include="Victoria" Version="5.1.8" />
   </ItemGroup>
 
   <ItemGroup>

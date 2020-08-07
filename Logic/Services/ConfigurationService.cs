@@ -1,9 +1,9 @@
-﻿namespace Logic.Services
-{
-    using System.Threading.Tasks;
-    using Exceptions;
-    using IDal;
+﻿using IDal;
+using Logic.Exceptions;
+using System.Threading.Tasks;
 
+namespace Logic.Services
+{
     public class ConfigurationService
     {
         private readonly IConfig _config;

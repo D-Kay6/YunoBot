@@ -1,18 +1,18 @@
-﻿namespace Logic.Modules
-{
-    using Core.Entity;
-    using System;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Exceptions;
-    using IDal.Database;
-    using Services;
+﻿using Core.Entity;
+using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Services;
+using System;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Alias("pr")]
     [Group("permarole")]
     [RequireUserPermission(GuildPermission.Administrator)]
-    public class PermaRoleModule : ModuleBase<SocketCommandContext>
+    public class PermaRoleModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
@@ -41,17 +41,19 @@
         }
 
         [Group("prefix")]
-        public class PermaRolePrefixModule : ModuleBase<SocketCommandContext>
+        public class PermaRolePrefixModule : ModuleBase<ShardedCommandContext>
         {
             private readonly RoleService _role;
+            private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
             private PermaRole _data;
 
-            public PermaRolePrefixModule(RoleService role, IDbLanguage language, LocalizationService localization)
+            public PermaRolePrefixModule(RoleService role, LogsService logs, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
+                _logs = logs;
                 _language = language;
                 _localization = localization;
             }
@@ -91,6 +93,11 @@
                 {
                     await ReplyAsync(_localization.GetMessage("Permarole prefix invalid auto", message));
                     return;
+                }
+                catch (Exception e)
+                {
+                    await ReplyAsync(_localization.GetMessage("General error"));
+                    await _logs.Write("Errors", $"Changing an permarole name broke.", e, Context.Guild);
                 }
 
                 await ReplyAsync(_localization.GetMessage("Permarole prefix set", message));

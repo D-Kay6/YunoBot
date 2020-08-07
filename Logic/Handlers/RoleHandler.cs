@@ -1,25 +1,24 @@
-﻿namespace Logic.Handlers
-{
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Discord.WebSocket;
-    using Extensions;
-    using Services;
+﻿using Discord.WebSocket;
+using Logic.Extensions;
+using Logic.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Logic.Handlers
+{
     public class RoleHandler : BaseHandler
     {
-        private readonly LogsService _logs;
         private readonly RoleService _role;
 
-        public RoleHandler(DiscordSocketClient client, RoleService role, LogsService logs) : base(client)
+        public RoleHandler(DiscordShardedClient client, LogsService logs, RoleService role) : base(client, logs)
         {
             _role = role;
-            _logs = logs;
         }
 
         public override Task Initialize()
         {
+            base.Initialize();
             Client.GuildMemberUpdated += GuildMemberUpdated;
             return Task.CompletedTask;
         }
@@ -46,12 +45,12 @@
                 foreach (var role in roles)
                 {
                     await user.RemoveRoleAsync(role);
-                    await _logs.Write("Roles", user.Guild, $"{user.Nickname()} lost role `{role.Name}`.");
+                    await Logs.Write("Roles", $"{user.Nickname()} lost role `{role.Name}`.", user.Guild);
                 }
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"Removing a role broke. {e.Message} - {e.StackTrace}");
+                await Logs.Write("Crashes", $"Removing a role broke.", e);
             }
         }
 
@@ -71,12 +70,12 @@
                     if (!role.Name.StartsWith(auto.Prefix, StringComparison.OrdinalIgnoreCase) &&
                         !role.Name.StartsWith(perma.Prefix, StringComparison.OrdinalIgnoreCase)) continue;
                     await user.AddRoleAsync(role);
-                    await _logs.Write("Roles", user.Guild, $"{user.Nickname()} got role `{role.Name}`.");
+                    await Logs.Write("Roles", $"{user.Nickname()} got role `{role.Name}`.", user.Guild);
                 }
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"Adding a role broke. {e.Message} - {e.StackTrace}");
+                await Logs.Write("Crashes", $"Adding a role broke.", e);
             }
         }
     }

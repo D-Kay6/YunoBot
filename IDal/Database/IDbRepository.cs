@@ -1,8 +1,8 @@
-﻿namespace IDal.Database
-{
-    using System.Linq;
-    using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 
+namespace IDal.Database
+{
     public interface IDbRepository<T>
     {
         Task Add(T value);

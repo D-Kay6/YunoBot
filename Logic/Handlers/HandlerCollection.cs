@@ -1,10 +1,10 @@
-﻿namespace Logic.Handlers
-{
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
+namespace Logic.Handlers
+{
     public class HandlerCollection
     {
         private readonly Collection<BaseHandler> _handlers;
@@ -27,7 +27,7 @@
             CreateInstance<DblHandler>();
             CreateInstance<MusicHandler>();
             CreateInstance<ChannelHandler>();
-            CreateInstance<RoleHandler>();
+            //CreateInstance<RoleHandler>();
             CreateInstance<WelcomeHandler>();
             CreateInstance<StatusHandler>();
         }
@@ -52,6 +52,24 @@
             {
                 Console.WriteLine($"Starting {handler.GetType().Name}.");
                 await handler.Start();
+            }
+        }
+
+        public async Task Stop()
+        {
+            foreach (var handler in _handlers)
+            {
+                Console.WriteLine($"Stopping {handler.GetType().Name}.");
+                await handler.Stop();
+            }
+        }
+
+        public async Task Finish()
+        {
+            foreach (var handler in _handlers)
+            {
+                Console.WriteLine($"Closing {handler.GetType().Name}.");
+                await handler.Finish();
             }
         }
     }

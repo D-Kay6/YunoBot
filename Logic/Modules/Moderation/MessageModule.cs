@@ -1,20 +1,20 @@
-﻿namespace Logic.Modules.Moderation
-{
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using Extensions;
-    using IDal.Database;
-    using Services;
+﻿using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
+namespace Logic.Modules.Moderation
+{
     [RequireUserPermission(GuildPermission.ManageMessages)]
     [Group("Message")]
-    public class MessageModule : ModuleBase<SocketCommandContext>
+    public class MessageModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
@@ -37,7 +37,7 @@
         }
 
         [Group("Move")]
-        public class MessageMoveModule : ModuleBase<SocketCommandContext>
+        public class MessageMoveModule : ModuleBase<ShardedCommandContext>
         {
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;

@@ -1,9 +1,9 @@
-﻿namespace Core.Entity
-{
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-    public class AutoChannel : Automatization
+namespace Core.Entity
+{
+    public class AutoChannel : Automation
     {
         public AutoChannel()
         {

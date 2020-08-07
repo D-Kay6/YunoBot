@@ -1,15 +1,14 @@
-﻿using Logic.Services;
+﻿using DalFactory;
+using Discord.WebSocket;
+using Entity.RavenDB;
+using Logic.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Logic.Handlers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using DalFactory;
-    using Discord.WebSocket;
-    using Entity.RavenDB;
-
     public class DatabaseHandler : BaseHandler
     {
         private readonly ServerService _server;
@@ -17,7 +16,7 @@ namespace Logic.Handlers
 
         private bool _isBusy;
 
-        public DatabaseHandler(DiscordSocketClient client, ServerService server, UserService user) : base(client)
+        public DatabaseHandler(DiscordShardedClient client, LogsService logs, ServerService server, UserService user) : base(client, logs)
         {
             _server = server;
             _user = user;
@@ -25,7 +24,7 @@ namespace Logic.Handlers
 
         public override Task Initialize()
         {
-            Client.Ready += OnReady;
+            base.Initialize();
             Client.UserUpdated += OnUserUpdated;
             Client.JoinedGuild += OnGuildJoined;
             Client.LeftGuild += OnGuildLeft;
@@ -33,13 +32,14 @@ namespace Logic.Handlers
             return Task.CompletedTask;
         }
 
-        private Task OnReady()
+        protected override async Task Ready(DiscordSocketClient client)
         {
+            await base.Ready(client);
+
             //await UpdateRaven();
 #if RELEASE
             //await UpdateServers();
 #endif
-            return Task.CompletedTask;
         }
 
         private async Task OnUserUpdated(SocketUser oldState, SocketUser newState)

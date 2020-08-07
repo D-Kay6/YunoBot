@@ -8,10 +8,10 @@ namespace Logic.Services
 {
     public class ServerService
     {
-        private readonly DiscordSocketClient _client;
+        private readonly DiscordShardedClient _client;
         private readonly IDbServer _dbServer;
 
-        public ServerService(DiscordSocketClient client, IDbServer dbServer)
+        public ServerService(DiscordShardedClient client, IDbServer dbServer)
         {
             _client = client;
             _dbServer = dbServer;

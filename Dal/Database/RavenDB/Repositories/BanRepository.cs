@@ -1,14 +1,14 @@
-﻿namespace Dal.Database.RavenDB.Repositories
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Entity.RavenDB;
-    using IDal.Database.Raven;
-    using Indexes;
-    using Raven.Client.Documents;
-    using Raven.Client.Documents.Linq;
+﻿using Dal.Database.RavenDB.Indexes;
+using Entity.RavenDB;
+using IDal.Database.Raven;
+using Raven.Client.Documents;
+using Raven.Client.Documents.Linq;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace Dal.Database.RavenDB.Repositories
+{
     public class BanRepository : BaseRepository, IDbBan
     {
         public async Task AddBan(Ban value, Server server)

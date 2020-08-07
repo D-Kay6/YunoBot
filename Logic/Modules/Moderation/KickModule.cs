@@ -1,15 +1,15 @@
-﻿namespace Logic.Modules.Moderation
-{
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using IDal.Database;
-    using Services;
+﻿using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Services;
+using System.Threading.Tasks;
 
+namespace Logic.Modules.Moderation
+{
     [Group("Kick")]
     [RequireUserPermission(GuildPermission.KickMembers)]
-    public class KickModule : ModuleBase<SocketCommandContext>
+    public class KickModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;

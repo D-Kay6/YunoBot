@@ -1,10 +1,10 @@
-﻿namespace Dal.Json
-{
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using IDal;
+﻿using IDal;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
+namespace Dal.Json
+{
     public class Localization : Json, ILocalization
     {
         private string Directory => Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents",

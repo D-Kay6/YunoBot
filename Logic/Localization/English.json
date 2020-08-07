@@ -1,5 +1,7 @@
 {
   "Messages": {
+	"General error": "Something went wrong. Please go to my support server (https://discord.gg/YFqUMDT) if the problem persists.",
+
     "Invalid user": "I could not find a user by the name of `{0}`.",
     "Invalid role": "I could not find a role with the name `{0}`.",
     "Invalid message": "I cannot send an empty message.",
@@ -24,7 +26,8 @@ Once everything's done I will move the user to the new channel.
 When all users have left the generated voice channel, I will remove it.
 
 When setting up an autochannel, you need to make sure I have at least the `manage channels` permission.
-If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
+If you never changed my standard permissions, I should have the `administrator` permission, which works just as well
+.
 Create a channel with the autochannel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
 You can set-up your own prefix for autochannels with `/autochannel prefix set <prefix>`.
 
@@ -148,8 +151,9 @@ If you want your language to be supported or help improve an already existing tr
 		"Music channel same": "You must be in the same voice channel as me to be able to do this.",
 
 		"Music search": "Searching for `{0}`...",
-		"Music invalid song": "I could not find a valid song to play.",
 		"Music now playing": "Now playing `{0}` requested by {1}",
+		"Music song invalid": "I could not find a valid song to play.",
+		"Music song exception": "there was an error trying to play `{0}`. Come to the support server if this problem persists.",
 
 		"Music paused": "Music player is paused.",
 		"Music already paused": "The music player is already paused.",

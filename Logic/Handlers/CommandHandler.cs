@@ -1,33 +1,31 @@
-﻿using Logic.Exceptions;
+﻿using Discord.Commands;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Services;
+using System;
+using System.Reflection;
+using System.Threading.Tasks;
+using CommandService = Logic.Services.CommandService;
 
 namespace Logic.Handlers
 {
-    using System;
-    using System.Reflection;
-    using System.Threading.Tasks;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using IDal.Database;
-    using Services;
-    using CommandService = Services.CommandService;
-
     public class CommandHandler : BaseHandler
     {
         private readonly CommandService _commandService;
-
-        private readonly Discord.Commands.CommandService _dcService;
+        private readonly ServerService _server;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
-        private readonly LogsService _logs;
         private readonly IServiceProvider _serviceProvider;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commandService, IDbLanguage language,
-            LocalizationService localization, LogsService logs, IServiceProvider serviceProvider) : base(client)
+        private readonly Discord.Commands.CommandService _dcService;
+
+        public CommandHandler(DiscordShardedClient client, LogsService logs, CommandService commandService, ServerService server, IDbLanguage language, LocalizationService localization, IServiceProvider serviceProvider) : base(client, logs)
         {
             _commandService = commandService;
+            _server = server;
             _language = language;
             _localization = localization;
-            _logs = logs;
             _serviceProvider = serviceProvider;
             _dcService = new Discord.Commands.CommandService(new CommandServiceConfig
             {
@@ -37,6 +35,7 @@ namespace Logic.Handlers
 
         public override async Task Initialize()
         {
+            await base.Initialize();
             await _dcService.AddModulesAsync(Assembly.GetExecutingAssembly(), _serviceProvider);
             Client.MessageReceived += HandleCommandAsync;
         }
@@ -47,8 +46,16 @@ namespace Logic.Handlers
             {
                 if (s.Author.IsBot) return;
                 if (!(s is SocketUserMessage msg)) return;
-                var context = new SocketCommandContext(Client, msg);
-                var prefix = await _commandService.GetPrefix(context.Guild.Id);
+                var context = new ShardedCommandContext(Client, msg);
+                var prefix = "/";
+                try
+                {
+                    prefix = await _commandService.GetPrefix(context.Guild.Id);
+                }
+                catch (UnknownServerException e)
+                {
+                    await _server.Update(context.Guild);
+                }
                 var argPos = 0;
                 if (!msg.HasStringPrefix(prefix, ref argPos) &&
                     !msg.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
@@ -60,11 +67,10 @@ namespace Logic.Handlers
                     return;
                 }
 #endif
-                await _logs.Write("Commands", context.Guild,
-                    $"{context.User.Username} executed command '{context.Message}'.");
+                await Logs.Write("Commands", $"{context.User.Username} executed command '{context.Message}'.", context.Guild);
                 var result = await _dcService.ExecuteAsync(context, argPos, _serviceProvider);
                 if (result.IsSuccess) return;
-                await _logs.Write("Commands", context.Guild, $"Execution failed. Error code: {result.ErrorReason}.");
+                await Logs.Write("Commands", $"Execution failed. Error code: {result.ErrorReason}.", context.Guild);
                 await _localization.Load(await _language.GetLanguage(context.Guild.Id));
                 switch (result.Error)
                 {
@@ -84,7 +90,7 @@ namespace Logic.Handlers
             catch (Exception e)
             {
                 if ((s.Channel as SocketGuildChannel).Guild.Id.Equals(264445053596991498)) return;
-                await _logs.Write("Crashes", $"CommandHandler crashed. Stacktrace: {e}");
+                await Logs.Write("Crashes", "CommandHandler crashed.", e);
             }
         }
 
@@ -100,6 +106,7 @@ namespace Logic.Handlers
             {
                 return false;
             }
+
             return true;
         }
     }

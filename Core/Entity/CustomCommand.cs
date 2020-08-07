@@ -1,8 +1,8 @@
-﻿namespace Core.Entity
-{
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Core.Entity
+{
     public class CustomCommand
     {
         [Key] [Column(Order = 0)] public ulong ServerId { get; set; }

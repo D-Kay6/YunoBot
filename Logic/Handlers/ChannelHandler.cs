@@ -1,37 +1,58 @@
-﻿namespace Logic.Handlers
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Net;
-    using Discord.Rest;
-    using Discord.WebSocket;
-    using Extensions;
-    using IDal.Database;
-    using Services;
+﻿using Discord;
+using Discord.Net;
+using Discord.Rest;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace Logic.Handlers
+{
     public class ChannelHandler : BaseHandler
     {
         private readonly ChannelService _channel;
         private readonly HashSet<ulong> _channels;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
-        private readonly LogsService _logs;
 
-        public ChannelHandler(DiscordSocketClient client, ChannelService channel, IDbLanguage language, LocalizationService localization, LogsService logs) : base(client)
+        public ChannelHandler(DiscordShardedClient client, LogsService logs, ChannelService channel, IDbLanguage language, LocalizationService localization) : base(client, logs)
         {
             _channel = channel;
             _language = language;
             _localization = localization;
-            _logs = logs;
             _channels = new HashSet<ulong>();
         }
 
         public override Task Initialize()
         {
+            base.Initialize();
+            Client.ShardReady += Ready;
             Client.UserVoiceStateUpdated += HandleChannelAsync;
             return Task.CompletedTask;
+        }
+
+        protected override async Task Ready(DiscordSocketClient client)
+        {
+            await base.Ready(client);
+            //foreach (var guild in client.Guilds)
+            //{
+            //    var generatedChannels = await _channel.ListGeneratedChannels(guild.Id);
+            //    foreach (var generatedChannel in generatedChannels)
+            //    {
+            //        try
+            //        {
+            //            if (guild.GetChannel(generatedChannel.ChannelId) != null) continue;
+            //            await _channel.RemoveGeneratedChannel(generatedChannel);
+            //        }
+            //        catch
+            //        {
+            //            //ignore and continue
+            //        }
+            //    }
+            //}
         }
 
         private async Task LoadLanguage(ulong serverId)
@@ -54,7 +75,7 @@
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"Failed to handle UserVoiceStateUpdated. {e.Message}, {e.StackTrace}");
+                await Logs.Write("Crashes", "Failed to handle UserVoiceStateUpdated.", e);
             }
         }
 
@@ -67,14 +88,15 @@
                 if (!await _channel.IsGeneratedChannel(channel)) return;
                 while (_channels.Contains(channel.Id)) await Task.Delay(100);
 
-                await _logs.Write("Channels", channel.Guild, $"{user.Nickname()} left channel '{channel.Name}'.");
+                await Logs.Write("Channels", $"{user.Nickname()} left channel '{channel.Name}'.", channel.Guild);
                 if (channel.Guild.GetChannel(channel.Id) == null) return;
                 await channel.DeleteAsync();
                 await _channel.RemoveGeneratedChannel(channel.Guild.Id, channel.Id);
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"LeaveChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {e}");
+                await Logs.Write("Crashes",
+                    $"LeaveChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}.", e);
             }
         }
 
@@ -106,24 +128,27 @@
             {
                 if (!httpException.Message.Contains("error 50013: Missing Permissions"))
                 {
-                    await _logs.Write("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
+                    await Logs.Write("Crashes",
+                        $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}.", httpException);
                 }
                 else
                 {
                     var pmChannel = await channel.Guild.Owner.GetOrCreateDMChannelAsync();
                     await LoadLanguage(channel.Guild.Id);
-                    await pmChannel.SendMessageAsync(_localization.GetMessage("Channel no permission", channel.Guild.Name, channel.Name));
+                    await pmChannel.SendMessageAsync(_localization.GetMessage("Channel no permission",
+                        channel.Guild.Name, channel.Name));
                 }
+
                 failed = true;
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {e}");
+                await Logs.Write("Crashes",
+                    $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}.", e);
                 failed = true;
             }
 
             if (failed)
-            {
                 if (newChannel != null)
                 {
                     await newChannel.DeleteAsync();
@@ -135,14 +160,14 @@
                     {
                         //ignore
                     }
+
                     _channels.Remove(newChannel.Id);
                 }
-            }
         }
 
         private async Task<RestVoiceChannel> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
         {
-            await _logs.Write("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
+            await Logs.Write("Channels", $"{user.Username} joined channel '{channel.Name}'.", channel.Guild);
             var newChannel = await channel.Guild.CreateVoiceChannelAsync(name, p =>
             {
                 p.Bitrate = channel.Bitrate;
@@ -160,10 +185,12 @@
             {
                 //ignore
             }
-            foreach (var p in channel.PermissionOverwrites) 
+
+            foreach (var p in channel.PermissionOverwrites)
                 await newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(p.TargetId), p.Permissions);
 
-            await newChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
+            await newChannel.AddPermissionOverwriteAsync(user,
+                new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
             return newChannel;
         }
     }

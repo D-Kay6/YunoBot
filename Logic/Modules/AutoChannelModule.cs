@@ -1,18 +1,19 @@
-﻿namespace Logic.Modules
-{
-    using Core.Entity;
-    using Discord;
-    using Discord.Commands;
-    using Exceptions;
-    using IDal.Database;
-    using Services;
-    using System.Linq;
-    using System.Threading.Tasks;
+﻿using Core.Entity;
+using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Alias("ac")]
     [Group("autochannel")]
     [RequireUserPermission(GuildPermission.Administrator)]
-    public class AutoChannelModule : ModuleBase<SocketCommandContext>
+    public class AutoChannelModule : ModuleBase<ShardedCommandContext>
     {
         private readonly ChannelService _channel;
         private readonly IDbLanguage _language;
@@ -66,18 +67,20 @@
         }
 
         [Group("prefix")]
-        public class AutoChannelPrefixModule : ModuleBase<SocketCommandContext>
+        public class AutoChannelPrefixModule : ModuleBase<ShardedCommandContext>
         {
             private readonly ChannelService _channel;
+            private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
             private AutoChannel _data;
 
-            public AutoChannelPrefixModule(IDbLanguage language, ChannelService channel, LocalizationService localization)
+            public AutoChannelPrefixModule(IDbLanguage language, ChannelService channel, LogsService logs, LocalizationService localization)
             {
                 _language = language;
                 _channel = channel;
+                _logs = logs;
                 _localization = localization;
             }
 
@@ -117,24 +120,31 @@
                     await ReplyAsync(_localization.GetMessage("Autochannel prefix invalid perma"));
                     return;
                 }
+                catch (Exception e)
+                {
+                    await ReplyAsync(_localization.GetMessage("General error"));
+                    await _logs.Write("Errors", "Changing an autochannel prefix broke.", e, Context.Guild);
+                }
 
                 await ReplyAsync(_localization.GetMessage("Autochannel prefix set", message));
             }
         }
 
         [Group("name")]
-        public class AutoChannelNameModule : ModuleBase<SocketCommandContext>
+        public class AutoChannelNameModule : ModuleBase<ShardedCommandContext>
         {
             private readonly ChannelService _channel;
+            private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
             private AutoChannel _data;
 
-            public AutoChannelNameModule(IDbLanguage language, ChannelService channel, LocalizationService localization)
+            public AutoChannelNameModule(IDbLanguage language, ChannelService channel, LogsService logs, LocalizationService localization)
             {
                 _language = language;
                 _channel = channel;
+                _logs = logs;
                 _localization = localization;
             }
 
@@ -168,6 +178,11 @@
                 {
                     await ReplyAsync(_localization.GetMessage("Autochannel name invalid empty"));
                     return;
+                }
+                catch (Exception e)
+                {
+                    await ReplyAsync(_localization.GetMessage("General error"));
+                    await _logs.Write("Errors", "Changing an autochannel name broke.", e, Context.Guild);
                 }
 
                 await ReplyAsync(_localization.GetMessage("Autochannel name set", message));

@@ -1,12 +1,12 @@
-﻿namespace Logic.Modules
-{
-    using System.Threading.Tasks;
-    using Discord.Commands;
-    using IDal.Database;
-    using Services;
+﻿using Discord.Commands;
+using IDal.Database;
+using Logic.Services;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Group("support")]
-    public class SupportModule : ModuleBase<SocketCommandContext>
+    public class SupportModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;

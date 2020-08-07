@@ -1,18 +1,17 @@
-﻿using Logic.Exceptions;
+﻿using Discord.WebSocket;
+using Logic.Exceptions;
+using Logic.Extensions;
+using Logic.Services;
+using System.Threading.Tasks;
 
 namespace Logic.Handlers
 {
-    using System.Threading.Tasks;
-    using Discord.WebSocket;
-    using Extensions;
-    using Services;
-
     public class WelcomeHandler : BaseHandler
     {
         private readonly CommandService _command;
         private readonly WelcomeService _welcome;
 
-        public WelcomeHandler(DiscordSocketClient client, CommandService command, WelcomeService welcome) : base(client)
+        public WelcomeHandler(DiscordShardedClient client, LogsService logs, CommandService command, WelcomeService welcome) : base(client, logs)
         {
             _command = command;
             _welcome = welcome;

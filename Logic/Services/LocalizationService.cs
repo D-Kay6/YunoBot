@@ -1,11 +1,11 @@
-﻿namespace Logic.Services
-{
-    using System.Threading.Tasks;
-    using Core.Entity;
-    using Core.Enum;
-    using Extensions;
-    using IDal;
+﻿using Core.Entity;
+using Core.Enum;
+using IDal;
+using Logic.Extensions;
+using System.Threading.Tasks;
 
+namespace Logic.Services
+{
     public class LocalizationService
     {
         private readonly ILocalization _localization;

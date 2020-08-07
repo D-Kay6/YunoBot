@@ -1,7 +1,7 @@
-﻿namespace Logic.Extensions
-{
-    using System.IO;
+﻿using System.IO;
 
+namespace Logic.Extensions
+{
     public static class ImageExtensions
     {
         public static string GetImagePath(string name)

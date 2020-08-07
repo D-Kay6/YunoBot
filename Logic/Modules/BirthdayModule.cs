@@ -1,14 +1,14 @@
-﻿namespace Logic.Modules
-{
-    using System.Threading.Tasks;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using Extensions;
-    using IDal.Database;
-    using Services;
+﻿using Discord.Commands;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Group("birthday")]
-    public class BirthdayModule : ModuleBase<SocketCommandContext>
+    public class BirthdayModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;

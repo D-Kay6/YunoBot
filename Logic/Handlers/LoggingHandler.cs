@@ -7,19 +7,14 @@ namespace Logic.Handlers
 {
     public class LoggingHandler : BaseHandler
     {
-        private readonly LogsService _logs;
-
-        public LoggingHandler(DiscordSocketClient client, LogsService logs) : base(client)
-        {
-            _logs = logs;
-        }
+        public LoggingHandler(DiscordShardedClient client, LogsService logs) : base(client, logs) { }
 
         public override Task Initialize()
         {
-            Client.Connected += ClientOnConnected;
-            Client.Disconnected += ClientOnDisconnected;
-            Client.LatencyUpdated += ClientOnLatencyUpdated;
-            Client.Ready += ClientOnReady;
+            base.Initialize();
+            Client.ShardConnected += ClientOnConnected;
+            Client.ShardDisconnected += ClientOnDisconnected;
+            Client.ShardLatencyUpdated += ClientOnLatencyUpdated;
 
             Client.UserVoiceStateUpdated += OnVoiceStateUpdate;
 
@@ -63,24 +58,25 @@ namespace Logic.Handlers
             return Task.CompletedTask;
         }
 
-        private async Task ClientOnConnected()
+        protected override async Task Ready(DiscordSocketClient client)
         {
-            await _logs.Write("Client", "Connected.");
+            await base.Ready(client);
+            await Logs.Write("Client", "Client is ready.");
         }
 
-        private async Task ClientOnDisconnected(Exception arg)
+        private async Task ClientOnConnected(DiscordSocketClient client)
         {
-            await _logs.Write("Client", $"Disconnected. {arg.Message}");
+            await Logs.Write("Client", "Connected.");
         }
 
-        private async Task ClientOnLatencyUpdated(int arg1, int arg2)
+        private async Task ClientOnDisconnected(Exception arg, DiscordSocketClient client)
         {
-            await _logs.Write("Client", $"Latency updated from {arg1} to {arg2}.");
+            await Logs.Write("Client", $"Disconnected.", arg);
         }
 
-        private async Task ClientOnReady()
+        private async Task ClientOnLatencyUpdated(int arg1, int arg2, DiscordSocketClient client)
         {
-            await _logs.Write("Client", "Client is ready.");
+            await Logs.Write("Client", $"Latency updated from {arg1} to {arg2}.");
         }
 
         private async Task OnVoiceStateUpdate(SocketUser arg1, SocketVoiceState arg2, SocketVoiceState arg3)
@@ -89,15 +85,18 @@ namespace Logic.Handlers
             switch (arg2.VoiceChannel)
             {
                 case null when arg3.VoiceChannel == null:
-                    await _logs.Write("Client", $"VoiceStateUpdate for {arg1.Username} had no from not to channel.");
+                    await Logs.Write("Client", $"VoiceStateUpdate for {arg1.Username} had no from not to channel.");
                     break;
                 case null:
-                    await _logs.Write("Client", $"{arg1.Username} joined channel {arg3.VoiceChannel.Name}.");
+                    await Logs.Write("Client", $"{arg1.Username} joined channel {arg3.VoiceChannel.Name}.");
                     break;
                 default:
                 {
-                    if (arg3.VoiceChannel == null) await _logs.Write("Client", $"{arg1.Username} Left channel {arg2.VoiceChannel.Name}.");
-                    else await _logs.Write("Client", $"{arg1.Username} moved from {arg2.VoiceChannel.Name} to {arg3.VoiceChannel.Name}.");
+                    if (arg3.VoiceChannel == null)
+                        await Logs.Write("Client", $"{arg1.Username} Left channel {arg2.VoiceChannel.Name}.");
+                    else
+                        await Logs.Write("Client",
+                            $"{arg1.Username} moved from {arg2.VoiceChannel.Name} to {arg3.VoiceChannel.Name}.");
                     break;
                 }
             }

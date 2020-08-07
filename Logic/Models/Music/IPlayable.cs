@@ -1,8 +1,8 @@
-﻿namespace Logic.Models.Music
-{
-    using Discord;
-    using Track;
+﻿using Discord;
+using Logic.Models.Music.Track;
 
+namespace Logic.Models.Music
+{
     public interface IPlayable
     {
         ITrack Track { get; }

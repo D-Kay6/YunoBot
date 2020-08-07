@@ -1,8 +1,8 @@
-﻿namespace DalFactory
-{
-    using Dal.Database.MySql.EF.Repositories;
-    using IDal.Database;
+﻿using Dal.Database.MySql.EF.Repositories;
+using IDal.Database;
 
+namespace DalFactory
+{
     public class DatabaseFactory
     {
         public static IDbServer GenerateServer()

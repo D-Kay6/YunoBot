@@ -1,11 +1,11 @@
-﻿namespace Logic.Models.Music
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Discord;
-    using Extensions;
+﻿using Discord;
+using Logic.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace Logic.Models.Music
+{
     public class Queue
     {
         private readonly Dictionary<ulong, Queue<IPlayable>> _queues;

@@ -1,16 +1,17 @@
-﻿namespace Logic.Modules
-{
-    using Core.Entity;
-    using Discord;
-    using Discord.Commands;
-    using Exceptions;
-    using IDal.Database;
-    using Services;
-    using System.Threading.Tasks;
+﻿using Core.Entity;
+using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Services;
+using System;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Alias("ar")]
     [Group("autorole")]
-    public class AutoRoleModule : ModuleBase<SocketCommandContext>
+    public class AutoRoleModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
@@ -41,17 +42,19 @@
 
         [Group("prefix")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public class AutoRolePrefixModule : ModuleBase<SocketCommandContext>
+        public class AutoRolePrefixModule : ModuleBase<ShardedCommandContext>
         {
             private readonly RoleService _role;
+            private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
             private AutoRole _data;
 
-            public AutoRolePrefixModule(RoleService role, IDbLanguage language, LocalizationService localization)
+            public AutoRolePrefixModule(RoleService role, LogsService logs, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
+                _logs = logs;
                 _language = language;
                 _localization = localization;
             }
@@ -92,18 +95,23 @@
                     await ReplyAsync(_localization.GetMessage("Autorole prefix invalid perma", message));
                     return;
                 }
+                catch (Exception e)
+                {
+                    await ReplyAsync(_localization.GetMessage("General error"));
+                    await _logs.Write("Errors", "Changing an autorole prefix broke.", e, Context.Guild);
+                }
 
                 await ReplyAsync(_localization.GetMessage("Autorole prefix set", message));
             }
         }
 
         [Group("ignore")]
-        public class AutoRoleIgnoreModule : ModuleBase<SocketCommandContext>
+        public class AutoRoleIgnoreModule : ModuleBase<ShardedCommandContext>
         {
-            private readonly RoleService _role;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
-            
+            private readonly RoleService _role;
+
             public AutoRoleIgnoreModule(RoleService role, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;

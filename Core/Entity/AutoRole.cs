@@ -1,6 +1,6 @@
 ﻿namespace Core.Entity
 {
-    public class AutoRole : Automatization
+    public class AutoRole : Automation
     {
         public AutoRole()
         {

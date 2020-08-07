@@ -1,13 +1,13 @@
-﻿namespace Dal.Database.MySql.EF.Repositories
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Core.Entity;
-    using IDal.Database;
-    using Microsoft.EntityFrameworkCore;
+﻿using Core.Entity;
+using IDal.Database;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Dal.Database.MySql.EF.Repositories
+{
     public class BanRepository : BaseRepository, IDbBan
     {
         public async Task Add(Ban value)
@@ -18,6 +18,16 @@
 
         public async Task Update(Ban value)
         {
+            try
+            {
+                var entry = Context.Attach(value);
+                entry.State = EntityState.Modified;
+            }
+            catch
+            {
+                //ignore
+            }
+
             Context.Bans.Update(value);
             await Context.SaveChangesAsync();
         }

@@ -1,14 +1,14 @@
-﻿namespace Logic.Modules
-{
-    using System;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Extensions;
-    using IDal.Database;
-    using Services;
+﻿using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System;
+using System.Threading.Tasks;
 
-    public class PickModule : ModuleBase<SocketCommandContext>
+namespace Logic.Modules
+{
+    public class PickModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;

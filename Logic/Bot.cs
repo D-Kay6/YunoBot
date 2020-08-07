@@ -1,21 +1,21 @@
-﻿namespace Logic
-{
-    using System;
-    using System.IO;
-    using System.Net;
-    using System.Threading.Tasks;
-    using DalFactory;
-    using Discord;
-    using Discord.WebSocket;
-    using Exceptions;
-    using Handlers;
-    using ILogic;
-    using Microsoft.Extensions.DependencyInjection;
-    using Services;
+﻿using DalFactory;
+using Discord;
+using Discord.WebSocket;
+using ILogic;
+using Logic.Exceptions;
+using Logic.Handlers;
+using Logic.Services;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
 
+namespace Logic
+{
     public class Bot : IBot
     {
-        private readonly DiscordSocketClient _client;
+        private readonly DiscordShardedClient _client;
 
         private readonly HandlerCollection _handlers;
 
@@ -23,13 +23,23 @@
 
         public Bot()
         {
-            _client = new DiscordSocketClient(new DiscordSocketConfig
+            _client = new DiscordShardedClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Verbose,
-                ConnectionTimeout = 30000
+                ConnectionTimeout = 30000,
+#if !DEBUG
+                GatewayIntents = GatewayIntents.Guilds |
+                                 GatewayIntents.GuildMembers |
+                                 GatewayIntents.GuildIntegrations |
+                                 GatewayIntents.GuildVoiceStates |
+                                 GatewayIntents.GuildMessages |
+                                 GatewayIntents.GuildMessageReactions |
+                                 GatewayIntents.DirectMessages
+#endif
+                //TotalShards = 2
             });
             _client.Log += Log;
-            _client.Ready += OnReady;
+            _client.ShardReady += OnReady;
 
             _services = GenerateServiceProvider();
 
@@ -62,12 +72,15 @@
                 }
                 catch (Exception e)
                 {
-                    await logsService.Write("Main", $"Fatal exception occured. Restarting bot. Traceback: {e}");
+                    await logsService.Write("Main", $"Fatal exception occured. Restarting bot.", e);
                 }
                 finally
                 {
+                    await _handlers.Stop();
                     await _client.StopAsync();
                 }
+
+            await _handlers.Finish();
         }
 
         public Task Stop()
@@ -128,7 +141,7 @@
             if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
         }
 
-        private async Task OnReady()
+        private async Task OnReady(DiscordSocketClient client)
         {
             var logService = _services.GetService<LogsService>();
             var shardCount = await _client.GetRecommendedShardCountAsync();

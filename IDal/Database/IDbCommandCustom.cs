@@ -1,9 +1,9 @@
-﻿namespace IDal.Database
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Core.Entity;
+﻿using Core.Entity;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace IDal.Database
+{
     public interface IDbCommandCustom
     {
         Task Add(CustomCommand value);

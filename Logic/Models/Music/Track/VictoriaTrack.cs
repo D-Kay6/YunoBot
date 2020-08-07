@@ -1,8 +1,8 @@
-﻿namespace Logic.Models.Music.Track
-{
-    using System;
-    using Victoria;
+﻿using System;
+using Victoria;
 
+namespace Logic.Models.Music.Track
+{
     public class VictoriaTrack : ITrack
     {
         public VictoriaTrack(LavaTrack track)

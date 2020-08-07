@@ -1,16 +1,16 @@
-﻿namespace Logic.Modules
-{
-    using System;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Extensions;
-    using IDal.Database;
-    using Services;
-    using CommandService = Services.CommandService;
+﻿using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System;
+using System.Threading.Tasks;
+using CommandService = Logic.Services.CommandService;
 
+namespace Logic.Modules
+{
     [Group("help")]
-    public class HelpModule : ModuleBase<SocketCommandContext>
+    public class HelpModule : ModuleBase<ShardedCommandContext>
     {
         private readonly CommandService _command;
         private readonly IDbLanguage _language;

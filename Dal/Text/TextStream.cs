@@ -1,9 +1,9 @@
-﻿namespace Dal.Text
-{
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 
+namespace Dal.Text
+{
     internal class TextStream
     {
         public async Task WriteAsync(string path, string data)

@@ -1,7 +1,7 @@
-﻿namespace Logic.Exceptions
+﻿using System;
+
+namespace Logic.Exceptions
 {
-    using System;
-    
     public class InvalidChannelException : Exception
     {
         public InvalidChannelException()

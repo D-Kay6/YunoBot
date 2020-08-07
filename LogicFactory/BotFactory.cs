@@ -1,8 +1,8 @@
-﻿namespace LogicFactory
-{
-    using ILogic;
-    using Logic;
+﻿using ILogic;
+using Logic;
 
+namespace LogicFactory
+{
     public class BotFactory
     {
         public static IBot GenerateBot()

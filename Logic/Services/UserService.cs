@@ -4,18 +4,17 @@ using Discord.WebSocket;
 using IDal.Database;
 using Logic.Exceptions;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Logic.Services
 {
     public class UserService
     {
-        private readonly DiscordSocketClient _client;
-        private readonly IDbUser _dbUser;
+        private readonly DiscordShardedClient _client;
         private readonly IDbBan _dbBan;
+        private readonly IDbUser _dbUser;
 
-        public UserService(DiscordSocketClient client, IDbUser dbUser, IDbBan dbBan)
+        public UserService(DiscordShardedClient client, IDbUser dbUser, IDbBan dbBan)
         {
             _client = client;
             _dbUser = dbUser;
@@ -69,6 +68,7 @@ namespace Logic.Services
 
                     throw new InvalidBanException($"Ban for user {ban.User.Name} ({ban.UserId}) could not be found.");
                 }
+
                 await _dbBan.Remove(ban);
             }
         }

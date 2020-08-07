@@ -1,11 +1,11 @@
-﻿namespace Dal.Json
-{
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using Core.Entity;
-    using IDal;
+﻿using Core.Entity;
+using IDal;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
+namespace Dal.Json
+{
     public class Config : Json, IConfig
     {
 #if DEBUG

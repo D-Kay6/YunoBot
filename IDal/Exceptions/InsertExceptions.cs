@@ -1,7 +1,7 @@
-﻿namespace IDal.Exceptions
-{
-    using System;
+﻿using System;
 
+namespace IDal.Exceptions
+{
     public class ItemExistsException : Exception
     {
         public ItemExistsException()

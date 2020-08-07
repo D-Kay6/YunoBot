@@ -1,25 +1,23 @@
-﻿using Logic.Exceptions;
+﻿using Core.Entity;
+using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Logic.Modules
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Core.Entity;
-    using Discord;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using Extensions;
-    using IDal.Database;
-    using Services;
-
     [Group("welcome")]
     [RequireUserPermission(GuildPermission.Administrator)]
-    public class WelcomeModule : ModuleBase<SocketCommandContext>
+    public class WelcomeModule : ModuleBase<ShardedCommandContext>
     {
-        private readonly WelcomeService _welcome;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
+        private readonly WelcomeService _welcome;
 
         public WelcomeModule(WelcomeService welcome, IDbLanguage language, LocalizationService localization)
         {
@@ -82,11 +80,11 @@ namespace Logic.Modules
         }
 
         [Group("message")]
-        public class WelcomeMessageModule : ModuleBase<SocketCommandContext>
+        public class WelcomeMessageModule : ModuleBase<ShardedCommandContext>
         {
-            private readonly WelcomeService _welcome;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
+            private readonly WelcomeService _welcome;
 
             private WelcomeMessage _settings;
 
@@ -141,11 +139,11 @@ namespace Logic.Modules
         }
 
         [Group("image")]
-        public class WelcomeImageModule : ModuleBase<SocketCommandContext>
+        public class WelcomeImageModule : ModuleBase<ShardedCommandContext>
         {
-            private readonly WelcomeService _welcome;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
+            private readonly WelcomeService _welcome;
 
             private WelcomeMessage _settings;
 

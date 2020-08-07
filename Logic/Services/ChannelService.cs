@@ -1,12 +1,15 @@
-﻿namespace Logic.Services
-{
-    using Core.Entity;
-    using Discord;
-    using Exceptions;
-    using IDal.Database;
-    using System;
-    using System.Threading.Tasks;
+﻿using Core.Entity;
+using Discord;
+using IDal.Database;
+using Logic.Exceptions;
+using Raven.Client.Documents;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Logic.Services
+{
     public class ChannelService
     {
         private readonly IDbAutoChannel _dbAuto;
@@ -29,8 +32,18 @@
         public async Task<AutoChannel> LoadAuto(ulong serverId)
         {
             var settings = await _dbAuto.Get(serverId);
-            var update = false;
 
+            if (settings == null)
+            {
+                settings = new AutoChannel
+                {
+                    ServerId = serverId
+                };
+                await _dbAuto.Add(settings);
+                return settings;
+            }
+
+            var update = false;
             if (string.IsNullOrWhiteSpace(settings.Prefix))
             {
                 settings.Prefix = "➕";
@@ -58,8 +71,18 @@
         public async Task<PermaChannel> LoadPerma(ulong serverId)
         {
             var settings = await _dbPerma.Get(serverId);
-            var update = false;
 
+            if (settings == null)
+            {
+                settings = new PermaChannel
+                {
+                    ServerId = serverId
+                };
+                await _dbPerma.Add(settings);
+                return settings;
+            }
+
+            var update = false;
             if (string.IsNullOrWhiteSpace(settings.Prefix))
             {
                 settings.Prefix = "👥";
@@ -158,8 +181,8 @@
         /// <summary>
         ///     Remove a generated channel.
         /// </summary>
-        /// <param name="serverId">the id of the server.</param>
-        /// <param name="channelId">the id of the channel.</param>
+        /// <param name="serverId">The id of the server.</param>
+        /// <param name="channelId">The id of the channel.</param>
         /// <exception cref="InvalidChannelException">Thrown if the channel doesn't exist.</exception>
         public async Task RemoveGeneratedChannel(ulong serverId, ulong channelId)
         {
@@ -168,6 +191,29 @@
                 throw new InvalidChannelException("The generated channel doesn't exist in the database.");
 
             await _dbGenerated.Remove(channel);
+        }
+
+        /// <summary>
+        ///     Remove a generated channel.
+        /// </summary>
+        /// <param name="channel">tThe generated channel object.</param>
+        /// <exception cref="InvalidChannelException">Thrown if the channel doesn't exist.</exception>
+        public async Task RemoveGeneratedChannel(GeneratedChannel channel)
+        {
+            if (channel == null || channel.ServerId == 0 || channel.ChannelId == 0)
+                throw new InvalidChannelException("The generated channel doesn't exist in the database.");
+
+            await _dbGenerated.Remove(channel);
+        }
+
+        /// <summary>
+        ///     List all the generated channels of a server.
+        /// </summary>
+        /// <param name="serverId">The id of the server.</param>
+        /// <returns>The list of generated channels.</returns>
+        public Task<List<GeneratedChannel>> ListGeneratedChannels(ulong serverId)
+        {
+            return _dbGenerated.Query(serverId).ToListAsync();
         }
     }
 }

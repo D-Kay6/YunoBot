@@ -1,20 +1,20 @@
-﻿namespace Logic.Modules
-{
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.Commands;
-    using Exceptions;
-    using IDal.Database;
-    using Services;
-    using CommandService = Services.CommandService;
+﻿using Discord;
+using Discord.Commands;
+using IDal.Database;
+using Logic.Exceptions;
+using Logic.Services;
+using System.Linq;
+using System.Threading.Tasks;
+using CommandService = Logic.Services.CommandService;
 
+namespace Logic.Modules
+{
     [Group("Command")]
-    public class CommandModule : ModuleBase<SocketCommandContext>
+    public class CommandModule : ModuleBase<ShardedCommandContext>
     {
         [Group("prefix")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public class CommandPrefixModule : ModuleBase<SocketCommandContext>
+        public class CommandPrefixModule : ModuleBase<ShardedCommandContext>
         {
             private readonly CommandService _command;
             private readonly IDbLanguage _language;
@@ -54,7 +54,7 @@
         }
 
         [Group("custom")]
-        public class CommandCustomModule : ModuleBase<SocketCommandContext>
+        public class CommandCustomModule : ModuleBase<ShardedCommandContext>
         {
             private readonly CommandService _command;
             private readonly IDbLanguage _language;

@@ -1,8 +1,8 @@
-﻿namespace Logic.Services
-{
-    using System.Threading;
-    using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
+namespace Logic.Services
+{
     public class RestartService
     {
         private readonly LogsService _logs;

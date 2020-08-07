@@ -1,7 +1,7 @@
-﻿namespace Entity.RavenDB
-{
-    using System;
+﻿using System;
 
+namespace Entity.RavenDB
+{
     public class Ban
     {
         public string Id { get; set; }

@@ -1,12 +1,12 @@
-﻿namespace Logic.Models.Music.Player
-{
-    using System;
-    using System.Threading.Tasks;
-    using Discord;
-    using Exceptions;
-    using Search;
-    using Track;
+﻿using Discord;
+using Logic.Exceptions;
+using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
+using System;
+using System.Threading.Tasks;
 
+namespace Logic.Models.Music.Player
+{
     public interface IMusicPlayer : IPlayer
     {
         bool IsConnected { get; }

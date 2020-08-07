@@ -1,15 +1,15 @@
-﻿namespace Logic.Modules
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Discord.Commands;
-    using Discord.WebSocket;
-    using Extensions;
-    using IDal.Database;
-    using Services;
+﻿using Discord.Commands;
+using Discord.WebSocket;
+using IDal.Database;
+using Logic.Extensions;
+using Logic.Services;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace Logic.Modules
+{
     [Group("praise")]
-    public class PraiseModule : ModuleBase<SocketCommandContext>
+    public class PraiseModule : ModuleBase<ShardedCommandContext>
     {
         // source: https://www.happier.com/blog/nice-things-to-say-100-compliments/
         private readonly List<string> _groupMessages = new List<string>

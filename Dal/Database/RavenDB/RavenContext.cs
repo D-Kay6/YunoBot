@@ -1,19 +1,19 @@
-﻿namespace Dal.Database.RavenDB
-{
-    using System;
-    using System.IO;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Threading.Tasks;
-    using Json;
-    using Raven.Client.Documents;
-    using Raven.Client.Documents.Session;
+﻿using Dal.Json;
+using Raven.Client.Documents;
+using Raven.Client.Documents.Session;
+using System;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
+namespace Dal.Database.RavenDB
+{
     internal class RavenContext
     {
         private readonly X509Certificate2 certificate;
-        private Connection connection;
 
         private readonly Lazy<IDocumentStore> store;
+        private Connection connection;
 
         public RavenContext()
         {

@@ -1,16 +1,16 @@
-﻿namespace Logic.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Discord;
-    using Discord.WebSocket;
-    using Exceptions;
-    using Models.Music;
-    using Models.Music.Player;
-    using Models.Music.Search;
-    using Models.Music.Track;
+﻿using Discord;
+using Discord.WebSocket;
+using Logic.Exceptions;
+using Logic.Models.Music;
+using Logic.Models.Music.Player;
+using Logic.Models.Music.Search;
+using Logic.Models.Music.Track;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace Logic.Services
+{
     public class MusicService
     {
         private readonly IMusicPlayer _player;
@@ -18,7 +18,7 @@
 
         private IGuild _guild;
 
-        public MusicService(DiscordSocketClient client)
+        public MusicService(DiscordShardedClient client)
         {
             _player = new VictoriaPlayer(client);
             _queue = new Queue();

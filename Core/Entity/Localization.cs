@@ -1,7 +1,7 @@
-﻿namespace Core.Entity
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Core.Entity
+{
     public class Localization
     {
         public List<string> GroupPraises;

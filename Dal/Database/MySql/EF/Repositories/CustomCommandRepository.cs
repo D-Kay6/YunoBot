@@ -1,14 +1,14 @@
-﻿namespace Dal.Database.MySql.EF.Repositories
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Core.Entity;
-    using IDal.Database;
-    using IDal.Exceptions;
-    using Microsoft.EntityFrameworkCore;
+﻿using Core.Entity;
+using IDal.Database;
+using IDal.Exceptions;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Dal.Database.MySql.EF.Repositories
+{
     public class CustomCommandRepository : BaseRepository, IDbCommandCustom
     {
         public async Task Add(CustomCommand value)
@@ -31,6 +31,16 @@
 
         public async Task Update(CustomCommand value)
         {
+            try
+            {
+                var entry = Context.Attach(value);
+                entry.State = EntityState.Modified;
+            }
+            catch
+            {
+                //ignore
+            }
+
             Context.CustomCommands.Update(value);
             await Context.SaveChangesAsync();
         }

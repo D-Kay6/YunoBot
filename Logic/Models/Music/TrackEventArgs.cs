@@ -1,9 +1,9 @@
-﻿namespace Logic.Models.Music
-{
-    using System;
-    using Player;
-    using Track;
+﻿using Logic.Models.Music.Player;
+using Logic.Models.Music.Track;
+using System;
 
+namespace Logic.Models.Music
+{
     public class TrackEventArgs : EventArgs
     {
         public TrackEventArgs(ITrack track, IMusicPlayer player)

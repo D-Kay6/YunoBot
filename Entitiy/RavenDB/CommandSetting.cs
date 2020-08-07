@@ -1,7 +1,7 @@
-﻿namespace Entity.RavenDB
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Entity.RavenDB
+{
     public class CommandSetting
     {
         public CommandSetting()

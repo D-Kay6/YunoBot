@@ -1,16 +1,16 @@
-﻿namespace Logic.Services
-{
-    using Core.Entity;
-    using Exceptions;
-    using IDal.Database;
-    using System;
-    using System.Threading.Tasks;
+﻿using Core.Entity;
+using IDal.Database;
+using Logic.Exceptions;
+using System;
+using System.Threading.Tasks;
 
+namespace Logic.Services
+{
     public class RoleService
     {
         private readonly IDbAutoRole _dbAuto;
-        private readonly IDbPermaRole _dbPerma;
         private readonly IDbRoleIgnore _dbIgnore;
+        private readonly IDbPermaRole _dbPerma;
 
         public RoleService(IDbAutoRole dbAuto, IDbPermaRole dbPerma, IDbRoleIgnore dbIgnore)
         {
@@ -28,8 +28,18 @@
         public async Task<AutoRole> LoadAuto(ulong serverId)
         {
             var settings = await _dbAuto.Get(serverId);
-            var update = false;
 
+            if (settings == null)
+            {
+                settings = new AutoRole
+                {
+                    ServerId = serverId
+                };
+                await _dbAuto.Add(settings);
+                return settings;
+            }
+
+            var update = false;
             if (string.IsNullOrWhiteSpace(settings.Prefix))
             {
                 settings.Prefix = "👾";
@@ -51,8 +61,18 @@
         public async Task<PermaRole> LoadPerma(ulong serverId)
         {
             var settings = await _dbPerma.Get(serverId);
-            var update = false;
 
+            if (settings == null)
+            {
+                settings = new PermaRole
+                {
+                    ServerId = serverId
+                };
+                await _dbPerma.Add(settings);
+                return settings;
+            }
+
+            var update = false;
             if (string.IsNullOrWhiteSpace(settings.Prefix))
             {
                 settings.Prefix = "🎮";

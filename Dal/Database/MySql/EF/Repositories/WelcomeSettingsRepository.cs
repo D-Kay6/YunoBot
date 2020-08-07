@@ -1,9 +1,10 @@
-﻿namespace Dal.Database.MySql.EF.Repositories
-{
-    using System.Threading.Tasks;
-    using Core.Entity;
-    using IDal.Database;
+﻿using Core.Entity;
+using IDal.Database;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
+namespace Dal.Database.MySql.EF.Repositories
+{
     public class WelcomeSettingsRepository : BaseRepository, IDbWelcome
     {
         public async Task Add(WelcomeMessage value)
@@ -14,6 +15,16 @@
 
         public async Task Update(WelcomeMessage value)
         {
+            //try
+            //{
+            //    var entry = Context.Attach(value);
+            //    entry.State = EntityState.Modified;
+            //}
+            //catch
+            //{
+            //    //ignore
+            //}
+
             Context.WelcomeMessages.Update(value);
             await Context.SaveChangesAsync();
         }
@@ -26,7 +37,12 @@
 
         public async Task<WelcomeMessage> Get(ulong serverId)
         {
-            return await Context.WelcomeMessages.FindAsync(serverId);
+            var value = await Context.WelcomeMessages.FindAsync(serverId);
+            if (value != null)
+                await Context.Entry(value).ReloadAsync();
+
+            return value;
+            //return await Context.WelcomeMessages.FindAsync(serverId);
         }
     }
 }

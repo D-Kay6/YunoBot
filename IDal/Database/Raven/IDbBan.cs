@@ -1,9 +1,9 @@
-﻿namespace IDal.Database.Raven
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Entity.RavenDB;
+﻿using Entity.RavenDB;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace IDal.Database.Raven
+{
     public interface IDbBan
     {
         Task AddBan(Ban value, Server server);

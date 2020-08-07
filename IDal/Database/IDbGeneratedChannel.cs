@@ -1,9 +1,9 @@
-﻿namespace IDal.Database
-{
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Core.Entity;
+﻿using Core.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace IDal.Database
+{
     public interface IDbGeneratedChannel
     {
         Task Add(GeneratedChannel value);

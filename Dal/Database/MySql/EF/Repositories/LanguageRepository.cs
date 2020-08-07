@@ -1,10 +1,10 @@
-﻿namespace Dal.Database.MySql.EF.Repositories
-{
-    using System.Threading.Tasks;
-    using Core.Enum;
-    using IDal.Database;
-    using Microsoft.EntityFrameworkCore;
+﻿using Core.Enum;
+using IDal.Database;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
+namespace Dal.Database.MySql.EF.Repositories
+{
     public class LanguageRepository : BaseRepository, IDbLanguage
     {
         public async Task<bool> SetLanguage(ulong serverId, Language language)
