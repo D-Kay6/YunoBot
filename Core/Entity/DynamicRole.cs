@@ -10,7 +10,11 @@ namespace Core.Entity
         [MaxLength(100)]
         public string Status { get; set; }
 
-        [ForeignKey("Roles")]
-        public virtual List<Role> Roles { get; set; }
+        public virtual List<DynamicRoleData> Roles { get; set; }
+
+        public DynamicRole()
+        {
+            Roles = new List<DynamicRoleData>();
+        }
     }
 }

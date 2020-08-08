@@ -35,6 +35,7 @@ namespace Dal.Database.MySql.EF.Repositories
         public Task<List<ReactionRole>> List(ulong serverId)
         {
             return Context.ReactionRoles.AsNoTracking()
+                .Include(x => x.Roles)
                 .Where(x => x.ServerId == serverId)
                 .ToListAsync();
         }

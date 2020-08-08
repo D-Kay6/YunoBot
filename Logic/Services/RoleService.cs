@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Discord;
 using IDal.Database;
 using System.Threading.Tasks;
 
@@ -13,9 +14,14 @@ namespace Logic.Services
             _dbRole = dbRole;
         }
 
-        public Task Update(Role role)
+        public Task Update(IRole role)
         {
-            return _dbRole.Update(role);
+            var data = new Role
+            {
+                Id = role.Id,
+                Name = role.Name
+            };
+            return _dbRole.Update(data);
         }
     }
 }

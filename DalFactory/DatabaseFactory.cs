@@ -60,6 +60,11 @@ namespace DalFactory
             return new DynamicRoleRepository();
         }
 
+        public static IDbDynamicRoleData GenerateDynamicRoleData()
+        {
+            return new DynamicRoleDataRepository();
+        }
+
         public static IDbRoleIgnore GenerateRoleIgnore()
         {
             return new RoleIgnoreRepository();
@@ -68,6 +73,11 @@ namespace DalFactory
         public static IDbReactionRole GenerateReactionRole()
         {
             return new ReactionRoleRepository();
+        }
+
+        public static IDbReactionRoleData GenerateReactionRoleData()
+        {
+            return new ReactionRoleDataRepository();
         }
     }
 }

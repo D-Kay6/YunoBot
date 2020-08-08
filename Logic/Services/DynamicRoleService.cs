@@ -1,7 +1,10 @@
 ﻿using Core.Entity;
+using Core.Enum;
 using IDal.Database;
 using Logic.Exceptions;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Logic.Services
@@ -15,6 +18,23 @@ namespace Logic.Services
         {
             _dbDynamic = dbDynamic;
             _dbIgnore = dbIgnore;
+        }
+
+        public async Task<DynamicRole> Get(ulong serverId, string status)
+        {
+            var dynamicRoles = await _dbDynamic.List(serverId);
+            var dynamicRole = dynamicRoles.FirstOrDefault(x => x.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            return dynamicRole;
+        }
+
+        public async Task<List<DynamicRole>> Find(ulong serverId, string status, AutomationType? type = null)
+        {
+            var dynamicRoles = await _dbDynamic.List(serverId);
+            var results = dynamicRoles.Where(x => status.Contains(x.Status, StringComparison.OrdinalIgnoreCase));
+            if (type != null)
+                results = results.Where(x => x.Type == type);
+
+            return results.ToList();
         }
 
         /// <summary>
@@ -93,15 +113,17 @@ namespace Logic.Services
         /// <exception cref="PrefixExistsException">Thrown if the prefix is already in use by perma roles.</exception>
         public async Task Save(DynamicRole settings)
         {
-            //if (string.IsNullOrWhiteSpace(settings.Prefix))
-            //    throw new InvalidPrefixException("The prefix cannot be null or empty.");
 
-            //var permaSettings = await _dbPerma.Get(settings.ServerId);
-            //if (permaSettings.Prefix.Equals(settings.Prefix, StringComparison.OrdinalIgnoreCase))
-            //    throw new PrefixExistsException(
-            //        "The prefix for auto roles cannot be the same as the prefix for perma roles.");
+        }
 
-            //await _dbAuto.Update(settings);
+        /// <summary>
+        ///     Save the new settings for auto roles.
+        /// </summary>
+        /// <param name="settings">The new settings for auto roles.</param>
+        /// <exception cref="InvalidPrefixException">Thrown if the prefix is null or empty.</exception>
+        /// <exception cref="PrefixExistsException">Thrown if the prefix is already in use by perma roles.</exception>
+        public async Task Save(DynamicRoleData data)
+        {
         }
 
         /// <summary>
@@ -150,112 +172,5 @@ namespace Logic.Services
 
             await _dbIgnore.Remove(ignore);
         }
-
-        /* These are methods I might delete as they have no real use, other than being buffers for the conversion.
-        /// <summary>
-        ///     Check if a voice role is an auto role.
-        ///     Either Auto role or perma role.
-        /// </summary>
-        /// <param name="role">The role to check.</param>
-        /// <returns>True if the role is an auto role.</returns>
-        public async Task<bool> IsAuto([NotNull] IRole role)
-        {
-            var autoSettings = await _dbAuto.Get(role.Guild.Id);
-            return role.Name.StartsWith(autoSettings.Prefix, StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        ///     Check if a voice role is a perma role.
-        /// </summary>
-        /// <param name="role">The role to check.</param>
-        /// <returns>True if the role is a perma role.</returns>
-        public async Task<bool> IsPerma([NotNull] IRole role)
-        {
-            var permaSettings = await _dbPerma.Get(role.Guild.Id);
-            return role.Name.StartsWith(permaSettings.Prefix, StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        ///     Get the auto role prefix of a server.
-        ///     Will reset the prefix to default if it is corrupted.
-        /// </summary>
-        /// <param name="serverId">The id of the server</param>
-        /// <returns>The prefix for auto roles.</returns>
-        public async Task<string> GetAutoPrefix(ulong serverId)
-        {
-            var autoSettings = await _dbAuto.Get(serverId);
-
-            if (string.IsNullOrWhiteSpace(autoSettings.Prefix))
-            {
-                autoSettings.Prefix = "➕";
-                await _dbAuto.Update(autoSettings);
-            }
-
-            return autoSettings.Prefix;
-        }
-
-        /// <summary>
-        ///     Change the prefix for auto roles.
-        /// </summary>
-        /// <param name="serverId">The id of the server.</param>
-        /// <param name="prefix">the new prefix.</param>
-        /// <exception cref="InvalidPrefixException">Thrown if the prefix is null or empty.</exception>
-        /// <exception cref="PrefixExistsException">Thrown if the prefix is already in use by perma roles.</exception>
-        public async Task SetAutoPrefix(ulong serverId, string prefix)
-        {
-            if (string.IsNullOrWhiteSpace(prefix))
-                throw new InvalidPrefixException("The prefix cannot be null or empty.");
-
-            var permaSettings = await _dbPerma.Get(serverId);
-            if (permaSettings.Prefix.Equals(prefix, StringComparison.OrdinalIgnoreCase))
-                throw new PrefixExistsException(
-                    "The prefix for auto roles cannot be the same as the prefix for perma roles.");
-
-            var autoSettings = await _dbAuto.Get(serverId);
-            autoSettings.Prefix = prefix;
-            await _dbAuto.Update(autoSettings);
-        }
-
-        /// <summary>
-        ///     Get the perma role prefix of a server.
-        ///     Will reset the prefix to default if it is corrupted.
-        /// </summary>
-        /// <param name="serverId">The id of the server</param>
-        /// <returns>The prefix for perma roles.</returns>
-        public async Task<string> GetPermaPrefix(ulong serverId)
-        {
-            var permaSettings = await _dbPerma.Get(serverId);
-
-            if (string.IsNullOrWhiteSpace(permaSettings.Prefix))
-            {
-                permaSettings.Prefix = "👥";
-                await _dbPerma.Update(permaSettings);
-            }
-
-            return permaSettings.Prefix;
-        }
-
-        /// <summary>
-        ///     Change the prefix for perma roles.
-        /// </summary>
-        /// <param name="serverId">The id of the server.</param>
-        /// <param name="prefix">the new prefix.</param>
-        /// <exception cref="InvalidPrefixException">Thrown if the prefix is null or empty.</exception>
-        /// <exception cref="PrefixExistsException">Thrown if the prefix is already in use by auto roles.</exception>
-        public async Task SetPermaPrefix(ulong serverId, string prefix)
-        {
-            if (string.IsNullOrWhiteSpace(prefix))
-                throw new InvalidPrefixException("The prefix cannot be null or empty.");
-
-            var autoSettings = await _dbAuto.Get(serverId);
-            if (autoSettings.Prefix.Equals(prefix, StringComparison.OrdinalIgnoreCase))
-                throw new PrefixExistsException(
-                    "The prefix for perma roles cannot be the same as the prefix for auto roles.");
-
-            var permaSettings = await _dbPerma.Get(serverId);
-            permaSettings.Prefix = prefix;
-            await _dbPerma.Update(permaSettings);
-        }
-        */
     }
 }

@@ -21,7 +21,11 @@ namespace Core.Entity
         [ForeignKey(nameof(ServerId))]
         public virtual Server Server { get; set; }
 
-        [ForeignKey("Roles")]
-        public virtual List<Role> Roles { get; set; }
+        public virtual List<ReactionRoleData> Roles { get; set; }
+
+        public ReactionRole()
+        {
+            Roles = new List<ReactionRoleData>();
+        }
     }
 }

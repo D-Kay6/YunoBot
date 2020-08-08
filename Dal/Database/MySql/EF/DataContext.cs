@@ -31,9 +31,11 @@ namespace Dal.Database.MySql.EF
         public DbSet<GeneratedChannel> GeneratedChannels { get; set; }
 
         public DbSet<DynamicRole> DynamicRoles { get; set; }
+        public DbSet<DynamicRoleData> DynamicRoleData { get; set; }
         public DbSet<DynamicRoleIgnore> IgnoredUsers { get; set; }
 
         public DbSet<ReactionRole> ReactionRoles { get; set; }
+        public DbSet<ReactionRoleData> ReactionRoleData { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -50,8 +52,11 @@ namespace Dal.Database.MySql.EF
             modelBuilder.Entity<Ban>().HasKey(x => new {x.UserId, x.ServerId});
             modelBuilder.Entity<GeneratedChannel>().HasKey(x => new {x.ServerId, x.ChannelId});
             modelBuilder.Entity<DynamicRoleIgnore>().HasKey(x => new {x.ServerId, x.UserId});
+            modelBuilder.Entity<DynamicRoleData>().HasKey(x => new {x.RoleId, x.DynamicRoleId});
+            modelBuilder.Entity<ReactionRoleData>().HasKey(x => new {x.RoleId, x.ReactionRoleId});
 
             modelBuilder.Entity<DynamicChannel>().HasIndex(x => new {x.ServerId, x.Type}).IsUnique();
+            modelBuilder.Entity<DynamicRole>().HasIndex(x => new {x.Type, x.Status}).IsUnique();
         }
     }
 }

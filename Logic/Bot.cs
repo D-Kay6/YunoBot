@@ -27,7 +27,6 @@ namespace Logic
             {
                 LogLevel = LogSeverity.Verbose,
                 ConnectionTimeout = 30000,
-#if !DEBUG
                 GatewayIntents = GatewayIntents.Guilds |
                                  GatewayIntents.GuildMembers |
                                  GatewayIntents.GuildIntegrations |
@@ -35,7 +34,6 @@ namespace Logic
                                  GatewayIntents.GuildMessages |
                                  GatewayIntents.GuildMessageReactions |
                                  GatewayIntents.DirectMessages
-#endif
                 //TotalShards = 2
             });
             _client.Log += Log;
@@ -105,8 +103,10 @@ namespace Logic
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateDynamicChannel());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateGeneratedChannel());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateDynamicRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateDynamicRoleData());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRoleIgnore());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateReactionRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateReactionRoleData());
 
             serviceCollection.AddTransient(serviceProvider => ConfigFactory.GenerateConfig());
             serviceCollection.AddTransient(serviceProvider => LocalizationFactory.GenerateLocalization());
