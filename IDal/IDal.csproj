@@ -9,8 +9,4 @@
     <ProjectReference Include="..\Entitiy\Entity.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
-
 </Project>

@@ -25,7 +25,6 @@ namespace Logic.Handlers
 #if DEBUG
             if (!arg3.UserId.Equals(255453041531158538)) return;
 #endif
-            arg3.Emote.
         }
 
         private async Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)

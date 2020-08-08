@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Enum;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entity
@@ -6,14 +7,12 @@ namespace Core.Entity
     public abstract class Automation
     {
         [Key]
-        [Column(Order = 0)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public ulong Id { get; set; }
+
         public ulong ServerId { get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        public string Prefix { get; set; }
-
-        public bool Enabled { get; set; }
+        public AutomationType Type { get; set; }
 
         [ForeignKey(nameof(ServerId))]
         public virtual Server Server { get; set; }

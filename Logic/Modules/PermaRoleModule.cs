@@ -43,14 +43,12 @@ namespace Logic.Modules
         [Group("prefix")]
         public class PermaRolePrefixModule : ModuleBase<ShardedCommandContext>
         {
-            private readonly RoleService _role;
+            private readonly DynamicRoleService _role;
             private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
-            private PermaRole _data;
-
-            public PermaRolePrefixModule(RoleService role, LogsService logs, IDbLanguage language, LocalizationService localization)
+            public PermaRolePrefixModule(DynamicRoleService role, LogsService logs, IDbLanguage language, LocalizationService localization)
             {
                 _role = role;
                 _logs = logs;
@@ -67,22 +65,20 @@ namespace Logic.Modules
             private async Task Prepare()
             {
                 await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
-                _data = await _role.LoadPerma(Context.Guild.Id);
             }
 
             [Command]
             public async Task DefaultPermaRolePrefix()
             {
-                await ReplyAsync(_localization.GetMessage("Permarole prefix default", _data.Prefix));
+                await ReplyAsync(_localization.GetMessage("Permarole prefix default"));
             }
 
             [Command("set")]
             public async Task PermaRolePrefixSet([Remainder] string message)
             {
-                _data.Prefix = message;
                 try
                 {
-                    await _role.Save(_data);
+                    //await _role.Save(_data);
                 }
                 catch (InvalidPrefixException)
                 {

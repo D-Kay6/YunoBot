@@ -7,13 +7,13 @@ namespace Dal.Database.MySql.EF.Repositories
 {
     public class RoleIgnoreRepository : BaseRepository, IDbRoleIgnore
     {
-        public async Task Add(RoleIgnore value)
+        public async Task Add(DynamicRoleIgnore value)
         {
             Context.IgnoredUsers.Add(value);
             await Context.SaveChangesAsync();
         }
 
-        public async Task Update(RoleIgnore value)
+        public async Task Update(DynamicRoleIgnore value)
         {
             //try
             //{
@@ -29,13 +29,13 @@ namespace Dal.Database.MySql.EF.Repositories
             await Context.SaveChangesAsync();
         }
 
-        public async Task Remove(RoleIgnore value)
+        public async Task Remove(DynamicRoleIgnore value)
         {
             Context.IgnoredUsers.Remove(value);
             await Context.SaveChangesAsync();
         }
 
-        public async Task<RoleIgnore> Get(ulong serverId, ulong userId)
+        public async Task<DynamicRoleIgnore> Get(ulong serverId, ulong userId)
         {
             var value = await Context.IgnoredUsers.FindAsync(serverId, userId);
             if (value != null)

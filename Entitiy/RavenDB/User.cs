@@ -11,6 +11,6 @@ namespace Entity.RavenDB
         [MaxLength(32)] public string Name { get; set; }
 
         public virtual List<Core.Entity.Ban> Bans { get; set; }
-        public virtual List<RoleIgnore> IgnoredRoles { get; set; }
+        public virtual List<DynamicRoleIgnore> IgnoredRoles { get; set; }
     }
 }

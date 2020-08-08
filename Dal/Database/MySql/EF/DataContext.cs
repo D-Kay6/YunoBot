@@ -18,6 +18,7 @@ namespace Dal.Database.MySql.EF
 
         public DbSet<Server> Servers { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
         public DbSet<Ban> Bans { get; set; }
 
@@ -26,13 +27,13 @@ namespace Dal.Database.MySql.EF
         public DbSet<CustomCommand> CustomCommands { get; set; }
         public DbSet<WelcomeMessage> WelcomeMessages { get; set; }
 
-        public DbSet<AutoChannel> AutoChannels { get; set; }
-        public DbSet<PermaChannel> PermaChannels { get; set; }
+        public DbSet<DynamicChannel> DynamicChannels { get; set; }
         public DbSet<GeneratedChannel> GeneratedChannels { get; set; }
 
-        public DbSet<AutoRole> AutoRoles { get; set; }
-        public DbSet<PermaRole> PermaRoles { get; set; }
-        public DbSet<RoleIgnore> IgnoredUsers { get; set; }
+        public DbSet<DynamicRole> DynamicRoles { get; set; }
+        public DbSet<DynamicRoleIgnore> IgnoredUsers { get; set; }
+
+        public DbSet<ReactionRole> ReactionRoles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -48,7 +49,9 @@ namespace Dal.Database.MySql.EF
             modelBuilder.Entity<CustomCommand>().HasKey(x => new {x.ServerId, x.Command});
             modelBuilder.Entity<Ban>().HasKey(x => new {x.UserId, x.ServerId});
             modelBuilder.Entity<GeneratedChannel>().HasKey(x => new {x.ServerId, x.ChannelId});
-            modelBuilder.Entity<RoleIgnore>().HasKey(x => new {x.ServerId, x.UserId});
+            modelBuilder.Entity<DynamicRoleIgnore>().HasKey(x => new {x.ServerId, x.UserId});
+
+            modelBuilder.Entity<DynamicChannel>().HasIndex(x => new {x.ServerId, x.Type}).IsUnique();
         }
     }
 }

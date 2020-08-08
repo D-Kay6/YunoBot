@@ -15,6 +15,11 @@ namespace DalFactory
             return new UserRepository();
         }
 
+        public static IDbRole GenerateRole()
+        {
+            return new RoleRepository();
+        }
+
         public static IDbBan GenerateBan()
         {
             return new BanRepository();
@@ -40,9 +45,9 @@ namespace DalFactory
             return new WelcomeSettingsRepository();
         }
 
-        public static IDbAutoChannel GenerateAutoChannel()
+        public static IDbDynamicChannel GenerateDynamicChannel()
         {
-            return new AutoChannelRepository();
+            return new DynamicChannelRepository();
         }
 
         public static IDbGeneratedChannel GenerateGeneratedChannel()
@@ -50,24 +55,19 @@ namespace DalFactory
             return new GeneratedChannelRepository();
         }
 
-        public static IDbPermaChannel GeneratePermaChannel()
+        public static IDbDynamicRole GenerateDynamicRole()
         {
-            return new PermaChannelRepository();
-        }
-
-        public static IDbAutoRole GenerateAutoRole()
-        {
-            return new AutoRoleRepository();
-        }
-
-        public static IDbPermaRole GeneratePermaRole()
-        {
-            return new PermaRoleRepository();
+            return new DynamicRoleRepository();
         }
 
         public static IDbRoleIgnore GenerateRoleIgnore()
         {
             return new RoleIgnoreRepository();
+        }
+
+        public static IDbReactionRole GenerateReactionRole()
+        {
+            return new ReactionRoleRepository();
         }
     }
 }

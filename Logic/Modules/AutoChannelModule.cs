@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Core.Enum;
 using Discord;
 using Discord.Commands;
 using IDal.Database;
@@ -15,11 +16,11 @@ namespace Logic.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class AutoChannelModule : ModuleBase<ShardedCommandContext>
     {
-        private readonly ChannelService _channel;
+        private readonly DynamicChannelService _channel;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
 
-        public AutoChannelModule(IDbLanguage language, ChannelService channel, LocalizationService localization)
+        public AutoChannelModule(IDbLanguage language, DynamicChannelService channel, LocalizationService localization)
         {
             _language = language;
             _channel = channel;
@@ -38,7 +39,6 @@ namespace Logic.Modules
         }
 
         [Command]
-        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DefaultAutoChannel()
         {
             await ReplyAsync(_localization.GetMessage("Autochannel default"));
@@ -47,7 +47,7 @@ namespace Logic.Modules
         [Command("delete")]
         public async Task AutoChannelDelete()
         {
-            var data = await _channel.LoadAuto(Context.Guild.Id);
+            var data = await _channel.Load(Context.Guild.Id, AutomationType.Temporary);
             var channels = Context.Guild.VoiceChannels.Where(c => c.Name.StartsWith(data.Name));
             foreach (var channel in channels)
             {
@@ -69,14 +69,14 @@ namespace Logic.Modules
         [Group("prefix")]
         public class AutoChannelPrefixModule : ModuleBase<ShardedCommandContext>
         {
-            private readonly ChannelService _channel;
+            private readonly DynamicChannelService _channel;
             private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
-            private AutoChannel _data;
+            private DynamicChannel _data;
 
-            public AutoChannelPrefixModule(IDbLanguage language, ChannelService channel, LogsService logs, LocalizationService localization)
+            public AutoChannelPrefixModule(IDbLanguage language, DynamicChannelService channel, LogsService logs, LocalizationService localization)
             {
                 _language = language;
                 _channel = channel;
@@ -93,7 +93,7 @@ namespace Logic.Modules
             private async Task Prepare()
             {
                 await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
-                _data = await _channel.LoadAuto(Context.Guild.Id);
+                _data = await _channel.Load(Context.Guild.Id, AutomationType.Temporary);
             }
 
             [Command]
@@ -133,14 +133,14 @@ namespace Logic.Modules
         [Group("name")]
         public class AutoChannelNameModule : ModuleBase<ShardedCommandContext>
         {
-            private readonly ChannelService _channel;
+            private readonly DynamicChannelService _channel;
             private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
-            private AutoChannel _data;
+            private DynamicChannel _data;
 
-            public AutoChannelNameModule(IDbLanguage language, ChannelService channel, LogsService logs, LocalizationService localization)
+            public AutoChannelNameModule(IDbLanguage language, DynamicChannelService channel, LogsService logs, LocalizationService localization)
             {
                 _language = language;
                 _channel = channel;
@@ -157,7 +157,7 @@ namespace Logic.Modules
             private async Task Prepare()
             {
                 await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
-                _data = await _channel.LoadAuto(Context.Guild.Id);
+                _data = await _channel.Load(Context.Guild.Id, AutomationType.Temporary);
             }
 
             [Command]

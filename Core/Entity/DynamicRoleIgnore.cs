@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entity
 {
-    public class CustomCommand
+    public class DynamicRoleIgnore
     {
         [Key]
         [Column(Order = 0)]
@@ -11,14 +11,12 @@ namespace Core.Entity
 
         [Key]
         [Column(Order = 1)]
-        [MaxLength(50)]
-        public string Command { get; set; }
-
-        [Required]
-        [MaxLength(2000)]
-        public string Response { get; set; }
+        public ulong UserId { get; set; }
 
         [ForeignKey(nameof(ServerId))]
         public virtual Server Server { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public virtual User User { get; set; }
     }
 }

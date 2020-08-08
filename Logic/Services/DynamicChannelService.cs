@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Core.Enum;
 using Discord;
 using IDal.Database;
 using Logic.Exceptions;
@@ -10,105 +11,81 @@ using System.Threading.Tasks;
 
 namespace Logic.Services
 {
-    public class ChannelService
+    public class DynamicChannelService
     {
-        private readonly IDbAutoChannel _dbAuto;
+        private readonly IDbDynamicChannel _dbDynamic;
         private readonly IDbGeneratedChannel _dbGenerated;
-        private readonly IDbPermaChannel _dbPerma;
 
-        public ChannelService(IDbAutoChannel dbAuto, IDbGeneratedChannel dbGenerated, IDbPermaChannel dbPerma)
+        public DynamicChannelService(IDbDynamicChannel dbDynamic, IDbGeneratedChannel dbGenerated)
         {
-            _dbAuto = dbAuto;
+            _dbDynamic = dbDynamic;
             _dbGenerated = dbGenerated;
-            _dbPerma = dbPerma;
         }
 
         /// <summary>
-        ///     Get the settings for auto channels.
+        ///     Get the settings for dynamic channels.
         ///     Will reset corrupted values to default.
         /// </summary>
         /// <param name="serverId">The id of the server.</param>
-        /// <returns>The auto channel settings.</returns>
-        public async Task<AutoChannel> LoadAuto(ulong serverId)
+        /// <param name="type">The type of the dynamic settings.</param>
+        /// <returns>The dynamic channel settings.</returns>
+        public async Task<DynamicChannel> Load(ulong serverId, AutomationType type)
         {
-            var settings = await _dbAuto.Get(serverId);
-
+            var channels = await _dbDynamic.List(serverId);
+            var settings = channels.FirstOrDefault(x => x.Type == type);
             if (settings == null)
             {
-                settings = new AutoChannel
+                settings = new DynamicChannel(type)
                 {
                     ServerId = serverId
                 };
-                await _dbAuto.Add(settings);
+                await _dbDynamic.Add(settings);
                 return settings;
             }
 
             var update = false;
             if (string.IsNullOrWhiteSpace(settings.Prefix))
             {
-                settings.Prefix = "➕";
-                update = true;
-            }
-
-            if (string.IsNullOrWhiteSpace(settings.Name))
-            {
-                settings.Name = "--channel";
-                update = true;
-            }
-
-            if (update)
-                await _dbAuto.Update(settings);
-
-            return settings;
-        }
-
-        /// <summary>
-        ///     Get the settings for perma channels.
-        ///     Will reset corrupted values to default.
-        /// </summary>
-        /// <param name="serverId">The id of the server.</param>
-        /// <returns>The perma channel settings.</returns>
-        public async Task<PermaChannel> LoadPerma(ulong serverId)
-        {
-            var settings = await _dbPerma.Get(serverId);
-
-            if (settings == null)
-            {
-                settings = new PermaChannel
+                switch (type)
                 {
-                    ServerId = serverId
-                };
-                await _dbPerma.Add(settings);
-                return settings;
-            }
-
-            var update = false;
-            if (string.IsNullOrWhiteSpace(settings.Prefix))
-            {
-                settings.Prefix = "👥";
+                    case AutomationType.Temporary:
+                        settings.Prefix = "➕";
+                        break;
+                    case AutomationType.Permanent:
+                        settings.Prefix = "👥";
+                        break;
+                }
                 update = true;
             }
 
             if (string.IsNullOrWhiteSpace(settings.Name))
             {
-                settings.Name = "{0} channel";
+                switch (type)
+                {
+                    case AutomationType.Temporary:
+                        settings.Name = "--channel";
+                        break;
+                    case AutomationType.Permanent:
+                        settings.Name = "{0} channel";
+                        break;
+                }
                 update = true;
             }
 
             if (update)
-                await _dbPerma.Update(settings);
+                await _dbDynamic.Update(settings);
 
             return settings;
         }
 
         /// <summary>
-        ///     Save the new settings for auto channels.
+        ///     Save the new settings for dynamic channels.
         /// </summary>
-        /// <param name="settings">The new settings for auto channels.</param>
+        /// <param name="settings">The new settings for dynamic channels.</param>
         /// <exception cref="InvalidPrefixException">Thrown if the prefix is null or empty.</exception>
         /// <exception cref="InvalidNameException">Thrown if the name is null or empty.</exception>
         /// <exception cref="PrefixExistsException">Thrown if the prefix is already in use by perma channels.</exception>
-        public async Task Save(AutoChannel settings)
+        public async Task Save(DynamicChannel settings)
         {
             if (string.IsNullOrWhiteSpace(settings.Prefix))
                 throw new InvalidPrefixException("The prefix cannot be null or empty.");
@@ -116,35 +93,13 @@ namespace Logic.Services
             if (string.IsNullOrWhiteSpace(settings.Name))
                 throw new InvalidNameException("The name cannot be null or empty.");
 
-            var permaSettings = await _dbPerma.Get(settings.ServerId);
-            if (permaSettings.Prefix.Equals(settings.Prefix, StringComparison.OrdinalIgnoreCase))
-                throw new PrefixExistsException(
-                    "The prefix for auto channels cannot be the same as the prefix for perma channels.");
+            var channels = await _dbDynamic.List(settings.ServerId);
+            if (channels.Any(x => 
+                x.Prefix.Equals(settings.Prefix, StringComparison.OrdinalIgnoreCase) && 
+                x.Id != settings.Id)) 
+                throw new PrefixExistsException("The prefix for auto channels cannot be the same as the prefix for perma channels.");
 
-            await _dbAuto.Update(settings);
-        }
-
-        /// <summary>
-        ///     Save the new settings for perma channel.
-        /// </summary>
-        /// <param name="settings">The new settings for perma channels.</param>
-        /// <exception cref="InvalidPrefixException">Thrown if the prefix is null or empty.</exception>
-        /// <exception cref="InvalidNameException">Thrown if the name is null or empty.</exception>
-        /// <exception cref="PrefixExistsException">Thrown if the prefix is already in use by auto channels.</exception>
-        public async Task Save(PermaChannel settings)
-        {
-            if (string.IsNullOrWhiteSpace(settings.Prefix))
-                throw new InvalidPrefixException("The prefix cannot be null or empty.");
-
-            if (string.IsNullOrWhiteSpace(settings.Name))
-                throw new InvalidNameException("The name may not be null or empty.");
-
-            var autoSettings = await _dbAuto.Get(settings.ServerId);
-            if (autoSettings.Prefix.Equals(settings.Prefix, StringComparison.OrdinalIgnoreCase))
-                throw new PrefixExistsException(
-                    "The prefix for perma channels cannot be the same as the prefix for auto channels.");
-
-            await _dbPerma.Update(settings);
+            await _dbDynamic.Update(settings);
         }
 
         /// <summary>

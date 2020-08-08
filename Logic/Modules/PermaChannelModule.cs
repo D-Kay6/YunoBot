@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Core.Enum;
 using Discord;
 using Discord.Commands;
 using IDal.Database;
@@ -43,14 +44,14 @@ namespace Logic.Modules
         [Group("prefix")]
         public class PermaChannelPrefixModule : ModuleBase<ShardedCommandContext>
         {
-            private readonly ChannelService _channel;
+            private readonly DynamicChannelService _channel;
             private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
-            private PermaChannel _data;
+            private DynamicChannel _data;
 
-            public PermaChannelPrefixModule(ChannelService channel, LogsService logs, IDbLanguage language, LocalizationService localization)
+            public PermaChannelPrefixModule(DynamicChannelService channel, LogsService logs, IDbLanguage language, LocalizationService localization)
             {
                 _channel = channel;
                 _logs = logs;
@@ -67,7 +68,7 @@ namespace Logic.Modules
             private async Task Prepare()
             {
                 await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
-                _data = await _channel.LoadPerma(Context.Guild.Id);
+                _data = await _channel.Load(Context.Guild.Id, AutomationType.Permanent);
             }
 
             [Command]
@@ -107,14 +108,14 @@ namespace Logic.Modules
         [Group("name")]
         public class PermaChannelNameModule : ModuleBase<ShardedCommandContext>
         {
-            private readonly ChannelService _channel;
+            private readonly DynamicChannelService _channel;
             private readonly LogsService _logs;
             private readonly IDbLanguage _language;
             private readonly LocalizationService _localization;
 
-            private PermaChannel _data;
+            private DynamicChannel _data;
 
-            public PermaChannelNameModule(ChannelService channel, LogsService logs, IDbLanguage language, LocalizationService localization)
+            public PermaChannelNameModule(DynamicChannelService channel, LogsService logs, IDbLanguage language, LocalizationService localization)
             {
                 _channel = channel;
                 _language = language;
@@ -130,7 +131,7 @@ namespace Logic.Modules
             private async Task Prepare()
             {
                 await _localization.Load(await _language.GetLanguage(Context.Guild.Id));
-                _data = await _channel.LoadPerma(Context.Guild.Id);
+                _data = await _channel.Load(Context.Guild.Id, AutomationType.Permanent);
             }
 
             [Command]

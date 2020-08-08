@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Core.Enum;
+using Discord;
 using Discord.Net;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -13,12 +14,12 @@ namespace Logic.Handlers
 {
     public class ChannelHandler : BaseHandler
     {
-        private readonly ChannelService _channel;
+        private readonly DynamicChannelService _channel;
         private readonly HashSet<ulong> _channels;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
 
-        public ChannelHandler(DiscordShardedClient client, LogsService logs, ChannelService channel, IDbLanguage language, LocalizationService localization) : base(client, logs)
+        public ChannelHandler(DiscordShardedClient client, LogsService logs, DynamicChannelService channel, IDbLanguage language, LocalizationService localization) : base(client, logs)
         {
             _channel = channel;
             _language = language;
@@ -108,7 +109,7 @@ namespace Logic.Handlers
             RestVoiceChannel newChannel = null;
             try
             {
-                var auto = await _channel.LoadAuto(channel.Guild.Id);
+                var auto = await _channel.Load(channel.Guild.Id, AutomationType.Temporary);
                 if (channel.Name.StartsWith(auto.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     newChannel = await DuplicateChannel(channel, user, auto.Name);
@@ -117,7 +118,7 @@ namespace Logic.Handlers
                     return;
                 }
 
-                var perma = await _channel.LoadPerma(channel.Guild.Id);
+                var perma = await _channel.Load(channel.Guild.Id, AutomationType.Permanent);
                 if (channel.Name.StartsWith(perma.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     newChannel = await DuplicateChannel(channel, user, perma.Name);

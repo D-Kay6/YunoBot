@@ -96,17 +96,17 @@ namespace Logic
 
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateServer());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateUser());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRole());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateBan());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateLanguage());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommandSetting());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommandCustom());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateWelcome());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateAutoChannel());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateDynamicChannel());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateGeneratedChannel());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GeneratePermaChannel());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateAutoRole());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GeneratePermaRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateDynamicRole());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRoleIgnore());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateReactionRole());
 
             serviceCollection.AddTransient(serviceProvider => ConfigFactory.GenerateConfig());
             serviceCollection.AddTransient(serviceProvider => LocalizationFactory.GenerateLocalization());
@@ -118,8 +118,8 @@ namespace Logic
             serviceCollection.AddSingleton<ServerService>();
             serviceCollection.AddSingleton<UserService>();
             serviceCollection.AddSingleton<CommandService>();
-            serviceCollection.AddSingleton<ChannelService>();
-            serviceCollection.AddSingleton<RoleService>();
+            serviceCollection.AddSingleton<DynamicChannelService>();
+            serviceCollection.AddSingleton<DynamicRoleService>();
             serviceCollection.AddSingleton<LogsService>();
             serviceCollection.AddSingleton<RestartService>();
             serviceCollection.AddSingleton<WelcomeService>();

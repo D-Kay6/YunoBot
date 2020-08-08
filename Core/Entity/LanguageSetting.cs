@@ -6,15 +6,16 @@ namespace Core.Entity
 {
     public class LanguageSetting
     {
+        [Key]
+        public ulong ServerId { get; set; }
+
+        public Language Language { get; set; }
+
+        [ForeignKey(nameof(ServerId))] public virtual Server Server { get; set; }
+
         public LanguageSetting()
         {
             Language = Language.English;
         }
-
-        [Key] public ulong ServerId { get; set; }
-
-        [Required] public Language Language { get; set; }
-
-        [ForeignKey(nameof(ServerId))] public virtual Server Server { get; set; }
     }
 }
