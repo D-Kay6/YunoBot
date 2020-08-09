@@ -1,10 +1,15 @@
-using Core.Entity;
+﻿using Core.Entity;
 using Core.Enum;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using IDal.Database;
 using Logic.Commands.TypeReaders;
+using Logic.Exceptions;
 using Logic.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Logic.Commands.Modules
@@ -55,21 +60,24 @@ namespace Logic.Commands.Modules
                 return;
             }
 
-            var dynamicRole = await _dynamic.Get(Context.Guild.Id, status);
+            var dynamicRole = await _dynamic.Get(Context.Guild.Id, status, type);
             if (dynamicRole != null)
             {
-                var result = dynamicRole.Roles.Add(new DynamicRoleData
+                try
                 {
-                    RoleId = role.Id,
-                    DynamicRoleId = dynamicRole.Id
-                });
-                if (!result)
+                    await _dynamic.Save(new DynamicRoleData
+                    {
+                        RoleId = role.Id,
+                        DynamicRoleId = dynamicRole.Id,
+                        DynamicRole = dynamicRole
+                    });
+                }
+                catch (DataExistsException e)
                 {
+
                     await ReplyAsync(_localization.GetMessage("Dynamic role invalid add role"));
                     return;
                 }
-
-                await _dynamic.Save(dynamicRole);
             }
             else
             {
@@ -83,43 +91,179 @@ namespace Logic.Commands.Modules
                 await _dynamic.Save(new DynamicRoleData
                 {
                     RoleId = role.Id,
-                    DynamicRoleId = dynamicRole.Id
+                    DynamicRoleId = dynamicRole.Id,
+                    DynamicRole = dynamicRole
                 });
             }
 
             switch (type)
             {
                 case AutomationType.Temporary:
-                    await ReplyAsync(_localization.GetMessage("Dynamic role add temp finish", role.Name, dynamicRole.Status));
+                    await ReplyAsync(_localization.GetMessage("Dynamic role add temp", role.Name, dynamicRole.Status));
                     break;
                 case AutomationType.Permanent:
-                    await ReplyAsync(_localization.GetMessage("Dynamic role add perm finish", role.Name, dynamicRole.Status));
+                    await ReplyAsync(_localization.GetMessage("Dynamic role add perm", role.Name, dynamicRole.Status));
                     break;
             }
+        }
+
+        [Command("remove all")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task DynamicRoleRemove()
+        {
+            var roles = await _dynamic.Get(Context.Guild.Id);
+            if (roles == null || !roles.Any())
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove amount"));
+                return;
+            }
+
+            await _dynamic.Delete(roles);
+            await ReplyAsync(_localization.GetMessage("Dynamic role remove all"));
         }
 
         [Command("remove")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DynamicRoleRemove(string status)
         {
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove status"));
+                return;
+            }
+
+            var roles = await _dynamic.Get(Context.Guild.Id, status);
+            if (roles == null || !roles.Any())
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove amount"));
+                return;
+            }
+
+            await _dynamic.Delete(roles);
+            await ReplyAsync(_localization.GetMessage("Dynamic role remove game all", status));
         }
 
         [Command("remove")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task DynamicRoleRemove(string status, AutomationType type)
+        public async Task DynamicRoleRemove([OverrideTypeReader(typeof(AutomationTypeReader))] AutomationType type)
         {
+            var roles = await _dynamic.Get(Context.Guild.Id, type: type);
+            if (roles == null || !roles.Any())
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove amount"));
+                return;
+            }
+
+            await _dynamic.Delete(roles);
+            switch (type)
+            {
+                case AutomationType.Temporary:
+                    await ReplyAsync(_localization.GetMessage("Dynamic role remove temp"));
+                    break;
+                case AutomationType.Permanent:
+                    await ReplyAsync(_localization.GetMessage("Dynamic role remove perm"));
+                    break;
+            }
         }
 
         [Command("remove")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task DynamicRoleRemove(string status, AutomationType type, IRole role)
+        public async Task DynamicRoleRemove(string status, [OverrideTypeReader(typeof(AutomationTypeReader))] AutomationType type)
         {
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove status"));
+                return;
+            }
+
+            var role = await _dynamic.Get(Context.Guild.Id, status, type);
+            if (role == null)
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove amount"));
+                return;
+            }
+
+            await _dynamic.Delete(role);
+            switch (type)
+            {
+                case AutomationType.Temporary:
+                    await ReplyAsync(_localization.GetMessage("Dynamic role remove game temp", status));
+                    break;
+                case AutomationType.Permanent:
+                    await ReplyAsync(_localization.GetMessage("Dynamic role remove game perm", status));
+                    break;
+            }
+        }
+
+        [Command("remove")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task DynamicRoleRemove(string status, [OverrideTypeReader(typeof(AutomationTypeReader))] AutomationType type, IRole role)
+        {
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove status"));
+                return;
+            }
+
+            var dynamicRole = await _dynamic.Get(Context.Guild.Id, status, type);
+            if (dynamicRole == null)
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove amount"));
+                return;
+            }
+
+            var dynamicData = dynamicRole.Roles.FirstOrDefault(x => x.RoleId == role.Id);
+            if (dynamicData == null)
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid remove role", dynamicRole.Status));
+                return;
+            }
+
+            await _dynamic.Delete(dynamicData);
+            switch (type)
+            {
+                case AutomationType.Temporary:
+                    await ReplyAsync(_localization.GetMessage("Dynamic role remove game role temp", role.Name, status));
+                    break;
+                case AutomationType.Permanent:
+                    await ReplyAsync(_localization.GetMessage("Dynamic role remove game role perm", role.Name, status));
+                    break;
+            }
         }
 
         [Command("list")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DynamicRoleList()
         {
+            var embedBuilder = new EmbedBuilder();
+            var dynamicRoles = await _dynamic.Get(Context.Guild.Id);
+            if (!dynamicRoles.Any())
+            {
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid list"));
+                return;
+            }
+
+            foreach (var dynamicRole in dynamicRoles.OrderBy(x => x.Status).ThenBy(x => x.Type))
+            {
+                if (!dynamicRole.Roles.Any()) continue;
+
+                var name = $"{dynamicRole.Status} ({dynamicRole.Type})";
+                var roles = new List<SocketRole>();
+                foreach (var roleData in dynamicRole.Roles.ToList())
+                {
+                    var role = Context.Guild.GetRole(roleData.RoleId);
+                    if (role == null)
+                    {
+                        await _dynamic.Delete(roleData);
+                        continue;
+                    }
+                    roles.Add(role);
+                }
+
+                embedBuilder.AddField(name, string.Join("\r\n", roles.Select(x => x.Name)));
+            }
+
+            await ReplyAsync(embed: embedBuilder.Build());
         }
 
         [Group("ignore")]

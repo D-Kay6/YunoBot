@@ -1,5 +1,6 @@
 ﻿using Core.Entity;
 using Core.Enum;
+using Discord;
 using IDal.Database;
 using Logic.Exceptions;
 using System;
@@ -22,11 +23,22 @@ namespace Logic.Services
             _dbIgnore = dbIgnore;
         }
 
-        public async Task<DynamicRole> Get(ulong serverId, string status)
+        public async Task<List<DynamicRole>> Get(ulong serverId, string status = null, AutomationType? type = null)
+        {
+            IEnumerable<DynamicRole> dynamicRoles = await _dbDynamic.List(serverId);
+            if (!string.IsNullOrWhiteSpace(status))
+                dynamicRoles = dynamicRoles.Where(x => x.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+
+            if (type != null)
+                dynamicRoles = dynamicRoles.Where(x => x.Type == type);
+
+            return dynamicRoles.ToList();
+        }
+
+        public async Task<DynamicRole> Get(ulong serverId, string status, AutomationType type)
         {
             var dynamicRoles = await _dbDynamic.List(serverId);
-            var dynamicRole = dynamicRoles.FirstOrDefault(x => x.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
-            return dynamicRole;
+            return dynamicRoles.FirstOrDefault(x => x.Type == type && x.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task<List<DynamicRole>> Find(ulong serverId, string status, AutomationType? type = null)
@@ -51,7 +63,7 @@ namespace Logic.Services
                 throw new InvalidStatusException("The status of a dynamic role may not be empty.");
 
             var roles = await _dbDynamic.List(settings.ServerId);
-            if (roles.Any(x => x.Type == settings.Type && x.Status.Equals(settings.Status, StringComparison.OrdinalIgnoreCase)))
+            if (roles.Any(x => x.Id != settings.Id && x.Type == settings.Type && x.Status.Equals(settings.Status, StringComparison.OrdinalIgnoreCase)))
                 throw new StatusExistsException("The status must be unique for every dynamic type.");
 
             await _dbDynamic.Update(settings);
@@ -71,10 +83,30 @@ namespace Logic.Services
             if (data.DynamicRoleId == 0)
                 throw new DataIncompleteException("The id of the dynamic role is missing.");
 
-            if (await _dbData.Get(data.RoleId, data.DynamicRoleId) != null)
+            var roleData = await _dbData.Get(data.RoleId);
+            if (roleData != null && roleData.Any(x => 
+                x.DynamicRoleId == data.DynamicRoleId || 
+                x.DynamicRole.ServerId == data.DynamicRole.ServerId && 
+                x.DynamicRole.Status == data.DynamicRole.Status))
                 throw new DataExistsException("The role data already exists.");
 
+            data.DynamicRole = null;
             await _dbData.Add(data);
+        }
+
+        public Task Delete(DynamicRole role)
+        {
+            return _dbDynamic.Remove(role);
+        }
+
+        public Task Delete(List<DynamicRole> roles)
+        {
+            return _dbDynamic.Remove(roles);
+        }
+
+        public Task Delete(DynamicRoleData data)
+        {
+            return _dbData.Remove(data);
         }
 
         /// <summary>

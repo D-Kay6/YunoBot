@@ -27,6 +27,15 @@ namespace Dal.Database.MySql.EF.Repositories
             return Context.SaveChangesAsync();
         }
 
+        public Task Remove(IEnumerable<DynamicRole> values)
+        {
+            foreach (var value in values)
+            {
+                Context.DynamicRoles.Remove(value);
+            }
+            return Context.SaveChangesAsync();
+        }
+
         public async Task<DynamicRole> Get(ulong id)
         {
             return await Context.DynamicRoles.FindAsync(id);

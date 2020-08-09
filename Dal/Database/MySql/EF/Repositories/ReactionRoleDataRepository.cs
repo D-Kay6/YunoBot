@@ -27,9 +27,9 @@ namespace Dal.Database.MySql.EF.Repositories
             return Context.SaveChangesAsync();
         }
 
-        public async Task<ReactionRoleData> Get(ulong roleId, ulong reactionRoleId)
+        public async Task<ReactionRoleData> Get(ulong reactionRoleId, ulong roleId)
         {
-            return await Context.ReactionRoleData.FindAsync(roleId, reactionRoleId);
+            return await Context.ReactionRoleData.FindAsync(reactionRoleId, roleId);
         }
     }
 }

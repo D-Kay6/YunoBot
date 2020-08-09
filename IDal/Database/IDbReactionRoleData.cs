@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IDal.Database
@@ -8,6 +9,6 @@ namespace IDal.Database
         Task Add(ReactionRoleData value);
         Task Update(ReactionRoleData value);
         Task Remove(ReactionRoleData value);
-        Task<ReactionRoleData> Get(ulong roleId, ulong reactionroleId);
+        Task<ReactionRoleData> Get(ulong reactionRoleId, ulong roleId);
     }
 }

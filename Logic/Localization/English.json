@@ -73,9 +73,6 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 		"Permachannel name set": "The new name for perma generated channels is '{0}'.",
 		"Permachannel name invalid empty": "The name may not be empty.",
 
-
-		"Dynamic role invalid status": "I cannot create a dynamic role if you do not give me a game to assign it to.",
-		"Dynamic role invalid role add": "That role is already assigned to that game.",
 		
 		"Dynamic role default": "Dynamic roles are roles that are granted when a user starts playing a game.
 
@@ -91,17 +88,24 @@ Keep in mind that a game name with a space needs double quotes aroung it.
 Example:
 \"League of Legends\"",
 
+		"Dynamic role invalid add status": "I cannot create a dynamic role if you do not give me a game to assign it to.",
+		"Dynamic role invalid add role": "That role is already assigned to that game.",
+		"Dynamic role invalid remove status": "I can't find any settings if you won't give me the game name.",
+		"Dynamic role invalid remove role": "I couldn't find that role in the dynamic roles for `{0}`.",
+		"Dynamic role invalid remove amount": "I couldn't find any dynamic roles that I can remove.",
+		"Dynamic role invalid list": "There are no dynamic roles set-up for this server.",
 
-		"Dynamic role add temp finish": "`{0}` will now be temporarily given to users playing `{1}`.",
-		"Dynamic role add perm finish": "`{0}` will now be permanently given to users playing `{1}`.",
-		"Autorole prefix set": "The new autorole prefix is `{0}`.",
-		"Autorole prefix invalid empty": "The prefix may not be empty.",
-		"Autorole prefix invalid perma": "I am not able to use the same prefix for both autoroles and permaroles.",
-
-		"Permarole prefix default": "The current permarole prefix for this server is `{0}`.",
-		"Permarole prefix set": "The new permarole prefix is `{0}`.",
-		"Permarole prefix invalid empty": "The prefix may not be empty.",
-		"Permarole prefix invalid auto": "I am not able to use the same prefix for both autoroles and permaroles.",
+		"Dynamic role add temp": "`{0}` will now be temporarily given to users playing `{1}`.",
+		"Dynamic role add perm": "`{0}` will now be permanently given to users playing `{1}`.",
+		
+		"Dynamic role remove all": "All dynamic roles for this server have been removed.",
+		"Dynamic role remove temp": "All temporary dynamic roles have been removed.",
+		"Dynamic role remove perm": "All permanent dynamic roles have been removed.",
+		"Dynamic role remove game all": "All dynamic roles for `{0}` have been removed.",
+		"Dynamic role remove game temp": "The temporary dynamic roles for `{0}` have been removed.",
+		"Dynamic role remove game perm": "The permanent dynamic roles for `{0}` have been removed.",
+		"Dynamic role remove game role temp": "Temporary role `{0}` for `{1}` has been removed.",
+		"Dynamic role remove game role perm": "Permanent role `{0}` for `{1}` has been removed.",
 
 
 		"RoleIgone default on": "You are not registered to gain either ",

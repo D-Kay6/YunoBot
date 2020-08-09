@@ -21,15 +21,26 @@ namespace Dal.Database.MySql.EF.Repositories
             return Context.SaveChangesAsync();
         }
 
-        public Task Remove(DynamicRoleData value)
+        public async Task Remove(DynamicRoleData value)
         {
-            Context.DynamicRoleData.Remove(value);
-            return Context.SaveChangesAsync();
+            var roleData = Context.Entry(value);
+            if (roleData == null) return;
+
+            Context.DynamicRoleData.Remove(roleData.Entity);
+            await Context.SaveChangesAsync();
         }
 
-        public async Task<DynamicRoleData> Get(ulong roleId, ulong dynamicRoleId)
+        public async Task<DynamicRoleData> Get(ulong dynamicRoleId, ulong roleId)
         {
-            return await Context.DynamicRoleData.FindAsync(roleId, dynamicRoleId);
+            return await Context.DynamicRoleData.FindAsync(dynamicRoleId, roleId);
+        }
+
+        public Task<List<DynamicRoleData>> Get(ulong roleId)
+        {
+            return Context.DynamicRoleData.AsNoTracking()
+                .Include(x => x.DynamicRole)
+                .Where(x => x.RoleId == roleId)
+                .ToListAsync();
         }
     }
 }

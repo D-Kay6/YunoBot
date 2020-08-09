@@ -9,6 +9,7 @@ namespace IDal.Database
         Task Add(DynamicRole value);
         Task Update(DynamicRole value);
         Task Remove(DynamicRole value);
+        Task Remove(IEnumerable<DynamicRole> values);
         Task<DynamicRole> Get(ulong id);
         Task<List<DynamicRole>> List(ulong serverId);
     }
