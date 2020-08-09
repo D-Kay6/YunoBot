@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Logic.Exceptions;
+using Logic.Models.Music.Queue;
 using Logic.Models.Music.Search;
 using Logic.Models.Music.Track;
 using System;

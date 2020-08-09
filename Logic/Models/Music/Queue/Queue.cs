@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Logic.Models.Music
+namespace Logic.Models.Music.Queue
 {
     public class Queue
     {

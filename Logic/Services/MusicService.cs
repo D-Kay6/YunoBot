@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Logic.Exceptions;
 using Logic.Models.Music;
 using Logic.Models.Music.Player;
+using Logic.Models.Music.Queue;
 using Logic.Models.Music.Search;
 using Logic.Models.Music.Track;
 using System;

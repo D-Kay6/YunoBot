@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Logic.Models.Music.Track;
 
-namespace Logic.Models.Music
+namespace Logic.Models.Music.Queue
 {
     public interface IPlayable
     {

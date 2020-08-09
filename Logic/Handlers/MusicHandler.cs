@@ -4,6 +4,8 @@ using IDal.Database;
 using Logic.Exceptions;
 using Logic.Extensions;
 using Logic.Models.Music;
+using Logic.Models.Music.Event;
+using Logic.Models.Music.Queue;
 using Logic.Services;
 using System;
 using System.Linq;
@@ -13,9 +15,9 @@ namespace Logic.Handlers
 {
     public class MusicHandler : BaseHandler
     {
+        private readonly MusicService _music;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
-        private readonly MusicService _music;
 
         public MusicHandler(DiscordShardedClient client, LogsService logs, MusicService music, IDbLanguage language, LocalizationService localization) : base(client, logs)
         {
@@ -35,6 +37,12 @@ namespace Logic.Handlers
             _music.Player.TrackException += OnTrackException;
             _music.Player.TrackStuck += OnTrackStuck;
             _music.Player.TrackEnded += OnTrackEnded;
+            _music.Player.PlayerException += OnPlayerException;
+        }
+
+        private async Task OnPlayerException(PlayerExceptionEventArgs arg)
+        {
+            await Logs.Write("Music", arg.Message);
         }
 
         public override Task Finish()

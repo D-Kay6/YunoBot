@@ -1,7 +1,8 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Logic.Exceptions;
-using Logic.Models.Music.Lavalink;
+using Logic.Models.Music.Event;
+using Logic.Models.Music.Queue;
 using Logic.Models.Music.Search;
 using Logic.Models.Music.Track;
 using System;
@@ -10,6 +11,9 @@ using System.Threading.Tasks;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
+using TrackEndedEventArgs = Logic.Models.Music.Event.TrackEndedEventArgs;
+using TrackExceptionEventArgs = Logic.Models.Music.Event.TrackExceptionEventArgs;
+using TrackStuckEventArgs = Logic.Models.Music.Event.TrackStuckEventArgs;
 
 namespace Logic.Models.Music.Player
 {
@@ -43,6 +47,8 @@ namespace Logic.Models.Music.Player
         public event Func<TrackEndedEventArgs, Task> TrackEnded;
         public event Func<TrackStuckEventArgs, Task> TrackStuck;
         public event Func<TrackExceptionEventArgs, Task> TrackException;
+
+        public event Func<PlayerExceptionEventArgs, Task> PlayerException;
 
 
         public bool IsConnected => _player != null;
@@ -80,7 +86,7 @@ namespace Logic.Models.Music.Player
         public async Task Connect()
         {
             if (_lavaNode.IsConnected) return;
-            Console.WriteLine("Loading Victoria Player...");
+            Console.WriteLine("Connection Victoria Player...");
             try
             {
                 await _lavaNode.ConnectAsync();
@@ -129,6 +135,8 @@ namespace Logic.Models.Music.Player
         /// <param name="query">The query to search for.</param>
         public async Task<SearchResult> Search(string query)
         {
+            await Connect();
+
             var result = await _lavaNode.SearchAsync(query);
             if (result.LoadStatus == LoadStatus.NoMatches) result = await _lavaNode.SearchYouTubeAsync(query);
 
@@ -279,13 +287,6 @@ namespace Logic.Models.Music.Player
         }
 
 
-        private async Task OnClientException(LavalinkEventArgs arg)
-        {
-            Console.WriteLine("_________________________________________________________________");
-            Console.WriteLine(arg.Message);
-            await Reconnect();
-        }
-
         private async Task OnTrackEnded(Victoria.EventArgs.TrackEndedEventArgs arg)
         {
             if (TrackEnded == null) return;
@@ -305,11 +306,20 @@ namespace Logic.Models.Music.Player
                 arg.ErrorMessage));
         }
 
+        private async Task OnClientException(LavalinkEventArgs arg)
+        {
+            if (arg.Message.Equals("Closed by client"))
+                return;
+
+            PlayerException?.Invoke(new PlayerExceptionEventArgs($"Exception: {arg.Message}"));
+        }
+
         private async Task LavaNodeOnOnWebSocketClosed(WebSocketClosedEventArgs arg)
         {
-            Console.WriteLine("_________________________________________________________________");
-            Console.WriteLine(arg.Reason);
-            await Reconnect();
+            if (arg.Reason.Equals("Closed by client"))
+                return;
+
+            PlayerException?.Invoke(new PlayerExceptionEventArgs($"Reason: {arg.Reason}"));
         }
 
         public async ValueTask DisposeAsync()

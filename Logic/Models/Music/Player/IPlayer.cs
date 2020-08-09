@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Logic.Models.Music.Event;
 using System;
 using System.Threading.Tasks;
 
@@ -11,6 +12,8 @@ namespace Logic.Models.Music.Player
         event Func<TrackEndedEventArgs, Task> TrackEnded;
         event Func<TrackStuckEventArgs, Task> TrackStuck;
         event Func<TrackExceptionEventArgs, Task> TrackException;
+
+        event Func<PlayerExceptionEventArgs, Task> PlayerException;
 
         /// <summary>
         ///     Start the player.

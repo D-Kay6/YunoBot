@@ -5,6 +5,7 @@ using IDal.Database;
 using Logic.Exceptions;
 using Logic.Extensions;
 using Logic.Models.Music;
+using Logic.Models.Music.Queue;
 using Logic.Models.Music.Search;
 using Logic.Models.Music.Track;
 using Logic.Services;

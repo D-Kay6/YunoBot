@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Logic.Models.Music.Lavalink
+namespace Logic.Models.Music.Event
 {
     public class LavalinkEventArgs : EventArgs
     {

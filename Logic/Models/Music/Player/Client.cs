@@ -1,10 +1,11 @@
 ﻿using Logic.Exceptions;
+using Logic.Models.Music.Event;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Logic.Models.Music.Lavalink
+namespace Logic.Models.Music.Player
 {
     public class Client
     {

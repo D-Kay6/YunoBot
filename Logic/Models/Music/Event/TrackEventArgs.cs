@@ -2,7 +2,7 @@
 using Logic.Models.Music.Track;
 using System;
 
-namespace Logic.Models.Music
+namespace Logic.Models.Music.Event
 {
     public class TrackEventArgs : EventArgs
     {

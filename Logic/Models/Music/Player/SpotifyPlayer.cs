@@ -1,5 +1,7 @@
 ﻿using Discord;
 using IDal;
+using Logic.Models.Music.Event;
+using Logic.Models.Music.Queue;
 using Logic.Models.Music.Search;
 using Logic.Models.Music.Track;
 using SpotifyAPI.Web;
@@ -23,6 +25,7 @@ namespace Logic.Models.Music.Player
         public event Func<TrackEndedEventArgs, Task> TrackEnded;
         public event Func<TrackStuckEventArgs, Task> TrackStuck;
         public event Func<TrackExceptionEventArgs, Task> TrackException;
+        public event Func<PlayerExceptionEventArgs, Task> PlayerException;
 
         public bool IsConnected { get; private set; }
         public bool IsPlaying { get; }
