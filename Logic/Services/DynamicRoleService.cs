@@ -12,11 +12,13 @@ namespace Logic.Services
     public class DynamicRoleService
     {
         private readonly IDbDynamicRole _dbDynamic;
+        private readonly IDbDynamicRoleData _dbData;
         private readonly IDbRoleIgnore _dbIgnore;
         
-        public DynamicRoleService(IDbDynamicRole dbDynamic, IDbRoleIgnore dbIgnore)
+        public DynamicRoleService(IDbDynamicRole dbDynamic, IDbDynamicRoleData dbData, IDbRoleIgnore dbIgnore)
         {
             _dbDynamic = dbDynamic;
+            _dbData = dbData;
             _dbIgnore = dbIgnore;
         }
 
@@ -38,92 +40,41 @@ namespace Logic.Services
         }
 
         /// <summary>
-        ///     Get the settings for auto roles.
-        ///     Will reset corrupted values to default.
+        ///     Save the (new) settings for a dynamic role.
         /// </summary>
-        /// <param name="serverId">The id of the server.</param>
-        /// <returns>The auto role settings.</returns>
-        public async Task<DynamicRole> Load(ulong serverId)
-        {
-            //var settings = await _dbDynamic.Get(serverId);
-
-            //if (settings == null)
-            //{
-            //    settings = new AutoRole
-            //    {
-            //        ServerId = serverId
-            //    };
-            //    await _dbAuto.Add(settings);
-            //    return settings;
-            //}
-
-            //var update = false;
-            //if (string.IsNullOrWhiteSpace(settings.Prefix))
-            //{
-            //    settings.Prefix = "👾";
-            //    update = true;
-            //}
-
-            //if (update)
-            //    await _dbAuto.Update(settings);
-
-            //return settings;
-            return null;
-        }
-
-        /// <summary>
-        ///     Get the settings for perma roles.
-        ///     Will reset corrupted values to default.
-        /// </summary>
-        /// <param name="serverId">The id of the server.</param>
-        /// <returns>The perma role settings.</returns>
-        public async Task<DynamicRole> LoadPerma(ulong serverId)
-        {
-            //var settings = await _dbPerma.Get(serverId);
-
-            //if (settings == null)
-            //{
-            //    settings = new PermaRole
-            //    {
-            //        ServerId = serverId
-            //    };
-            //    await _dbPerma.Add(settings);
-            //    return settings;
-            //}
-
-            //var update = false;
-            //if (string.IsNullOrWhiteSpace(settings.Prefix))
-            //{
-            //    settings.Prefix = "🎮";
-            //    update = true;
-            //}
-
-            //if (update)
-            //    await _dbPerma.Update(settings);
-
-            //return settings;
-            return null;
-        }
-
-        /// <summary>
-        ///     Save the new settings for auto roles.
-        /// </summary>
-        /// <param name="settings">The new settings for auto roles.</param>
-        /// <exception cref="InvalidPrefixException">Thrown if the prefix is null or empty.</exception>
-        /// <exception cref="PrefixExistsException">Thrown if the prefix is already in use by perma roles.</exception>
+        /// <param name="settings">The settings for a dynamic role.</param>
+        /// <exception cref="InvalidStatusException">Thrown if the status is null or empty.</exception>
+        /// <exception cref="StatusExistsException">Thrown if the status is already in use for the given type.</exception>
         public async Task Save(DynamicRole settings)
         {
+            if (string.IsNullOrWhiteSpace(settings.Status))
+                throw new InvalidStatusException("The status of a dynamic role may not be empty.");
 
+            var roles = await _dbDynamic.List(settings.ServerId);
+            if (roles.Any(x => x.Type == settings.Type && x.Status.Equals(settings.Status, StringComparison.OrdinalIgnoreCase)))
+                throw new StatusExistsException("The status must be unique for every dynamic type.");
+
+            await _dbDynamic.Update(settings);
         }
 
         /// <summary>
-        ///     Save the new settings for auto roles.
+        ///     Save the role data of a dynamic role..
         /// </summary>
-        /// <param name="settings">The new settings for auto roles.</param>
-        /// <exception cref="InvalidPrefixException">Thrown if the prefix is null or empty.</exception>
-        /// <exception cref="PrefixExistsException">Thrown if the prefix is already in use by perma roles.</exception>
+        /// <param name="data">The role data to save.</param>
+        /// <exception cref="DataExistsException">Thrown if the data for a dynamic role already exists.</exception>
+        /// <exception cref="DataIncompleteException">Thrown if the data has missing id values.</exception>
         public async Task Save(DynamicRoleData data)
         {
+            if (data.RoleId == 0)
+                throw new DataIncompleteException("The id of the role is missing.");
+
+            if (data.DynamicRoleId == 0)
+                throw new DataIncompleteException("The id of the dynamic role is missing.");
+
+            if (await _dbData.Get(data.RoleId, data.DynamicRoleId) != null)
+                throw new DataExistsException("The role data already exists.");
+
+            await _dbData.Add(data);
         }
 
         /// <summary>

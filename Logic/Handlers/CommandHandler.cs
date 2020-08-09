@@ -29,7 +29,8 @@ namespace Logic.Handlers
             _serviceProvider = serviceProvider;
             _dcService = new Discord.Commands.CommandService(new CommandServiceConfig
             {
-                DefaultRunMode = RunMode.Async
+                DefaultRunMode = RunMode.Async,
+                CaseSensitiveCommands = false
             });
         }
 

@@ -3,7 +3,7 @@ using IDal.Database;
 using Logic.Services;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Group("request")]
     public class RequestModule : ModuleBase<ShardedCommandContext>

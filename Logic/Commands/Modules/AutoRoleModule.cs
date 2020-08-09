@@ -1,13 +1,10 @@
-﻿using Core.Entity;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using IDal.Database;
-using Logic.Exceptions;
 using Logic.Services;
-using System;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Alias("ar")]
     [Group("autorole")]

@@ -1,18 +1,17 @@
 ﻿using Discord.Commands;
 using IDal.Database;
-using Logic.Extensions;
 using Logic.Services;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
-    [Group("Invite")]
-    public class InviteModule : ModuleBase<ShardedCommandContext>
+    [Group("support")]
+    public class SupportModule : ModuleBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
 
-        public InviteModule(IDbLanguage language, LocalizationService localization)
+        public SupportModule(IDbLanguage language, LocalizationService localization)
         {
             _language = language;
             _localization = localization;
@@ -30,9 +29,9 @@ namespace Logic.Modules
         }
 
         [Command]
-        public async Task DefaultInvite()
+        public async Task DefaultSupport()
         {
-            await Context.User.SendDM(_localization.GetMessage("Invite default"));
+            await ReplyAsync(_localization.GetMessage("Support default"));
         }
     }
 }

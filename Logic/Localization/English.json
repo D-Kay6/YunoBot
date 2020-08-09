@@ -74,27 +74,31 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 		"Permachannel name invalid empty": "The name may not be empty.",
 
 
-		"Autorole default": "Autoroles are roles that are temporary granted when a user starts playing a game, and removed when the user stops playing that game.
+		"Dynamic role invalid status": "I cannot create a dynamic role if you do not give me a game to assign it to.",
+		"Dynamic role invalid role add": "That role is already assigned to that game.",
+		
+		"Dynamic role default": "Dynamic roles are roles that are granted when a user starts playing a game.
 
-When setting up autoroles, you need to make sure I have at least the `manage roles` permission.
+There are 2 types: temporary and permanent.
+
+Temporary roles will be removed again when the user stops playing the game.
+Permanent roles will not be removed.
+
+When setting up dynamic roles, you need to make sure I have at least the `manage roles` permission.
 If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
-Create a role with the autorole prefix (you can get this through `/autorole prefix`) followed by the exact name of the game as it would appear in the status of a user.
-You can set-up your own prefix for autoroles with `/autorole prefix set <prefix>`.",
-		"Autorole prefix default": "The current autorole prefix is `{0}`.
-You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
+Look for the command syntax in `/help dynamicroles`.
+Keep in mind that a game name with a space needs double quotes aroung it.
+Example:
+\"League of Legends\"",
+
+
+		"Dynamic role add temp finish": "`{0}` will now be temporarily given to users playing `{1}`.",
+		"Dynamic role add perm finish": "`{0}` will now be permanently given to users playing `{1}`.",
 		"Autorole prefix set": "The new autorole prefix is `{0}`.",
 		"Autorole prefix invalid empty": "The prefix may not be empty.",
 		"Autorole prefix invalid perma": "I am not able to use the same prefix for both autoroles and permaroles.",
 
-
-		"Permarole default": "Permaroles are roles that are permanently granted when a user starts playing a game.
-
-When setting up permaroles, you need to make sure I have at least the `manage roles` permission.
-If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
-Create a role with the permarole prefix (you can get this through `/permarole prefix`) followed by the exact name of the game as it would appear in the status of a user.
-You can set-up your own prefix for permaroles with `/permarole prefix set <prefix>`.",
-		"Permarole prefix default": "The current permarole prefix for this server is `{0}`.
-You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
+		"Permarole prefix default": "The current permarole prefix for this server is `{0}`.",
 		"Permarole prefix set": "The new permarole prefix is `{0}`.",
 		"Permarole prefix invalid empty": "The prefix may not be empty.",
 		"Permarole prefix invalid auto": "I am not able to use the same prefix for both autoroles and permaroles.",

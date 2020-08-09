@@ -5,7 +5,7 @@ using IDal.Database;
 using Logic.Services;
 using System.Threading.Tasks;
 
-namespace Logic.Modules.Moderation
+namespace Logic.Commands.Modules.Moderation
 {
     [Group("Kick")]
     [RequireUserPermission(GuildPermission.KickMembers)]

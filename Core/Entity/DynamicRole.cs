@@ -10,11 +10,11 @@ namespace Core.Entity
         [MaxLength(100)]
         public string Status { get; set; }
 
-        public virtual List<DynamicRoleData> Roles { get; set; }
+        public virtual HashSet<DynamicRoleData> Roles { get; set; }
 
         public DynamicRole()
         {
-            Roles = new List<DynamicRoleData>();
+            Roles = new HashSet<DynamicRoleData>();
         }
     }
 }

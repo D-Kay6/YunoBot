@@ -12,7 +12,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Group("music")]
     public class MusicModule : ModuleBase<ShardedCommandContext>

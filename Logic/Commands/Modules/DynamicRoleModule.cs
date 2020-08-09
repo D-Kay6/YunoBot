@@ -1,15 +1,13 @@
-﻿using Core.Entity;
+using Core.Entity;
 using Core.Enum;
 using Discord;
 using Discord.Commands;
 using IDal.Database;
-using Logic.Exceptions;
+using Logic.Commands.TypeReaders;
 using Logic.Services;
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Alias("dr")]
     [Group("dynamicrole")]
@@ -17,15 +15,13 @@ namespace Logic.Modules
     public class DynamicRoleModule : ModuleBase<ShardedCommandContext>
     {
         private readonly DynamicRoleService _dynamic;
-        private readonly RoleService _role;
         private readonly LogsService _logs;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
 
-        public DynamicRoleModule(DynamicRoleService dynamic, RoleService role, LogsService logs, IDbLanguage language, LocalizationService localization)
+        public DynamicRoleModule(DynamicRoleService dynamic, LogsService logs, IDbLanguage language, LocalizationService localization)
         {
             _dynamic = dynamic;
-            _role = role;
             _logs = logs;
             _language = language;
             _localization = localization;
@@ -51,50 +47,79 @@ namespace Logic.Modules
 
         [Command("add")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task DynamicRoleAdd(string status, string type, IRole role)
+        public async Task DynamicRoleAdd(string status, [OverrideTypeReader(typeof(AutomationTypeReader))] AutomationType type, IRole role)
         {
-            if (string.IsNullOrWhiteSpace(status)) return;
-            if (string.IsNullOrWhiteSpace(type)) return;
-
-            AutomationType automationType;
-            switch (type.ToLower())
+            if (string.IsNullOrWhiteSpace(status))
             {
-                case "temp":
-                case "temporary":
-                case "auto":
-                case "automatic":
-                    automationType = AutomationType.Temporary;
-                    break;
-                case "perm":
-                case "perma":
-                case "permanent":
-                    automationType = AutomationType.Permanent;
-                    break;
-                default:
-                    return;
+                await ReplyAsync(_localization.GetMessage("Dynamic role invalid add status"));
+                return;
             }
 
             var dynamicRole = await _dynamic.Get(Context.Guild.Id, status);
             if (dynamicRole != null)
             {
-                if (dynamicRole.Roles.Any(x => x.RoleId == role.Id))
+                var result = dynamicRole.Roles.Add(new DynamicRoleData
                 {
+                    RoleId = role.Id,
+                    DynamicRoleId = dynamicRole.Id
+                });
+                if (!result)
+                {
+                    await ReplyAsync(_localization.GetMessage("Dynamic role invalid add role"));
                     return;
                 }
-                
-                dynamicRole.Roles.Add(new DynamicRoleData
+
+                await _dynamic.Save(dynamicRole);
+            }
+            else
+            {
+                dynamicRole = new DynamicRole
                 {
-                    RoleId = role.Id
+                    ServerId = Context.Guild.Id,
+                    Type = type,
+                    Status = status.ToLower()
+                };
+                await _dynamic.Save(dynamicRole);
+                await _dynamic.Save(new DynamicRoleData
+                {
+                    RoleId = role.Id,
+                    DynamicRoleId = dynamicRole.Id
                 });
-                return;
             }
 
-            dynamicRole = new DynamicRole
+            switch (type)
             {
-                ServerId = Context.Guild.Id,
-                Type = automationType,
-                Status = status
-            };
+                case AutomationType.Temporary:
+                    await ReplyAsync(_localization.GetMessage("Dynamic role add temp finish", role.Name, dynamicRole.Status));
+                    break;
+                case AutomationType.Permanent:
+                    await ReplyAsync(_localization.GetMessage("Dynamic role add perm finish", role.Name, dynamicRole.Status));
+                    break;
+            }
+        }
+
+        [Command("remove")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task DynamicRoleRemove(string status)
+        {
+        }
+
+        [Command("remove")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task DynamicRoleRemove(string status, AutomationType type)
+        {
+        }
+
+        [Command("remove")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task DynamicRoleRemove(string status, AutomationType type, IRole role)
+        {
+        }
+
+        [Command("list")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task DynamicRoleList()
+        {
         }
 
         [Group("ignore")]

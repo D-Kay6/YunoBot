@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Core.Entity;
+using Discord.WebSocket;
 using Logic.Extensions;
 using Logic.Services;
 using System;
@@ -38,7 +39,7 @@ namespace Logic.Handlers
             try
             {
                 if (user.Activity == null) return;
-                var roleData = await _role.Load(user.Guild.Id);
+                DynamicRole roleData = null;
                 var roles = user.Roles.Where(r =>
                     r.Name.StartsWith(roleData.Status, StringComparison.OrdinalIgnoreCase) &&
                     r.Name.ContainsIgnoreCase(user.Activity.Name));
@@ -61,8 +62,8 @@ namespace Logic.Handlers
                 if (await _role.IsRoleIgnore(user.Guild.Id, user.Id)) return;
                 if (user.Activity == null) return;
 
-                var auto = await _role.Load(user.Guild.Id);
-                var perma = await _role.LoadPerma(user.Guild.Id);
+                DynamicRole auto = null;
+                DynamicRole perma = null;
                 foreach (var role in user.Guild.Roles)
                 {
                     if (!role.Name.ContainsIgnoreCase(user.Activity.Name)) continue;

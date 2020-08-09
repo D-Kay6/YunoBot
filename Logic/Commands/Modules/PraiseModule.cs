@@ -6,7 +6,7 @@ using Logic.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Group("praise")]
     public class PraiseModule : ModuleBase<ShardedCommandContext>

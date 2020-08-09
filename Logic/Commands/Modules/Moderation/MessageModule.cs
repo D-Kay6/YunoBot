@@ -10,7 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Logic.Modules.Moderation
+namespace Logic.Commands.Modules.Moderation
 {
     [RequireUserPermission(GuildPermission.ManageMessages)]
     [Group("Message")]

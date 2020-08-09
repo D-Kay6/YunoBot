@@ -1,10 +1,6 @@
-﻿using DalFactory;
-using Discord.WebSocket;
-using Entity.RavenDB;
+﻿using Discord.WebSocket;
 using Logic.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers
@@ -12,15 +8,13 @@ namespace Logic.Handlers
     public class DatabaseHandler : BaseHandler
     {
         private readonly ServerService _server;
-        private readonly RoleService _role;
         private readonly UserService _user;
 
         private bool _isBusy;
 
-        public DatabaseHandler(DiscordShardedClient client, LogsService logs, ServerService server, RoleService role, UserService user) : base(client, logs)
+        public DatabaseHandler(DiscordShardedClient client, LogsService logs, ServerService server, UserService user) : base(client, logs)
         {
             _server = server;
-            _role = role;
             _user = user;
         }
 
@@ -28,7 +22,6 @@ namespace Logic.Handlers
         {
             base.Initialize();
             Client.UserUpdated += OnUserUpdated;
-            Client.RoleUpdated += OnRoleUpdated;
             Client.GuildUpdated += OnGuildUpdated;
             Client.JoinedGuild += OnGuildJoined;
             Client.LeftGuild += OnGuildLeft;
@@ -42,13 +35,6 @@ namespace Logic.Handlers
 #if RELEASE
             //await UpdateServers();
 #endif
-        }
-
-        private async Task OnRoleUpdated(SocketRole oldState, SocketRole newState)
-        {
-            if (_isBusy) return;
-            if (oldState.Name.Equals(newState.Name)) return;
-            await _role.Update(newState);
         }
 
         private async Task OnUserUpdated(SocketUser oldState, SocketUser newState)

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommandService = Logic.Services.CommandService;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Group("Command")]
     public class CommandModule : ModuleBase<ShardedCommandContext>

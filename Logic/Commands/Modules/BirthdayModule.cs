@@ -5,7 +5,7 @@ using Logic.Extensions;
 using Logic.Services;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Group("birthday")]
     public class BirthdayModule : ModuleBase<ShardedCommandContext>

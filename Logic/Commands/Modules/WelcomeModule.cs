@@ -9,7 +9,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Group("welcome")]
     [RequireUserPermission(GuildPermission.Administrator)]

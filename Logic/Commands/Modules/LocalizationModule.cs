@@ -7,7 +7,7 @@ using Logic.Services;
 using System;
 using System.Threading.Tasks;
 
-namespace Logic.Modules
+namespace Logic.Commands.Modules
 {
     [Group("language")]
     [Alias("lang")]

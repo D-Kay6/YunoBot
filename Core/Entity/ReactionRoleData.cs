@@ -15,5 +15,21 @@ namespace Core.Entity
 
         [ForeignKey(nameof(ReactionRoleId))]
         public virtual ReactionRole ReactionRole { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is ReactionRoleData data)
+            {
+                return data.RoleId == RoleId && 
+                       data.ReactionRoleId == ReactionRoleId;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return RoleId.GetHashCode();
+        }
     }
 }
