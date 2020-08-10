@@ -62,8 +62,7 @@ namespace Logic.Commands.Modules
                 embed.AddField("Welcome", _localization.GetMessage("Help welcome", _prefix));
                 embed.AddField("AutoChannel (ac)", _localization.GetMessage("Help autochannel", _prefix));
                 embed.AddField("PermaChannel (pc)", _localization.GetMessage("Help permachannel", _prefix));
-                embed.AddField("AutoRole (ar)", _localization.GetMessage("Help autorole", _prefix));
-                embed.AddField("PermaRole (pr)", _localization.GetMessage("Help permarole", _prefix));
+                embed.AddField("DynamicRole (dr)", _localization.GetMessage("Help dynamicrole", _prefix));
                 embed.AddField("Kick", _localization.GetMessage("Help kick", _prefix));
                 embed.AddField("Ban", _localization.GetMessage("Help ban", _prefix));
                 await ReplyAsync("", false, embed.Build());
@@ -151,25 +150,14 @@ namespace Logic.Commands.Modules
             await ReplyAsync("", false, embed);
         }
 
-        [Alias("ar")]
-        [Command("autorole")]
+        [Alias("dr")]
+        [Command("dynamicrole")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task HelpAutoRole()
         {
-            var embed = EmbedExtensions.CreateEmbed("Help autorole",
-                _localization.GetMessage("Help autorole title") + "\n\n" +
-                _localization.GetMessage("Help autorole", _prefix));
-            await ReplyAsync("", false, embed);
-        }
-
-        [Alias("pr")]
-        [Command("permarole")]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task HelpPermaRole()
-        {
-            var embed = EmbedExtensions.CreateEmbed("Help permarole",
-                _localization.GetMessage("Help permarole title") + "\n\n" +
-                _localization.GetMessage("Help permarole", _prefix));
+            var embed = EmbedExtensions.CreateEmbed("Help dynamicrole",
+                _localization.GetMessage("Help dynamicrole title") + "\n\n" +
+                _localization.GetMessage("Help dynamicrole", _prefix));
             await ReplyAsync("", false, embed);
         }
     }

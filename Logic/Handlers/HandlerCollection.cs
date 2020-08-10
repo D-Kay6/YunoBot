@@ -27,7 +27,9 @@ namespace Logic.Handlers
             CreateInstance<DblHandler>();
             CreateInstance<MusicHandler>();
             CreateInstance<ChannelHandler>();
-            //CreateInstance<RoleHandler>();
+#if DEBUG
+            CreateInstance<DynamicRoleHandler>();
+#endif
             CreateInstance<WelcomeHandler>();
             CreateInstance<StatusHandler>();
         }

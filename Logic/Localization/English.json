@@ -329,28 +329,26 @@ I am constantly updated with new features so keep an eye on this page.",
 {0}welcome image - Display if the default image is being shown in welcome messages.
 {0}welcome image enable/on - Set the default image to be shown in welcome messages.
 {0}welcome image disable/off - Set the default image to not be shown in welcome messages.",
-		"Help autochannel title": "These are the commands for 'autochannel'.",
+		"Help autochannel title": "These are the commands for 'auto channels'.",
 		"Help autochannel": "{0}autochannel - Show information about autochannels.
 {0}autochannel prefix - Show the current prefix for autochannels.
 {0}autochannel prefix set <new prefix> - Change the prefix for autochannels.
 {0}autochannel name - Show the current name for auto generated channels.
 {0}autochannel name set <new name> - Change the name for auto  generated channels.
 {0}autochannel delete - Deletes all voice channels that still have the name for auto generated channels.",
-		"Help permachannel title": "These are the commands for 'permachannel'.",
+		"Help permachannel title": "These are the commands for 'perma channels'.",
 		"Help permachannel": "{0}permachannel - Show information about permachannels.
 {0}permachannel prefix - Show the current prefix for permachannels.
 {0}permachannel prefix set <new prefix> - Change the prefix for permachannels.",
-		"Help autorole title": "These are the commands for 'autorole'.",
-		"Help autorole": "{0}autorole - Show information about autoroles.
-{0}autorole prefix - Show the current prefix for autoroles.
-{0}autorole prefix set <new prefix> - Change the prefix for autoroles.
-{0}autorole ignore - Display your current status on ignoring automated roles.
-{0}autorole ignore on - Turn your current status to ignore automated roles.
-{0}autorole ignore off - Turn your current status to acceps automated roles.",
-		"Help permarole title": "These are the commands for 'permarole'.",
-		"Help permarole": "{0}permarole - Show information about permaroles.
-{0}permarole prefix - Show the current prefix for permaroles.
-{0}permarole prefix set <new prefix> - Change the prefix for permaroles.",
+		"Help dynamicrole title": "These are the commands for 'dynamic roles'.",
+		"Help dynamicrole": "{0}dynamicrole - Show information about dynamic roles.
+{0}dynamicrole add <game name> <type:temp/perm> <role> - Add a role to be dynamically added if a user starts playing the game.
+{0}dynamicrole remove all - Remove all dynamic roles of this server.
+{0}dynamicrole remove <game name> - Remove all dynamic roles for a specific game.
+{0}dynamicrole remove <type:temp/perm> - Remove all dynamic roles of a specific type.
+{0}dynamicrole remove <game name> <type:temp/perm> - Remove the dynamic role data for a specific game of a specific type.
+{0}dynamicrole remove <game name> <type:temp/perm> <role> - Stop a role from dynamically being given to users.
+{0}dynamicrole list - List all configured dynamic roles.",
 		"Help kick": "{0}kick <username/mention> - Kick specified user from the server.",
 		"Help ban": "{0}ban - Give information about formatting the ban command.
 {0}ban <username/mention> <optional: duration> <optional: reason> - Ban specified user from the server.",

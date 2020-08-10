@@ -1,5 +1,6 @@
 ﻿using DalFactory;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.WebSocket;
 using ILogic;
 using Logic.Exceptions;
@@ -33,7 +34,8 @@ namespace Logic
                                  GatewayIntents.GuildVoiceStates |
                                  GatewayIntents.GuildMessages |
                                  GatewayIntents.GuildMessageReactions |
-                                 GatewayIntents.DirectMessages
+                                 GatewayIntents.DirectMessages | 
+                                 GatewayIntents.GuildPresences
                 //TotalShards = 2
             });
             _client.Log += Log;
@@ -126,6 +128,8 @@ namespace Logic
             serviceCollection.AddSingleton<MusicService>();
 
             serviceCollection.AddTransient<LocalizationService>();
+
+            serviceCollection.AddSingleton<InteractiveService>();
 
             return serviceCollection.BuildServiceProvider();
         }
