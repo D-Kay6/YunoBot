@@ -1,0 +1,19 @@
+{
+  "Messages": {
+    "Command": {
+      "Invalid": {
+        "Generic": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
+        "Permission": "I'm unable to do that. You lack the required permissions for this.",
+        "Argument": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax."
+      }
+    },
+    "Generic": {
+      "Error": "Something went wrong. Please go to my support server (https://discord.gg/YFqUMDT) if the problem persists.",
+      "Invalid": {
+        "User": "I could not find a user by the name of `{0}`.",
+        "Role": "I could not find a role with the name `{0}`.",
+        "Message": "I cannot send an empty message."
+      }
+    }
+  }
+}
