@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.Net;
 using IDal.Database;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 namespace Logic.Commands.Modules
 {
     [Group("announce")]
-    public class AnnounceModule : ModuleBase<ShardedCommandContext>
+    public class AnnounceModule : InteractiveBase<ShardedCommandContext>
     {
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
@@ -69,6 +70,17 @@ namespace Logic.Commands.Modules
 
             await SendAnnouncement(users, message, "Update notice");
         }
+
+        //[Command("test")]
+        //[RequireOwner]
+        //public async Task AnnounceTest()
+        //{
+        //    await ReplyAsync("Write the message I should reply with.");
+        //    var result = await Interactive.NextMessageAsync(Context, timeout: TimeSpan.FromMinutes(1));
+        //    if (result == null) return;
+
+        //    await ReplyAsync(result.Content);
+        //}
 
         private async Task SendAnnouncement(IReadOnlyCollection<IUser> users, string message, string title = "")
         {

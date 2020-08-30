@@ -18,7 +18,7 @@ namespace Dal.Json
                 await WriteAsync(data, directory, file);
             }
 
-            var json = File.ReadAllText($"{path}");
+            var json = await File.ReadAllTextAsync($"{path}");
             return JsonConvert.DeserializeObject<T>(json);
         }
 

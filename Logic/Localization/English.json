@@ -140,6 +140,11 @@ If you're in need of support, come join my support server at 'https://discord.gg
 I should kill YOU for even thinking of something like that!",
 
 
+		"Chat start": "You want to chat with me? Are you sure you're up for that?
+Just start typing and I'll respond.",
+		"Chat end": "Since you're no longer responding, I'm ending the conversation here.",
+
+
 		"Language default": "{1} is currently set to `{0}`.
 These are the languages I currently support: {2}.
 Be warry translations can be under construction and may contain messages that still require translating.
@@ -283,7 +288,8 @@ I am constantly updated with new features so keep an eye on this page.",
 {0}support - Join this discord if you experience problems with me.
 {0}pick <option1|option2|etc> - Select a random item from the options that are separated with |.
 {0}birthday <username> - Sing a song for a happy fellow.
-{0}kill <username> - Make me kill that user.",
+{0}kill <username> - Make me kill that user.
+{0}chat - Initiate a casual chat with me.",
 		"Help praise title": "These are the commands for 'praise'.",
 		"Help praise": "{0}praise <username> - Send a positive message to that user.
 {0}praise someone - Send a positive message to a random person.

@@ -7,8 +7,7 @@ namespace Dal.Json
 {
     public class Localization : Json, ILocalization
     {
-        private string Directory => Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents",
-            "Yuno Bot", "Localization");
+        private string Directory => Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents", "Yuno Bot", "Localization");
 
         public async Task<Core.Entity.Localization> Read(string language)
         {

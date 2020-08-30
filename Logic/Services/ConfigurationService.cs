@@ -55,5 +55,19 @@ namespace Logic.Services
 
             return data.ClientId;
         }
+
+        /// <summary>
+        ///     Read the chatbot api from the configuration file.
+        /// </summary>
+        /// <returns>The client id of the bot.</returns>
+        /// <exception cref="InvalidIdException">Thrown if the id is not valid to use.</exception>
+        public async Task<string> GetChatBotApi()
+        {
+            var data = await _config.Read();
+            if (string.IsNullOrWhiteSpace(data.ChatBotApi))
+                throw new InvalidIdException("The chatbot api in the configuration file is not valid.");
+
+            return data.ChatBotApi;
+        }
     }
 }

@@ -7,6 +7,7 @@
         public string SpotifyId;
         public string SpotifySecret;
         public string Token;
+        public string ChatBotApi;
 
         public Configuration()
         {
@@ -15,6 +16,7 @@
             DiscordBotsToken = "";
             SpotifyId = "";
             SpotifySecret = "";
+            ChatBotApi = "";
         }
     }
 }
