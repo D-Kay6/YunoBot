@@ -45,7 +45,8 @@ namespace Dal.Database.MySql.EF.Repositories
 
         public async Task<List<Ban>> List(ulong? serverId = null, bool expiredOnly = true)
         {
-            var query = Context.Bans.AsQueryable();
+            var query = Context.Bans.AsNoTracking();
+            query = query.Include(x => x.User);
 
             if (serverId.HasValue) query = query.Where(x => x.ServerId == serverId.Value);
             if (expiredOnly) query = query.Where(x => x.EndDate < DateTime.Now);

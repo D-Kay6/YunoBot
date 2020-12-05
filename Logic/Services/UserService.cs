@@ -48,32 +48,6 @@ namespace Logic.Services
         }
 
         /// <summary>
-        ///     Check all bans and remove those that are expired.
-        /// </summary>
-        public async Task CheckBans()
-        {
-            var bans = await _dbBan.List();
-            foreach (var ban in bans)
-            {
-                var server = _client.GetGuild(ban.ServerId);
-                if (server == null) continue;
-                try
-                {
-                    await server.RemoveBanAsync(ban.UserId);
-                }
-                catch (Exception e)
-                {
-                    if (!e.Message.Contains("404: NotFound", StringComparison.OrdinalIgnoreCase))
-                        throw new Exception(e.Message, e);
-
-                    throw new InvalidBanException($"Ban for user {ban.User.Name} ({ban.UserId}) could not be found.");
-                }
-
-                await _dbBan.Remove(ban);
-            }
-        }
-
-        /// <summary>
         ///     Ban a user.
         /// </summary>
         /// <param name="user">The user to ban.</param>
@@ -81,7 +55,6 @@ namespace Logic.Services
         /// <param name="reason">The reason for the ban.</param>
         public async Task Ban(IGuildUser user, DateTime endDate, string reason = null)
         {
-            await Update(user);
             var settings = new Ban
             {
                 UserId = user.Id,
@@ -90,6 +63,11 @@ namespace Logic.Services
                 Reason = reason
             };
             await _dbBan.Add(settings);
+        }
+
+        public Task Unban(Ban ban)
+        {
+            return _dbBan.Remove(ban);
         }
     }
 }

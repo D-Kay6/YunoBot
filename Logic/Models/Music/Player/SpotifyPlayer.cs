@@ -15,7 +15,7 @@ namespace Logic.Models.Music.Player
     {
         private readonly IConfig _config;
 
-        private SpotifyWebAPI _spotify;
+        private SpotifyClient _spotify;
 
         public SpotifyPlayer(IConfig config)
         {
@@ -53,13 +53,13 @@ namespace Logic.Models.Music.Player
             if (IsConnected) return;
 
             var configuration = await _config.Read();
-            var auth = new CredentialsAuth(configuration.SpotifyId, configuration.SpotifySecret);
-            var token = await auth.GetToken();
-            _spotify = new SpotifyWebAPI
+            var auth = new ClientCredentialsAuthenticator(configuration.SpotifyId, configuration.SpotifySecret);
+            if (auth.Token == null)
             {
-                AccessToken = token.AccessToken,
-                TokenType = token.TokenType
-            };
+                IsConnected = false;
+                return;
+            }
+            _spotify = new SpotifyClient(auth.Token);
             IsConnected = true;
         }
 
@@ -75,7 +75,6 @@ namespace Logic.Models.Music.Player
         {
             if (IsConnected)
             {
-                _spotify.Dispose();
                 _spotify = null;
                 IsConnected = false;
             }

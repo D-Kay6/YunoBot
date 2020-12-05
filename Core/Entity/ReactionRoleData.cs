@@ -16,7 +16,7 @@ namespace Core.Entity
         [ForeignKey(nameof(ReactionRoleId))]
         public virtual ReactionRole ReactionRole { get; set; }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj is ReactionRoleData data)
             {

@@ -16,7 +16,7 @@ namespace Core.Entity
         [ForeignKey(nameof(DynamicRoleId))]
         public virtual DynamicRole DynamicRole { get; set; }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj is DynamicRoleData data)
             {

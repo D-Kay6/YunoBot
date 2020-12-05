@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Dal.Database.MySql.EF.Extensions;
 using Dal.Json;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,8 +40,8 @@ namespace Dal.Database.MySql.EF
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(_connection, x => x.EnableRetryOnFailure());
-            optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.UseMySql(_connection, ServerVersion.AutoDetect(_connection),x => x.EnableRetryOnFailure());
+            optionsBuilder.UseLazyLoadingProxies(false);
             optionsBuilder.EnableSensitiveDataLogging();
         }
 

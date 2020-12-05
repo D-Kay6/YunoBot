@@ -46,7 +46,6 @@ namespace Logic.Handlers
             {
                 try
                 {
-                    if (user.Activity == null) return;
                     var dynamicRoles = await _role.Find(user.Guild.Id, activity.Name, AutomationType.Temporary);
                     foreach (var dynamicRole in dynamicRoles)
                     {
@@ -90,7 +89,6 @@ namespace Logic.Handlers
             {
                 try
                 {
-                    if (user.Activity == null) return;
                     var dynamicRoles = await _role.Find(user.Guild.Id, activity.Name);
                     foreach (var dynamicRole in dynamicRoles)
                     {
@@ -111,19 +109,19 @@ namespace Logic.Handlers
                                 }
                                 catch (Exception e)
                                 {
-
+                                    await Logs.Write("Crashes", $"Adding role {roleData.RoleId} broke.", e, user.Guild);
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            await Logs.Write("Crashes", $"Adding dynamic role {dynamicRole.Status} ({dynamicRole.Type}) broke.", e);
+                            await Logs.Write("Crashes", $"Adding dynamic role {dynamicRole.Status} ({dynamicRole.Type}) broke.", e, user.Guild);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    await Logs.Write("Crashes", $"Adding activity {activity.Name} broke.", e);
+                    await Logs.Write("Crashes", $"Adding activity {activity.Name} broke.", e, user.Guild);
                 }
             }
         }

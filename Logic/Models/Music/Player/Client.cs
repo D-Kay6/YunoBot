@@ -37,20 +37,21 @@ namespace Logic.Models.Music.Player
             if (string.IsNullOrEmpty(javaHome))
                 throw new ArgumentException("Java home directory could not be found.");
 
-            var processStartInfo = new ProcessStartInfo(Path.Combine(javaHome,JavaExecutable), string.Format(_parameters, LavalinkExecutable))
+            var x = Path.Combine(javaHome, JavaExecutable);
+
+            var processStartInfo = new ProcessStartInfo(x, string.Format(_parameters, LavalinkExecutable))
             {
                 RedirectStandardError = false,
                 RedirectStandardOutput = false,
                 RedirectStandardInput = false,
-                UseShellExecute = false,
-                CreateNoWindow = true
+                UseShellExecute = true,
+                CreateNoWindow = false
             };
 
             _process = Process.Start(processStartInfo);
             if (_process == null)
                 throw new InvalidOperationException("The process could not be started.");
 
-            _lastProcessId = _process.Id;
             //_process.BeginErrorReadLine();
             //_process.BeginOutputReadLine();
             //_process.OutputDataReceived += OnOutputReceived;

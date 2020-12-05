@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using Logic.Services;
-using System;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers
@@ -16,6 +15,8 @@ namespace Logic.Handlers
         {
             _server = server;
             _user = user;
+
+            _isBusy = true;
         }
 
         public override Task Initialize()
@@ -31,15 +32,13 @@ namespace Logic.Handlers
         protected override async Task Ready(DiscordSocketClient client)
         {
             await base.Ready(client);
-
-#if RELEASE
-            //await UpdateServers();
-#endif
+            _isBusy = false;
         }
 
         private async Task OnUserUpdated(SocketUser oldState, SocketUser newState)
         {
             if (_isBusy) return;
+            if (string.IsNullOrEmpty(oldState.Username)) return;
             if (oldState.Username.Equals(newState.Username)) return;
             await _user.Update(newState);
         }
@@ -47,6 +46,7 @@ namespace Logic.Handlers
         private async Task OnGuildUpdated(SocketGuild oldGuild, SocketGuild newGuild)
         {
             if (_isBusy) return;
+            if (string.IsNullOrEmpty(oldGuild.Name)) return;
             if (oldGuild.Name.Equals(newGuild.Name)) return;
             await _server.Update(newGuild);
         }
@@ -61,23 +61,6 @@ namespace Logic.Handlers
         {
             if (_isBusy) return;
             await _server.Leave(guild);
-        }
-
-        private async Task UpdateServers()
-        {
-            Console.WriteLine("Updating database...");
-            _isBusy = true;
-
-            Console.WriteLine("Updating servers...");
-            await _server.Update();
-
-            //Console.WriteLine("Updating users...");
-            //var users = await _user.GetUsers();
-            //foreach (var user in users.Select(dbUser => Client.GetUser(dbUser.Id)).Where(user => user != null))
-            //    await _user.UpdateUser(user.Id, user.Username);
-
-            _isBusy = false;
-            Console.WriteLine("Done updating database.");
         }
     }
 }

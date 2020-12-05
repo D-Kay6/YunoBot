@@ -169,7 +169,7 @@ namespace Logic.Handlers
         private async Task<RestVoiceChannel> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
         {
             await Logs.Write("Channels", $"{user.Username} joined channel '{channel.Name}'.", channel.Guild);
-            var newChannel = await channel.Guild.CreateVoiceChannelAsync(name, p =>
+            var newChannel = await channel.Guild.CreateVoiceChannelAsync(string.Format(name, user.Nickname().ToPossessive()), p =>
             {
                 p.Bitrate = channel.Bitrate;
                 p.CategoryId = channel.CategoryId;

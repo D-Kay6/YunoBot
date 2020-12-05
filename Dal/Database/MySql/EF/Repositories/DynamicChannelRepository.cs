@@ -34,7 +34,7 @@ namespace Dal.Database.MySql.EF.Repositories
 
         public Task<List<DynamicChannel>> List(ulong serverId)
         {
-            return Context.DynamicChannels.AsNoTracking()
+            return Context.DynamicChannels
                 .Where(x => x.ServerId == serverId)
                 .ToListAsync();
         }

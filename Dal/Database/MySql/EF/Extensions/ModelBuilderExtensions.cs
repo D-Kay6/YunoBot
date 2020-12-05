@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Dal.Database.MySql.EF
+namespace Dal.Database.MySql.EF.Extensions
 {
     public static class ModelBuilderExtensions
     {

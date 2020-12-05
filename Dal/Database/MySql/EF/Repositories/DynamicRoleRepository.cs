@@ -43,7 +43,7 @@ namespace Dal.Database.MySql.EF.Repositories
 
         public Task<List<DynamicRole>> List(ulong serverId)
         {
-            return Context.DynamicRoles.AsNoTracking()
+            return Context.DynamicRoles
                 .Include(x => x.Roles)
                 .Where(x => x.ServerId == serverId)
                 .ToListAsync();

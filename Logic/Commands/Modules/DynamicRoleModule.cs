@@ -16,7 +16,6 @@ namespace Logic.Commands.Modules
 {
     [Alias("dr")]
     [Group("dynamicrole")]
-    [RequireOwner]
     public class DynamicRoleModule : ModuleBase<ShardedCommandContext>
     {
         private readonly DynamicRoleService _dynamic;
@@ -107,6 +106,7 @@ namespace Logic.Commands.Modules
             }
         }
 
+        [Priority(1)]
         [Command("remove all")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DynamicRoleRemove()
@@ -118,7 +118,17 @@ namespace Logic.Commands.Modules
                 return;
             }
 
-            await _dynamic.Delete(roles);
+            try
+            {
+                await _dynamic.Delete(roles);
+            }
+            catch (Exception e)
+            {
+                await _logs.Write("Crashes", "An unhandled exception has occured.", e);
+                await ReplyAsync(_localization.GetMessage("General error"));
+                return;
+            }
+
             await ReplyAsync(_localization.GetMessage("Dynamic role remove all"));
         }
 
@@ -139,7 +149,17 @@ namespace Logic.Commands.Modules
                 return;
             }
 
-            await _dynamic.Delete(roles);
+            try
+            {
+                await _dynamic.Delete(roles);
+            }
+            catch (Exception e)
+            {
+                await _logs.Write("Crashes", "An unhandled exception has occured.", e);
+                await ReplyAsync(_localization.GetMessage("General error"));
+                return;
+            }
+
             await ReplyAsync(_localization.GetMessage("Dynamic role remove game all", status));
         }
 
@@ -154,7 +174,17 @@ namespace Logic.Commands.Modules
                 return;
             }
 
-            await _dynamic.Delete(roles);
+            try
+            {
+                await _dynamic.Delete(roles);
+            }
+            catch (Exception e)
+            {
+                await _logs.Write("Crashes", "An unhandled exception has occured.", e);
+                await ReplyAsync(_localization.GetMessage("General error"));
+                return;
+            }
+
             switch (type)
             {
                 case AutomationType.Temporary:
@@ -183,7 +213,17 @@ namespace Logic.Commands.Modules
                 return;
             }
 
-            await _dynamic.Delete(role);
+            try
+            {
+                await _dynamic.Delete(role);
+            }
+            catch (Exception e)
+            {
+                await _logs.Write("Crashes", "An unhandled exception has occured.", e);
+                await ReplyAsync(_localization.GetMessage("General error"));
+                return;
+            }
+
             switch (type)
             {
                 case AutomationType.Temporary:
@@ -219,7 +259,17 @@ namespace Logic.Commands.Modules
                 return;
             }
 
-            await _dynamic.Delete(dynamicData);
+            try
+            {
+                await _dynamic.Delete(dynamicData);
+            }
+            catch (Exception e)
+            {
+                await _logs.Write("Crashes", "An unhandled exception has occured.", e);
+                await ReplyAsync(_localization.GetMessage("General error"));
+                return;
+            }
+
             switch (type)
             {
                 case AutomationType.Temporary:

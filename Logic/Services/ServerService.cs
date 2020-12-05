@@ -2,6 +2,7 @@
 using Discord;
 using Discord.WebSocket;
 using IDal.Database;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Logic.Services
@@ -10,11 +11,13 @@ namespace Logic.Services
     {
         private readonly DiscordShardedClient _client;
         private readonly IDbServer _dbServer;
+        private readonly IDbBan _dbBan;
 
-        public ServerService(DiscordShardedClient client, IDbServer dbServer)
+        public ServerService(DiscordShardedClient client, IDbServer dbServer, IDbBan ban)
         {
             _client = client;
             _dbServer = dbServer;
+            _dbBan = ban;
         }
 
         /// <summary>
@@ -70,6 +73,11 @@ namespace Logic.Services
             if (settings == null) return;
 
             await _dbServer.Remove(settings);
+        }
+
+        public Task<List<Ban>> Bans(ulong? serverId = null, bool expired = true)
+        {
+            return _dbBan.List(serverId, expired);
         }
     }
 }

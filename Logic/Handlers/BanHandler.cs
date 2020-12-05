@@ -1,5 +1,4 @@
 ﻿using Discord.WebSocket;
-using Logic.Exceptions;
 using Logic.Services;
 using System;
 using System.Threading.Tasks;
@@ -10,12 +9,14 @@ namespace Logic.Handlers
     public class BanHandler : BaseHandler
     {
         private readonly Timer _timer;
+        private readonly ServerService _servers;
         private readonly UserService _users;
 
         private bool _isRunning;
 
-        public BanHandler(DiscordShardedClient client, LogsService logs, UserService users) : base(client, logs)
+        public BanHandler(DiscordShardedClient client, LogsService logs, ServerService servers, UserService users) : base(client, logs)
         {
+            _servers = servers;
             _users = users;
             _timer = new Timer(10 * 1000);
         }
@@ -33,17 +34,25 @@ namespace Logic.Handlers
             if (_isRunning) return;
             _isRunning = true;
 
-            try
+            var bans = await _servers.Bans();
+            foreach (var ban in bans)
             {
-                await _users.CheckBans();
-            }
-            catch (InvalidBanException e)
-            {
-                await Logs.Write("Bans", e.Message, e);
-            }
-            catch (Exception e)
-            {
-                await Logs.Write("Crashes", "Could not handle tick for bans.", e);
+                var server = Client.GetGuild(ban.ServerId);
+                if (server == null) continue;
+                try
+                {
+                    await server.RemoveBanAsync(ban.UserId);
+                }
+                catch (Exception e)
+                {
+                    if (!e.Message.Contains("404: NotFound", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await Logs.Write("Crashes", "Could not handle tick for bans.", e);
+                        continue;
+                    }
+                }
+
+                await _users.Unban(ban);
             }
 
             _isRunning = false;

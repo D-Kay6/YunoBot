@@ -28,6 +28,7 @@ namespace Logic
             {
                 LogLevel = LogSeverity.Verbose,
                 ConnectionTimeout = 30000,
+                //TotalShards = 2,
                 GatewayIntents = GatewayIntents.Guilds |
                                  GatewayIntents.GuildMembers |
                                  GatewayIntents.GuildIntegrations |
@@ -36,7 +37,6 @@ namespace Logic
                                  GatewayIntents.GuildMessageReactions |
                                  GatewayIntents.DirectMessages | 
                                  GatewayIntents.GuildPresences
-                //TotalShards = 2
             });
             _client.Log += Log;
             _client.ShardReady += OnReady;
@@ -126,6 +126,7 @@ namespace Logic
             serviceCollection.AddSingleton<RestartService>();
             serviceCollection.AddSingleton<WelcomeService>();
             serviceCollection.AddSingleton<MusicService>();
+            serviceCollection.AddSingleton<ChatService>();
 
             serviceCollection.AddTransient<LocalizationService>();
 
