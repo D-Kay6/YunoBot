@@ -1,90 +1,66 @@
 ﻿using Discord.WebSocket;
-using IDal.Database;
-using System;
-using System.Linq;
+using Logic.Services;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers
 {
     public class DatabaseHandler : BaseHandler
     {
-        private readonly IDbServer _server;
-        private readonly IDbUser _user;
+        private readonly ServerService _server;
+        private readonly UserService _user;
 
         private bool _isBusy;
 
-        public DatabaseHandler(DiscordSocketClient client, IDbServer server, IDbUser user) : base(client)
+        public DatabaseHandler(DiscordShardedClient client, LogsService logs, ServerService server, UserService user) : base(client, logs)
         {
             _server = server;
             _user = user;
+
+            _isBusy = true;
         }
 
         public override Task Initialize()
         {
-            Client.Ready += OnReady;
+            base.Initialize();
             Client.UserUpdated += OnUserUpdated;
+            Client.GuildUpdated += OnGuildUpdated;
             Client.JoinedGuild += OnGuildJoined;
             Client.LeftGuild += OnGuildLeft;
-            Client.GuildUpdated += OnGuildUpdated;
             return Task.CompletedTask;
         }
 
-        private async Task OnReady()
+        protected override async Task Ready(DiscordSocketClient client)
         {
-#if RELEASE
-            await UpdateServers();
-#endif
+            await base.Ready(client);
+            _isBusy = false;
         }
 
         private async Task OnUserUpdated(SocketUser oldState, SocketUser newState)
         {
             if (_isBusy) return;
+            if (string.IsNullOrEmpty(oldState.Username)) return;
             if (oldState.Username.Equals(newState.Username)) return;
-            await _user.UpdateUser(newState.Id, newState.Username);
-        }
-
-        private async Task OnGuildJoined(SocketGuild guild)
-        {
-            if (_isBusy) return;
-            await _server.AddServer(guild.Id, guild.Name);
-        }
-
-        private async Task OnGuildLeft(SocketGuild guild)
-        {
-            if (_isBusy) return;
-            await _server.DeleteServer(guild.Id);
+            await _user.Update(newState);
         }
 
         private async Task OnGuildUpdated(SocketGuild oldGuild, SocketGuild newGuild)
         {
             if (_isBusy) return;
+            if (string.IsNullOrEmpty(oldGuild.Name)) return;
             if (oldGuild.Name.Equals(newGuild.Name)) return;
-            await _server.UpdateServer(newGuild.Id, newGuild.Name);
+            await _server.Update(newGuild);
         }
 
-        private async Task UpdateServers()
+        private async Task OnGuildJoined(SocketGuild guild)
         {
-            Console.WriteLine("Updating database...");
-            _isBusy = true;
+            if (_isBusy) return;
+            await _server.Update(guild);
+        }
 
-            foreach (var guild in Client.Guilds)
-            {
-                while (string.IsNullOrEmpty(guild.Name))
-                {
-                    Console.WriteLine("Loading guild data hasn't finished yet. Waiting 1 second...");
-                    await Task.Delay(1000);
-                }
-                await _server.UpdateServer(guild.Id, guild.Name);
-            }
-
-            var users = await _user.GetUsers();
-            foreach (var user in users.Select(dbUser => Client.GetUser(dbUser.Id)).Where(user => user != null))
-            {
-                await _user.UpdateUser(user.Id, user.Username);
-            }
-
-            _isBusy = false;
-            Console.WriteLine("Done updating database.");
+        private async Task OnGuildLeft(SocketGuild guild)
+        {
+            if (_isBusy) return;
+            await _server.Leave(guild);
         }
     }
 }

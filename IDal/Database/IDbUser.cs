@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Core.Entity;
 using System.Threading.Tasks;
-using Entity;
 
 namespace IDal.Database
 {
     public interface IDbUser
     {
-        Task AddUser(ulong id, string name);
-        Task AddUser(User user);
-        Task UpdateUser(ulong id, string name);
-        Task UpdateUser(User user);
-        Task<User> GetUser(ulong id);
-        Task<List<User>> GetUsers();
+        Task Add(User value);
+        Task Update(User value);
+        Task Remove(User value);
+        Task<User> Get(ulong id);
     }
 }

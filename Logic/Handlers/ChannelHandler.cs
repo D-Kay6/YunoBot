@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Core.Enum;
+using Discord;
 using Discord.Net;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -13,26 +14,46 @@ namespace Logic.Handlers
 {
     public class ChannelHandler : BaseHandler
     {
-        private readonly IDbChannel _channel;
+        private readonly DynamicChannelService _channel;
+        private readonly HashSet<ulong> _channels;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
-        private readonly LogsService _logs;
 
-        private readonly HashSet<ulong> _channels;
-        
-        public ChannelHandler(DiscordSocketClient client, IDbChannel channel, IDbLanguage language, LocalizationService localization, LogsService logs) : base(client)
+        public ChannelHandler(DiscordShardedClient client, LogsService logs, DynamicChannelService channel, IDbLanguage language, LocalizationService localization) : base(client, logs)
         {
             _channel = channel;
             _language = language;
             _localization = localization;
-            _logs = logs;
             _channels = new HashSet<ulong>();
         }
 
         public override Task Initialize()
         {
+            base.Initialize();
+            Client.ShardReady += Ready;
             Client.UserVoiceStateUpdated += HandleChannelAsync;
             return Task.CompletedTask;
+        }
+
+        protected override async Task Ready(DiscordSocketClient client)
+        {
+            await base.Ready(client);
+            //foreach (var guild in client.Guilds)
+            //{
+            //    var generatedChannels = await _channel.ListGeneratedChannels(guild.Id);
+            //    foreach (var generatedChannel in generatedChannels)
+            //    {
+            //        try
+            //        {
+            //            if (guild.GetChannel(generatedChannel.ChannelId) != null) continue;
+            //            await _channel.RemoveGeneratedChannel(generatedChannel);
+            //        }
+            //        catch
+            //        {
+            //            //ignore and continue
+            //        }
+            //    }
+            //}
         }
 
         private async Task LoadLanguage(ulong serverId)
@@ -45,15 +66,17 @@ namespace Logic.Handlers
 #if DEBUG
             if (!user.Id.Equals(255453041531158538)) return;
 #endif
+            if (state1.VoiceChannel == state2.VoiceChannel) return;
+
             try
             {
                 var guildUser = user as SocketGuildUser;
-                LeaveChannel(state1.VoiceChannel, guildUser);
-                JoinChannel(state2.VoiceChannel, guildUser);
+                await LeaveChannel(state1.VoiceChannel, guildUser).ConfigureAwait(false);
+                await JoinChannel(state2.VoiceChannel, guildUser).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"Failed to handle UserVoiceStateUpdated. {e.Message}, {e.StackTrace}");
+                await Logs.Write("Crashes", "Failed to handle UserVoiceStateUpdated.", e);
             }
         }
 
@@ -63,29 +86,30 @@ namespace Logic.Handlers
             try
             {
                 if (channel.Users.Count > 0) return;
-
+                if (!await _channel.IsGeneratedChannel(channel)) return;
                 while (_channels.Contains(channel.Id)) await Task.Delay(100);
-                
-                if (!await _channel.IsGeneratedChannel(channel.Guild.Id, channel.Id)) return;
-                await _logs.Write("Channels", channel.Guild, $"{user.Nickname()} left channel '{channel.Name}'.");
+
+                await Logs.Write("Channels", $"{user.Nickname()} left channel '{channel.Name}'.", channel.Guild);
                 if (channel.Guild.GetChannel(channel.Id) == null) return;
                 await channel.DeleteAsync();
                 await _channel.RemoveGeneratedChannel(channel.Guild.Id, channel.Id);
             }
             catch (Exception e)
             {
-                var info = channel == null ? "Null channel" : $"({channel.Guild.Id}) {channel.Id}, {channel.Name}";
-                await _logs.Write("Crashes", $"LeaveChannel crashed. {info}. Stacktrace: {e}");
+                await Logs.Write("Crashes",
+                    $"LeaveChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}.", e);
             }
         }
 
         private async Task JoinChannel(SocketVoiceChannel channel, SocketGuildUser user)
         {
-            if (channel == null || user == null) return;
+            if (channel == null) return;
+
+            var failed = false;
             RestVoiceChannel newChannel = null;
             try
             {
-                var auto = await _channel.GetAutoChannel(channel.Guild.Id);
+                var auto = await _channel.Load(channel.Guild.Id, AutomationType.Temporary);
                 if (channel.Name.StartsWith(auto.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     newChannel = await DuplicateChannel(channel, user, auto.Name);
@@ -94,7 +118,7 @@ namespace Logic.Handlers
                     return;
                 }
 
-                var perma = await _channel.GetPermaChannel(channel.Guild.Id);
+                var perma = await _channel.Load(channel.Guild.Id, AutomationType.Permanent);
                 if (channel.Name.StartsWith(perma.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     newChannel = await DuplicateChannel(channel, user, perma.Name);
@@ -105,41 +129,46 @@ namespace Logic.Handlers
             {
                 if (!httpException.Message.Contains("error 50013: Missing Permissions"))
                 {
-                    await _logs.Write("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {httpException}");
-                    if (newChannel != null)
-                    {
-                        await newChannel.DeleteAsync();
-                        await _channel.RemoveGeneratedChannel(newChannel.GuildId, newChannel.Id);
-                        _channels.Remove(newChannel.Id);
-                    }
-                    return;
+                    await Logs.Write("Crashes",
+                        $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}.", httpException);
+                }
+                else
+                {
+                    var pmChannel = await channel.Guild.Owner.GetOrCreateDMChannelAsync();
+                    await LoadLanguage(channel.Guild.Id);
+                    await pmChannel.SendMessageAsync(_localization.GetMessage("Channel no permission",
+                        channel.Guild.Name, channel.Name));
                 }
 
-                var pmChannel = await channel.Guild.Owner.GetOrCreateDMChannelAsync();
-                await LoadLanguage(channel.Guild.Id);
-                await pmChannel.SendMessageAsync(_localization.GetMessage("Channel no permission", channel.Guild.Name, channel.Name));
-                if (newChannel != null)
-                {
-                    await newChannel.DeleteAsync();
-                    await _channel.RemoveGeneratedChannel(newChannel.GuildId, newChannel.Id);
-                    _channels.Remove(newChannel.Id);
-                }
+                failed = true;
             }
             catch (Exception e)
             {
-                await _logs.Write("Crashes", $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}. Stacktrace: {e}");
+                await Logs.Write("Crashes",
+                    $"JoinChannel crashed. ({channel.Guild.Id}) {channel.Id}, {channel.Name}.", e);
+                failed = true;
+            }
+
+            if (failed)
                 if (newChannel != null)
                 {
                     await newChannel.DeleteAsync();
-                    await _channel.RemoveGeneratedChannel(newChannel.GuildId, newChannel.Id);
+                    try
+                    {
+                        await _channel.RemoveGeneratedChannel(newChannel.GuildId, newChannel.Id);
+                    }
+                    catch (Exception)
+                    {
+                        //ignore
+                    }
+
                     _channels.Remove(newChannel.Id);
                 }
-            }
         }
 
         private async Task<RestVoiceChannel> DuplicateChannel(SocketVoiceChannel channel, SocketGuildUser user, string name)
         {
-            await _logs.Write("Channels", channel.Guild, $"{user.Username} joined channel '{channel.Name}'.");
+            await Logs.Write("Channels", $"{user.Username} joined channel '{channel.Name}'.", channel.Guild);
             var newChannel = await channel.Guild.CreateVoiceChannelAsync(string.Format(name, user.Nickname().ToPossessive()), p =>
             {
                 p.Bitrate = channel.Bitrate;
@@ -148,9 +177,21 @@ namespace Logic.Handlers
             });
             _channels.Add(newChannel.Id);
 
-            await user.ModifyAsync(u => u.Channel = newChannel);
-            foreach (var p in channel.PermissionOverwrites) await newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(p.TargetId), p.Permissions);
-            await newChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
+            try
+            {
+                if (user.VoiceChannel != null)
+                    await user.ModifyAsync(u => u.Channel = newChannel);
+            }
+            catch (Exception)
+            {
+                //ignore
+            }
+
+            foreach (var p in channel.PermissionOverwrites)
+                await newChannel.AddPermissionOverwriteAsync(channel.Guild.GetRole(p.TargetId), p.Permissions);
+
+            await newChannel.AddPermissionOverwriteAsync(user,
+                new OverwritePermissions(PermValue.Inherit, PermValue.Allow));
             return newChannel;
         }
     }

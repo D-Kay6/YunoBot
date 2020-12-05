@@ -1,30 +1,33 @@
 {
-	"Messages": {
-		"Invalid user": "I could not find a user by the name of `{0}`.",
-		"Invalid role": "I could not find a role with the name `{0}`.",
-		"Invalid message": "I cannot send an empty message.",
-		"Invalid ac/pc prefix": "I am not able to use the same prefix for both autochannels and permachannels.",
-		"Invalid ar/pr prefix": "I am not able to use the same prefix for both autoroles and permaroles.",
+  "Messages": {
+	"General error": "Something went wrong. Please go to my support server (https://discord.gg/YFqUMDT) if the problem persists.",
 
-		
-		"Channel no permission": "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
+    "Invalid user": "I could not find a user by the name of `{0}`.",
+    "Invalid role": "I could not find a role with the name `{0}`.",
+    "Invalid message": "I cannot send an empty message.",
+    "Invalid ar/pr prefix": "I am not able to use the same prefix for both autoroles and permaroles.",
+
+
+    "Channel no permission": "It appears you try to use either Autochannel or Permachannel on your server `{0}`, but you have not given me permission to be able to manage channels.
 Either remove the prefix from `{1}` or give me the `Manage channels` permission.",
 
 
-		"Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
-		"Command invalid arguments": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
-		"Command invalid": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
+    "Command invalid permissions": "I'm unable to do that. You lack the required permissions for this.",
+    "Command invalid arguments": "Ehmm... I think you made a mistake somewhere. Try using `{0}help` if you forgot the syntax.",
+    "Command invalid": "Sorry, I don't know what to do with that. Use `{0}help` if you need a list of my commands.",
 
-		
-		"Autochannel default": "Autochannels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
+
+    "Autochannel default": "Autochannels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
 These autochannels are voice channels that have a prefix in their name, so I can recognize them.
-When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the autochannel is in.
+When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings
+in the category the autochannel is in.
 I will also give the user permission to modify the channel.
 Once everything's done I will move the user to the new channel.
 When all users have left the generated voice channel, I will remove it.
 
 When setting up an autochannel, you need to make sure I have at least the `manage channels` permission.
-If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
+If you never changed my standard permissions, I should have the `administrator` permission, which works just as well
+.
 Create a channel with the autochannel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
 You can set-up your own prefix for autochannels with `/autochannel prefix set <prefix>`.
 
@@ -36,11 +39,14 @@ Result -> D-Kay's channel",
 		"Autochannel prefix default": "The current autochannel prefix is `{0}`.
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
 		"Autochannel prefix set": "The new autochannel prefix is `{0}`.",
+		"Autochannel prefix invalid empty": "The prefix may not be empty.",
+		"Autochannel prefix invalid perma": "I am not able to use the same prefix for both autochannels and permachannels.",
 		"Autochannel name default": "The current name for auto generated channels is `{0}`.",
 		"Autochannel name set": "The new name for auto generated channels is '{0}'.",
+		"Autochannel name invalid empty": "The name may not be empty.",
 		"Autochannel delete": "I have removed any voice channels I could find on your server that had `{0}` as name.",
 
-		
+
 		"Permachannel default": "Permachannels are for when you want users to be able to have their own channels without having to bother admins.
 These permachannels are voice channels that have a prefix in their name, so I can recognize them.
 When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the permachannel is in.
@@ -61,32 +67,47 @@ Result -> D-Kay's channel",
 		"Permachannel prefix default": "The current permachannel prefix for this server is '{0}'.
 You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
 		"Permachannel prefix set": "The new permachannel prefix is '{0}'.",
+		"Permachannel prefix invalid empty": "The prefix may not be empty.",
+		"Permachannel prefix invalid auto": "I am not able to use the same prefix for both autochannels and permachannels.",
 		"Permachannel name default": "The current name for perma generated channels is `{0}`.",
 		"Permachannel name set": "The new name for perma generated channels is '{0}'.",
+		"Permachannel name invalid empty": "The name may not be empty.",
 
 		
-		"Autorole default": "Autoroles are roles that are temporary granted when a user starts playing a game, and removed when the user stops playing that game.
+		"Dynamic role default": "Dynamic roles are roles that are granted when a user starts playing a game.
 
-When setting up autoroles, you need to make sure I have at least the `manage roles` permission.
+There are 2 types: temporary and permanent.
+
+Temporary roles will be removed again when the user stops playing the game.
+Permanent roles will not be removed.
+
+When setting up dynamic roles, you need to make sure I have at least the `manage roles` permission.
 If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
-Create a role with the autorole prefix (you can get this through `/autorole prefix`) followed by the exact name of the game as it would appear in the status of a user.
-You can set-up your own prefix for autoroles with `/autorole prefix set <prefix>`.",
-		"Autorole prefix default": "The current autorole prefix is `{0}`.
-You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
-		"Autorole prefix set": "The new autorole prefix is `{0}`.",
+Look for the command syntax in `/help dynamicroles`.
+Keep in mind that a game name with a space needs double quotes aroung it.
+Example:
+\"League of Legends\"",
 
+		"Dynamic role invalid add status": "I cannot create a dynamic role if you do not give me a game to assign it to.",
+		"Dynamic role invalid add role": "That role is already assigned to that game.",
+		"Dynamic role invalid remove status": "I can't find any settings if you won't give me the game name.",
+		"Dynamic role invalid remove role": "I couldn't find that role in the dynamic roles for `{0}`.",
+		"Dynamic role invalid remove amount": "I couldn't find any dynamic roles that I can remove.",
+		"Dynamic role invalid list": "There are no dynamic roles set-up for this server.",
+
+		"Dynamic role add temp": "`{0}` will now be temporarily given to users playing `{1}`.",
+		"Dynamic role add perm": "`{0}` will now be permanently given to users playing `{1}`.",
 		
-		"Permarole default": "Permaroles are roles that are permanently granted when a user starts playing a game.
+		"Dynamic role remove all": "All dynamic roles for this server have been removed.",
+		"Dynamic role remove temp": "All temporary dynamic roles have been removed.",
+		"Dynamic role remove perm": "All permanent dynamic roles have been removed.",
+		"Dynamic role remove game all": "All dynamic roles for `{0}` have been removed.",
+		"Dynamic role remove game temp": "The temporary dynamic roles for `{0}` have been removed.",
+		"Dynamic role remove game perm": "The permanent dynamic roles for `{0}` have been removed.",
+		"Dynamic role remove game role temp": "Temporary role `{0}` for `{1}` has been removed.",
+		"Dynamic role remove game role perm": "Permanent role `{0}` for `{1}` has been removed.",
 
-When setting up permaroles, you need to make sure I have at least the `manage roles` permission.
-If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
-Create a role with the permarole prefix (you can get this through `/permarole prefix`) followed by the exact name of the game as it would appear in the status of a user.
-You can set-up your own prefix for permaroles with `/permarole prefix set <prefix>`.",
-		"Permarole prefix default": "The current permarole prefix for this server is `{0}`.
-You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons to use in the prefix.",
-		"Permarole prefix set": "The new permarole prefix is `{0}`.",
 
-		
 		"RoleIgone default on": "You are not registered to gain either ",
 		"RoleIgone default off": "You are registered to be assigned both auto- and permaroles.",
 		"RoleIgone is on": "You already do not receive automated roles.",
@@ -94,7 +115,7 @@ You can check 'http://unicode.org/emoji/charts/full-emoji-list.html' for icons t
 		"RoleIgone turned on": "You no longer will be assigned automated roles.",
 		"RoleIgone turned off": "You are registered to receive automated roles.",
 
-		
+
 		"Birthday default": "Hooray! It's our little {0} birthday!
 
 Happy Birthday to You :notes:
@@ -119,6 +140,11 @@ If you're in need of support, come join my support server at 'https://discord.gg
 I should kill YOU for even thinking of something like that!",
 
 
+		"Chat start": "You want to chat with me? Are you sure you're up for that?
+Just start typing and I'll respond.",
+		"Chat end": "Since you're no longer responding, I'm ending the conversation here.",
+
+
 		"Language default": "{1} is currently set to `{0}`.
 These are the languages I currently support: {2}.
 Be warry translations can be under construction and may contain messages that still require translating.
@@ -126,26 +152,27 @@ If you want your language to be supported or help improve an already existing tr
 		"Language unsupported": "`{0}` is not a supported language.",
 		"Language set": "The language for {1} was set to `{0}`.",
 
-		
+
 		"Music exception": "Something went wrong. Come to the support server if this problem persists.",
 		"Music not active": "I'm currently not playing any music.",
-		
+
 		"Music connection exists": "I am already in a voice channel.",
 		"Music connection none": "I am currently not in a voice channel.",
 		"Music connection same": "I am already in the same voice channel as you.",
 		"Music connection different": "You must be in the same voice channel as me to be able to do this.",
 		"Music channel none": "You must be in a voice channel to listen to music.",
 		"Music channel same": "You must be in the same voice channel as me to be able to do this.",
-		
+
 		"Music search": "Searching for `{0}`...",
-		"Music invalid song": "I could not find a valid song to play.",
 		"Music now playing": "Now playing `{0}` requested by {1}",
-		
+		"Music song invalid": "I could not find a valid song to play.",
+		"Music song exception": "there was an error trying to play `{0}`. Come to the support server if this problem persists.",
+
 		"Music paused": "Music player is paused.",
 		"Music already paused": "The music player is already paused.",
 		"Music resumed": "Music player is un-paused.",
 		"Music not paused": "The music player is not paused.",
-		
+
 		"Music current": "Now playing `{0}`.",
 		"Music queued song": "Queued #{0} **{1}** (`{2}`).",
 		"Music queued playlist": "Queued {0} songs.",
@@ -153,27 +180,27 @@ If you want your language to be supported or help improve an already existing tr
 		"Music queue cleared": "Queue cleared :ok_hand:.",
 		"Music queue item": "#{0}  **{1}** (`{2}`).",
 		"Music queue remaining": "There are {0} more songs in queue.",
-		
+
 		"Music skipped": "Skipped `{0}` song(s).",
 		"Music shuffling": "Shuffling...",
 		"Music shuffled": "The queue has been shuffled.",
-		
+
 		"Music stop command": "The music player was stopped.",
 		"Music stop channel": "The music player was stopped. 
 All users have left the voice channel.",
 
 		"Music volume": "Music volume was changed to {volume}.",
 
-		
+
 		"Pick default": "Choice for {0}",
 
-		
+
 		"Praise creator": "Please raise your hands for my wonderful creator *(and my future husband)*, D-Kay :heart:.",
 
-		
+
 		"Command prefix default": "The prefix for {1} is `{0}`.",
 		"Command prefix set": "The prefix for {1} was changed to `{0}`.",
-		
+
 		"Command custom list": "These are the custom commands for this server:
 
 {0}",
@@ -195,20 +222,19 @@ This time, you do not need to write it within double quotes if you have a comman
 		"Command custom none": "I could not find a custom command called `{0}`. Are you sure you typed it correctly?",
 		"Command custom removed": "`{0}` was removed from the custom commands.",
 
-		
+
 		"Request default": "Send some information to me about your idea for a new feature or if you think something needs to be changed.",
 		"Request feature": "Thanks for your submission.",
 		"Request change": "Thanks for your submission.",
 
-		
+
 		"Restart default": "Restarting...",
 		"Shutdown default": "Shutting down...",
 
-		
+
 		"Support default": "I'm sorry to hear you have problems with me. Come join my support server 'https://discord.gg/YFqUMDT'. Maybe someone there can help you.",
 
-		
-		"Welcome exception": "No welcome settings could be found. Please go to my support discord to have this fixed.",
+
 		"Welcome enable": "I will now welcome any new member in {0}.",
 		"Welcome disable": "The welcome message has now been disabled. You can still send a welcome message with my normal command.",
 		"Welcome message default": "The welcome message for {2} is:
@@ -220,6 +246,7 @@ When setting your custom welcome message, you can use `{0}` as a variable where 
 ```
 {0}
 ```",
+		"Welcome message invalid": "The message may not be empty.",
 		"Welcome image default": "I am currently set to {0} the standard welcome image.",
 		"Welcome image use": "use",
 		"Welcome image use not": "not use",
@@ -232,7 +259,7 @@ When setting your custom welcome message, you can use `{0}` as a variable where 
 		"Kick reason": "Reason:",
 		"Kick reason none": "None",
 
-		
+
 		"Ban default": "You can ban a user from the discord with `/ban <username/mention> <optional: reason>`.
 Enter a reason if you want to see later why that user was banned.
 
@@ -261,7 +288,8 @@ I am constantly updated with new features so keep an eye on this page.",
 {0}support - Join this discord if you experience problems with me.
 {0}pick <option1|option2|etc> - Select a random item from the options that are separated with |.
 {0}birthday <username> - Sing a song for a happy fellow.
-{0}kill <username> - Make me kill that user.",
+{0}kill <username> - Make me kill that user.
+{0}chat - Initiate a casual chat with me.",
 		"Help praise title": "These are the commands for 'praise'.",
 		"Help praise": "{0}praise <username> - Send a positive message to that user.
 {0}praise someone - Send a positive message to a random person.
@@ -307,28 +335,26 @@ I am constantly updated with new features so keep an eye on this page.",
 {0}welcome image - Display if the default image is being shown in welcome messages.
 {0}welcome image enable/on - Set the default image to be shown in welcome messages.
 {0}welcome image disable/off - Set the default image to not be shown in welcome messages.",
-		"Help autochannel title": "These are the commands for 'autochannel'.",
+		"Help autochannel title": "These are the commands for 'auto channels'.",
 		"Help autochannel": "{0}autochannel - Show information about autochannels.
 {0}autochannel prefix - Show the current prefix for autochannels.
 {0}autochannel prefix set <new prefix> - Change the prefix for autochannels.
 {0}autochannel name - Show the current name for auto generated channels.
 {0}autochannel name set <new name> - Change the name for auto  generated channels.
 {0}autochannel delete - Deletes all voice channels that still have the name for auto generated channels.",
-		"Help permachannel title": "These are the commands for 'permachannel'.",
+		"Help permachannel title": "These are the commands for 'perma channels'.",
 		"Help permachannel": "{0}permachannel - Show information about permachannels.
 {0}permachannel prefix - Show the current prefix for permachannels.
 {0}permachannel prefix set <new prefix> - Change the prefix for permachannels.",
-		"Help autorole title": "These are the commands for 'autorole'.",
-		"Help autorole": "{0}autorole - Show information about autoroles.
-{0}autorole prefix - Show the current prefix for autoroles.
-{0}autorole prefix set <new prefix> - Change the prefix for autoroles.
-{0}autorole ignore - Display your current status on ignoring automated roles.
-{0}autorole ignore on - Turn your current status to ignore automated roles.
-{0}autorole ignore off - Turn your current status to acceps automated roles.",
-		"Help permarole title": "These are the commands for 'permarole'.",
-		"Help permarole": "{0}permarole - Show information about permaroles.
-{0}permarole prefix - Show the current prefix for permaroles.
-{0}permarole prefix set <new prefix> - Change the prefix for permaroles.",
+		"Help dynamicrole title": "These are the commands for 'dynamic roles'.",
+		"Help dynamicrole": "{0}dynamicrole - Show information about dynamic roles.
+{0}dynamicrole add <game name> <type:temp/perm> <role> - Add a role to be dynamically added if a user starts playing the game.
+{0}dynamicrole remove all - Remove all dynamic roles of this server.
+{0}dynamicrole remove <game name> - Remove all dynamic roles for a specific game.
+{0}dynamicrole remove <type:temp/perm> - Remove all dynamic roles of a specific type.
+{0}dynamicrole remove <game name> <type:temp/perm> - Remove the dynamic role data for a specific game of a specific type.
+{0}dynamicrole remove <game name> <type:temp/perm> <role> - Stop a role from dynamically being given to users.
+{0}dynamicrole list - List all configured dynamic roles.",
 		"Help kick": "{0}kick <username/mention> - Kick specified user from the server.",
 		"Help ban": "{0}ban - Give information about formatting the ban command.
 {0}ban <username/mention> <optional: duration> <optional: reason> - Ban specified user from the server.",

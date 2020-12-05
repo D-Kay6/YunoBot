@@ -1,47 +1,50 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="EF\20191203102033_InitialCreate.cs" />
-    <Compile Remove="EF\20191203102033_InitialCreate.Designer.cs" />
-    <Compile Remove="EF\Migrations\20191203102101_InitialCreate.cs" />
-    <Compile Remove="EF\Migrations\20191203102101_InitialCreate.Designer.cs" />
-    <Compile Remove="EF\Migrations\20191203102854_InitialCreate.cs" />
-    <Compile Remove="EF\Migrations\20191203102854_InitialCreate.Designer.cs" />
-    <Compile Remove="EF\Migrations\20191203104557_InitialCreate.cs" />
-    <Compile Remove="EF\Migrations\20191203104557_InitialCreate.Designer.cs" />
-    <Compile Remove="EF\Migrations\20191213093828_BanAddition.cs" />
-    <Compile Remove="EF\Migrations\20191213093828_BanAddition.Designer.cs" />
-    <Compile Remove="EF\Migrations\20191213094512_BanAddition.cs" />
-    <Compile Remove="EF\Migrations\20191213094512_BanAddition.Designer.cs" />
-    <Compile Remove="EF\Migrations\20191213094828_BanAddition.cs" />
-    <Compile Remove="EF\Migrations\20191213094828_BanAddition.Designer.cs" />
-    <Compile Remove="EF\Migrations\20191220110413_CustomCommands.cs" />
-    <Compile Remove="EF\Migrations\20191220110413_CustomCommands.Designer.cs" />
+    <Compile Remove="Database\MySql\EF\20191203102033_InitialCreate.cs" />
+    <Compile Remove="Database\MySql\EF\20191203102033_InitialCreate.Designer.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191203102101_InitialCreate.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191203102101_InitialCreate.Designer.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191203102854_InitialCreate.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191203102854_InitialCreate.Designer.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191203104557_InitialCreate.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191203104557_InitialCreate.Designer.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191213093828_BanAddition.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191213093828_BanAddition.Designer.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191213094512_BanAddition.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191213094512_BanAddition.Designer.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191213094828_BanAddition.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191213094828_BanAddition.Designer.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191220110413_CustomCommands.cs" />
+    <Compile Remove="Database\MySql\EF\Migrations\20191220110413_CustomCommands.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.0-alpha.2" />
+    <PackageReference Include="RavenDB.Client" Version="5.1.1" />
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="5.1.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Entitiy\Entity.csproj" />
     <ProjectReference Include="..\IDal\IDal.csproj" />
   </ItemGroup>
 

@@ -9,13 +9,13 @@ namespace Logic.Services
 
         private CancellationTokenSource _restartToken;
 
-        public bool KeepAlive { get; private set; }
-
         public RestartService(LogsService logs)
         {
             _logs = logs;
             KeepAlive = true;
         }
+
+        public bool KeepAlive { get; private set; }
 
         public void Restart()
         {

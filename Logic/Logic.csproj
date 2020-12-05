@@ -1,26 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="2.2.0-dev-20191226.1" />
-    <PackageReference Include="DiscordBotsList.Api" Version="1.4.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
-    <PackageReference Include="SpotifyAPI.Web" Version="4.2.2" />
-    <PackageReference Include="SpotifyAPI.Web.Auth" Version="4.2.2" />
-    <PackageReference Include="Victoria" Version="5.1.2" />
+    <None Remove="Handlers\MusicHandler.cs~RF20636e23.TMP" />
+    <None Remove="Services\RoleService.cs~RF1888913.TMP" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Discord.Addons.Interactive" Version="2.0.0" />
+    <PackageReference Include="Discord.Addons.PassiveInteractive" Version="2.0.4" />
+    <PackageReference Include="Discord.Net" Version="2.3.0-dev-20201201.2" />
+    <PackageReference Include="DiscordBotsList.Api" Version="1.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="SpotifyAPI.Web" Version="6.0.0" />
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.0.0" />
+    <PackageReference Include="Victoria" Version="5.1.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CleverbotApi\CleverbotApi.csproj" />
+    <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\DalFactory\DalFactory.csproj" />
     <ProjectReference Include="..\IDal\IDal.csproj" />
     <ProjectReference Include="..\ILogic\ILogic.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\Music\Event\" />
   </ItemGroup>
 
 </Project>

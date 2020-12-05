@@ -1,8 +1,4 @@
-﻿//#if DEBUG
-using Dal.EF.SingleThreaded;
-//#else
-//using Dal.EF.MultiThreaded;
-//#endif
+﻿using Dal.Database.MySql.EF.Repositories;
 using IDal.Database;
 
 namespace DalFactory
@@ -19,6 +15,11 @@ namespace DalFactory
             return new UserRepository();
         }
 
+        public static IDbRole GenerateRole()
+        {
+            return new RoleRepository();
+        }
+
         public static IDbBan GenerateBan()
         {
             return new BanRepository();
@@ -29,9 +30,14 @@ namespace DalFactory
             return new LanguageRepository();
         }
 
-        public static IDbCommand GenerateCommand()
+        public static IDbCommandSetting GenerateCommandSetting()
         {
-            return new CommandRepository();
+            return new CommandSettingRepository();
+        }
+
+        public static IDbCommandCustom GenerateCommandCustom()
+        {
+            return new CustomCommandRepository();
         }
 
         public static IDbWelcome GenerateWelcome()
@@ -39,14 +45,39 @@ namespace DalFactory
             return new WelcomeSettingsRepository();
         }
 
-        public static IDbChannel GenerateChannel()
+        public static IDbDynamicChannel GenerateDynamicChannel()
         {
-            return new ChannelRepository();
+            return new DynamicChannelRepository();
         }
 
-        public static IDbRole GenerateRole()
+        public static IDbGeneratedChannel GenerateGeneratedChannel()
         {
-            return new RoleRepository();
+            return new GeneratedChannelRepository();
+        }
+
+        public static IDbDynamicRole GenerateDynamicRole()
+        {
+            return new DynamicRoleRepository();
+        }
+
+        public static IDbDynamicRoleData GenerateDynamicRoleData()
+        {
+            return new DynamicRoleDataRepository();
+        }
+
+        public static IDbRoleIgnore GenerateRoleIgnore()
+        {
+            return new RoleIgnoreRepository();
+        }
+
+        public static IDbReactionRole GenerateReactionRole()
+        {
+            return new ReactionRoleRepository();
+        }
+
+        public static IDbReactionRoleData GenerateReactionRoleData()
+        {
+            return new ReactionRoleDataRepository();
         }
     }
 }

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Dal.Json
 {
@@ -17,20 +17,17 @@ namespace Dal.Json
                 var data = Activator.CreateInstance<T>();
                 await WriteAsync(data, directory, file);
             }
-            
-            var json = File.ReadAllText($"{path}");
+
+            var json = await File.ReadAllTextAsync($"{path}");
             return JsonConvert.DeserializeObject<T>(json);
         }
 
         protected async Task WriteAsync<T>(T data, string directory, string file)
         {
             if (string.IsNullOrWhiteSpace(file)) return;
-            
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-            
+
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+
             var json = JsonConvert.SerializeObject(data, Formatting.Indented);
             var path = string.IsNullOrWhiteSpace(directory) ? file : Path.Combine(directory, file);
             await File.WriteAllTextAsync(path, json);

@@ -1,30 +1,36 @@
 {
-	"Messages": {
-		"Invalid user": "Ik kan geen gebruiker vinden met de naam `{0}`.",
-		"Invalid role": "Ik kan geen rol vinden met de naam `{0}`.",
-		"Invalid message": "Ik kan geen lege berichten sturen.",
-		"Invalid ac/pc prefix": "ik kan niet dezelfde prefix gebruiken voor zowel autochannels als permachannels",
-		"Invalid ar/pr prefix": "ik kan niet dezelfde prefix gebruiken voor zowel autoroles als permaroles.",
-		
-		"Channel no permission": "Het lijkt erop dat je mijn Autochannel of Permachannel feature probeert te gebruiken op je server `{0}`, maar je hebt me niet de rechten gegeven om kanalen te kunnen bewerken.
-Verwijder de prefix van `{1}` of geef me het recht `Manage channels`.",
-		"Channel musicplayer stopped": "De muziekspeler is gestopt.
-Alle gebruikers hebben het spraak kanaal verlaten.",
-		
-		"Command invalid permissions": "Dat kan ik niet doen. Je hebt hier niet de juiste rechten voor.",
-		"Command invalid arguments": "Ehmm... Ik denk dat je ergens een fout hebt gemaakt. Gebruik `{0}help` als je de syntax vergeten bent.",
-		"Command invalid": "Sorry, ik weet niet wat ik daarmee moet doen. Gebruik `{0}help` als je een lijst van mijn commando's nodig hebt.",
-		
-		"Autochannel default": "Auto channels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
-These auto channels are voice channels that have a prefix in their name, so I can recognize them.
-When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings in the category the auto channel is in.
-I will also give the user permission to modify the channel.
-Once everything's done I will move the user to the new channel.
-When all users have left the generated voice channel, I will remove it.
+  "Messages": {
+    "Invalid user": "Ik kan geen gebruiker vinden met de naam `{0}`.",
+    "Invalid role": "Ik kan geen rol vinden met de naam `{0}`.",
+    "Invalid message": "Ik kan geen lege berichten sturen.",
+    "Invalid ac/pc prefix": "ik kan niet dezelfde prefix gebruiken voor zowel autochannels als permachannels",
+    "Invalid ar/pr prefix": "ik kan niet dezelfde prefix gebruiken voor zowel autoroles als permaroles.",
 
-When setting up an auto channel, you need to make sure I have at least the `manage channels` permission.
-If you never changed my standard permissions, I should have the `administrator` permission, which works just as well.
-Create a channel with the auto channel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
+    "Channel no permission":
+      "Het lijkt erop dat je mijn Autochannel of Permachannel feature probeert te gebruiken op je server `{0}`, maar je hebt me niet de rechten gegeven om kanalen te kunnen bewerken.
+    Verwijder de prefix van `{1}` of geef me het recht `Manage channels`.",
+    "Channel musicplayer stopped": "De muziekspeler is gestopt.
+    Alle gebruikers hebben het spraak kanaal verlaten.",
+
+    "Command invalid permissions": "Dat kan ik niet doen. Je hebt hier niet de juiste rechten voor.",
+    "Command invalid arguments":
+      "Ehmm... Ik denk dat je ergens een fout hebt gemaakt. Gebruik `{0}help` als je de syntax vergeten bent.",
+    "Command invalid":
+      "Sorry, ik weet niet wat ik daarmee moet doen. Gebruik `{0}help` als je een lijst van mijn commando's nodig hebt.",
+
+    "Autochannel default":
+      "Auto channels are a means to keeping your server clean and don't have unnecessary channels like 'voice 1, voice 2, etc'.
+    These auto channels are voice channels that have a prefix in their name, so I can recognize them.
+    When a user joins such a voice channel, I will generate a new voice channel with the same permissions and settings
+    in the category the auto channel is in.
+    I will also give the user permission to modify the channel.
+    Once everything's done I will move the user to the new channel.
+    When all users have left the generated voice channel, I will remove it.
+
+    When setting up an auto channel, you need to make sure I have at least the `manage channels` permission.
+    If you never changed my standard permissions, I should have the `administrator` permission, which works just as well
+    .
+    Create a channel with the auto channel prefix (you can get this through `/autochannel prefix`) followed by a name of your choosing.
 You can set-up your own prefix for auto channels with `/autochannel prefix set <prefix>`.
 
 You can customize the name generated channels have with `/autochannel name set <name>`.

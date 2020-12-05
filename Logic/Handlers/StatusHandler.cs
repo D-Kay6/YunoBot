@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Logic.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,29 +10,35 @@ namespace Logic.Handlers
 {
     public class StatusHandler : BaseHandler
     {
-        private readonly Timer _timer;
         private readonly Random _random;
+        private readonly Timer _timer;
 
-        public StatusHandler(DiscordSocketClient client) : base(client)
+        public StatusHandler(DiscordShardedClient client, LogsService logs) : base(client, logs)
         {
-            _timer = new Timer { Interval = TimeSpan.FromMinutes(5).TotalMilliseconds };
+            _timer = new Timer {Interval = TimeSpan.FromMinutes(5).TotalMilliseconds};
             _random = new Random();
         }
 
         public override Task Initialize()
         {
-            Client.Ready += OnReady;
+            base.Initialize();
             _timer.Elapsed += OnTick;
             return Task.CompletedTask;
         }
 
         public override async Task Start()
         {
-            await Client.SetActivityAsync(new Game("Booting up..."));
+            //await Client.SetActivityAsync(new Game("Booting up..."));
         }
 
-        private async Task OnReady()
+        public override async Task Stop()
         {
+            await Client.SetActivityAsync(new Game("Shutting down..."));
+        }
+
+        protected override async Task Ready(DiscordSocketClient client)
+        {
+            await base.Ready(client);
             _timer.Start();
             await RandomizeActivity();
         }
@@ -54,13 +61,13 @@ namespace Logic.Handlers
                     activity = new Game("Yukiteru Diary", ActivityType.Watching);
                     break;
                 case 2:
-                    activity = new Game($"on {this.Client.Guilds.Count} servers", ActivityType.Playing);
+                    activity = new Game($"on {Client.Guilds.Count} servers");
                     break;
                 case 3:
                     activity = new Game("some music", ActivityType.Listening);
                     break;
                 case 4:
-                    activity = new Game("with her knife", ActivityType.Playing);
+                    activity = new Game("with her knife");
                     break;
                 case 5:
                     var userCount = Client.Guilds.Sum(guild => guild.MemberCount);
@@ -71,6 +78,7 @@ namespace Logic.Handlers
                     activity = new Game("new updates", ActivityType.Watching);
                     break;
             }
+
             await Client.SetActivityAsync(activity);
         }
     }

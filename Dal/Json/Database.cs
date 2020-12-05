@@ -1,21 +1,23 @@
-﻿using System;
+﻿using Dal.Database;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Dal.MySql;
 
 namespace Dal.Json
 {
-    internal class Database : Json
+    internal class Database<T> : Json where T : Connection
     {
         private const string File = "Database.json";
-        private string Directory => Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents", "Yuno Bot", "Configuration");
 
-        public async Task<Connection> Read()
+        private string Directory => Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents",
+            "Yuno Bot", "Configuration");
+
+        public async Task<T> Read()
         {
-            return await ReadAsync<Connection>(Directory, File);
+            return await ReadAsync<T>(Directory, File);
         }
 
-        public async Task Write(Connection data)
+        public async Task Write(T data)
         {
             await WriteAsync(data, Directory, File);
         }

@@ -7,8 +7,8 @@ namespace Logic.Handlers
 {
     public class HandlerCollection
     {
-        private readonly IServiceProvider _services;
         private readonly Collection<BaseHandler> _handlers;
+        private readonly IServiceProvider _services;
 
         public HandlerCollection(IServiceProvider services)
         {
@@ -20,14 +20,17 @@ namespace Logic.Handlers
 
         public void GenerateHandlers()
         {
+            CreateInstance<LoggingHandler>();
             CreateInstance<DatabaseHandler>();
             CreateInstance<BanHandler>();
             CreateInstance<CommandHandler>();
             CreateInstance<DblHandler>();
-            CreateInstance<ChannelHandler>();
-            CreateInstance<RoleHandler>();
-            CreateInstance<WelcomeHandler>();
             CreateInstance<MusicHandler>();
+            CreateInstance<ChannelHandler>();
+#if DEBUG
+            CreateInstance<DynamicRoleHandler>();
+#endif
+            CreateInstance<WelcomeHandler>();
             CreateInstance<StatusHandler>();
         }
 
@@ -51,6 +54,24 @@ namespace Logic.Handlers
             {
                 Console.WriteLine($"Starting {handler.GetType().Name}.");
                 await handler.Start();
+            }
+        }
+
+        public async Task Stop()
+        {
+            foreach (var handler in _handlers)
+            {
+                Console.WriteLine($"Stopping {handler.GetType().Name}.");
+                await handler.Stop();
+            }
+        }
+
+        public async Task Finish()
+        {
+            foreach (var handler in _handlers)
+            {
+                Console.WriteLine($"Closing {handler.GetType().Name}.");
+                await handler.Finish();
             }
         }
     }

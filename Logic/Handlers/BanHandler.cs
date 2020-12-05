@@ -1,55 +1,60 @@
 ﻿using Discord.WebSocket;
-using IDal.Database;
+using Logic.Services;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
-using Logic.Services;
 
 namespace Logic.Handlers
 {
     public class BanHandler : BaseHandler
     {
-        private readonly IDbBan _ban;
-        private readonly LogsService _logs;
-
         private readonly Timer _timer;
+        private readonly ServerService _servers;
+        private readonly UserService _users;
 
         private bool _isRunning;
 
-        public BanHandler(DiscordSocketClient client, IDbBan ban, LogsService logs) : base(client)
+        public BanHandler(DiscordShardedClient client, LogsService logs, ServerService servers, UserService users) : base(client, logs)
         {
-            _ban = ban;
-            _logs = logs;
+            _servers = servers;
+            _users = users;
             _timer = new Timer(10 * 1000);
         }
 
         public override Task Initialize()
         {
+            base.Initialize();
             _timer.Elapsed += OnTick;
             _timer.Start();
             return Task.CompletedTask;
         }
 
-        private async void OnTick(object sender, ElapsedEventArgs e)
+        private async void OnTick(object sender, ElapsedEventArgs eventArgs)
         {
             if (_isRunning) return;
-
             _isRunning = true;
-            try
+
+            var bans = await _servers.Bans();
+            foreach (var ban in bans)
             {
-                var bans = await _ban.GetBans();
-                foreach (var ban in bans)
+                var server = Client.GetGuild(ban.ServerId);
+                if (server == null) continue;
+                try
                 {
-                    var server = Client.GetGuild(ban.ServerId);
-                    if (server == null) continue;
                     await server.RemoveBanAsync(ban.UserId);
-                    await _ban.RemoveBan(ban);
                 }
+                catch (Exception e)
+                {
+                    if (!e.Message.Contains("404: NotFound", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await Logs.Write("Crashes", "Could not handle tick for bans.", e);
+                        continue;
+                    }
+                }
+
+                await _users.Unban(ban);
             }
-            catch (Exception ex)
-            {
-                await _logs.Write("Crashes", $"Could not handle tick for bans. {ex.Message}, {ex.StackTrace}");
-            }
+
             _isRunning = false;
         }
     }

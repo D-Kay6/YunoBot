@@ -1,16 +1,17 @@
 ﻿using Discord.WebSocket;
-using IDal.Database;
+using Logic.Exceptions;
 using Logic.Extensions;
+using Logic.Services;
 using System.Threading.Tasks;
 
 namespace Logic.Handlers
 {
     public class WelcomeHandler : BaseHandler
     {
-        private readonly IDbCommand _command;
-        private readonly IDbWelcome _welcome;
+        private readonly CommandService _command;
+        private readonly WelcomeService _welcome;
 
-        public WelcomeHandler(DiscordSocketClient client, IDbCommand command, IDbWelcome welcome) : base(client)
+        public WelcomeHandler(DiscordShardedClient client, LogsService logs, CommandService command, WelcomeService welcome) : base(client, logs)
         {
             _command = command;
             _welcome = welcome;
@@ -24,25 +25,29 @@ namespace Logic.Handlers
 
         private async Task OnUserJoined(SocketGuildUser user)
         {
-            var welcome = await _welcome.GetWelcomeSettings(user.Guild.Id);
-            if (welcome.ChannelId == null) return;
-            if (!(user.Guild.GetChannel((ulong) welcome.ChannelId) is ISocketMessageChannel channel))
+            try
+            {
+                await _welcome.Welcome(user);
+            }
+            catch (InvalidChannelException)
             {
                 await DisableWelcomeMessage(user.Guild);
-                return;
             }
-
-            var msg = string.Format(welcome.Message, user.Mention);
-            if (!welcome.UseImage) await channel.SendMessageAsync(msg);
-            else await channel.SendFileAsync(ImageExtensions.GetImagePath("GasaiYunoWelcome.jpg"), msg);
+            catch (InvalidWelcomeException)
+            {
+                // Ignore
+            }
         }
 
         private async Task DisableWelcomeMessage(SocketGuild guild)
         {
-            await _welcome.Disable(guild.Id);
+            var settings = await _welcome.Load(guild.Id);
+            settings.ChannelId = null;
+            await _welcome.Save(settings);
 
             var owner = guild.Owner;
-            await owner.SendDM($@"I'm sorry to bother you, but it seems like something went wrong with the welcome message for `{guild.Name}`.
+            await owner.SendDM(
+                $@"I'm sorry to bother you, but it seems like something went wrong with the welcome message for `{guild.Name}`.
 This could have happened due to an accidental deletion and re-creation of the channel.
 As a result of this, I had to disable the feature.
 You can re-enable it by executing the command `{_command.GetPrefix(guild.Id)}welcome enable <channel>` on your server again.

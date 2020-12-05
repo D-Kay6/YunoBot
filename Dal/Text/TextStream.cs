@@ -37,7 +37,7 @@ namespace Dal.Text
             using (var stream = new StreamReader(path))
             {
                 var text = await stream.ReadToEndAsync();
-                return (T)Convert.ChangeType(text, typeof(T));
+                return (T) Convert.ChangeType(text, typeof(T));
             }
         }
     }

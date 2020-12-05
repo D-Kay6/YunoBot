@@ -1,8 +1,9 @@
 ﻿using DalFactory;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.WebSocket;
-using IDal;
 using ILogic;
+using Logic.Exceptions;
 using Logic.Handlers;
 using Logic.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,23 +16,30 @@ namespace Logic
 {
     public class Bot : IBot
     {
-        private readonly DiscordSocketClient _client;
-
-        private readonly IConfig _config;
-        private readonly IServiceProvider _services;
+        private readonly DiscordShardedClient _client;
 
         private readonly HandlerCollection _handlers;
 
+        private readonly IServiceProvider _services;
+
         public Bot()
         {
-            _config = ConfigFactory.GenerateConfig();
-            
-            _client = new DiscordSocketClient(new DiscordSocketConfig
+            _client = new DiscordShardedClient(new DiscordSocketConfig
             {
-                LogLevel = LogSeverity.Verbose
+                LogLevel = LogSeverity.Verbose,
+                ConnectionTimeout = 30000,
+                //TotalShards = 2,
+                GatewayIntents = GatewayIntents.Guilds |
+                                 GatewayIntents.GuildMembers |
+                                 GatewayIntents.GuildIntegrations |
+                                 GatewayIntents.GuildVoiceStates |
+                                 GatewayIntents.GuildMessages |
+                                 GatewayIntents.GuildMessageReactions |
+                                 GatewayIntents.DirectMessages | 
+                                 GatewayIntents.GuildPresences
             });
             _client.Log += Log;
-            _client.Ready += OnReady;
+            _client.ShardReady += OnReady;
 
             _services = GenerateServiceProvider();
 
@@ -42,31 +50,37 @@ namespace Logic
         {
             var restartService = _services.GetService<RestartService>();
             var logsService = _services.GetService<LogsService>();
+            var configService = _services.GetService<ConfigurationService>();
             await _handlers.Initialize();
 
             while (restartService.KeepAlive)
-            {
                 try
                 {
                     DownloadPrerequisites();
-                    var config = await _config.Read();
-                    if (string.IsNullOrWhiteSpace(config.Token)) return;
+                    var token = await configService.GetToken();
 
                     await _handlers.Start();
-                    await _client.LoginAsync(TokenType.Bot, config.Token);
+                    await _client.LoginAsync(TokenType.Bot, token);
                     await _client.StartAsync();
 
                     await restartService.AwaitRestart();
                 }
+                catch (InvalidTokenException)
+                {
+                    await logsService.Write("Main", "The bot token in the config file could not be read.");
+                    break;
+                }
                 catch (Exception e)
                 {
-                    await logsService.Write("Main", $"Fatal exception occured. Restarting bot. Traceback: {e}");
+                    await logsService.Write("Main", $"Fatal exception occured. Restarting bot.", e);
                 }
                 finally
                 {
+                    await _handlers.Stop();
                     await _client.StopAsync();
                 }
-            }
+
+            await _handlers.Finish();
         }
 
         public Task Stop()
@@ -82,42 +96,62 @@ namespace Logic
 
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateServer());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateUser());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRole());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateBan());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateLanguage());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommand());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommandSetting());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateCommandCustom());
             serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateWelcome());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateChannel());
-            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateDynamicChannel());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateGeneratedChannel());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateDynamicRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateDynamicRoleData());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateRoleIgnore());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateReactionRole());
+            serviceCollection.AddTransient(serviceProvider => DatabaseFactory.GenerateReactionRoleData());
+
+            serviceCollection.AddTransient(serviceProvider => ConfigFactory.GenerateConfig());
+            serviceCollection.AddTransient(serviceProvider => LocalizationFactory.GenerateLocalization());
 
             serviceCollection.AddSingleton(_client);
-            serviceCollection.AddSingleton(_config);
 
-            var logsService = new LogsService();
+            serviceCollection.AddSingleton<LoggingHandler>();
+            serviceCollection.AddSingleton<ConfigurationService>();
+            serviceCollection.AddSingleton<ServerService>();
+            serviceCollection.AddSingleton<UserService>();
+            serviceCollection.AddSingleton<CommandService>();
+            serviceCollection.AddSingleton<DynamicChannelService>();
+            serviceCollection.AddSingleton<DynamicRoleService>();
+            serviceCollection.AddSingleton<LogsService>();
+            serviceCollection.AddSingleton<RestartService>();
+            serviceCollection.AddSingleton<WelcomeService>();
+            serviceCollection.AddSingleton<MusicService>();
+            serviceCollection.AddSingleton<ChatService>();
+
             serviceCollection.AddTransient<LocalizationService>();
-            serviceCollection.AddSingleton(logsService);
-            serviceCollection.AddSingleton(new RestartService(logsService));
-            serviceCollection.AddSingleton(new MusicService(_client));
+
+            serviceCollection.AddSingleton<InteractiveService>();
 
             return serviceCollection.BuildServiceProvider();
         }
 
         private void DownloadPrerequisites()
         {
-            using (var client = new WebClient())
-            {
-                var file = "libsodium.dll";
-                if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/libsodium.dll", file);
+            using var client = new WebClient();
+            var file = "libsodium.dll";
+            if (!File.Exists(file))
+                client.DownloadFile("https://discord.foxbot.me/binaries/win64/libsodium.dll", file);
 
-                file = "opus.dll";
-                if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
-            }
+            file = "opus.dll";
+            if (!File.Exists(file)) client.DownloadFile("https://discord.foxbot.me/binaries/win64/opus.dll", file);
         }
 
-        private async Task OnReady()
+        private async Task OnReady(DiscordSocketClient client)
         {
             var logService = _services.GetService<LogsService>();
             var shardCount = await _client.GetRecommendedShardCountAsync();
-            if (shardCount > 1) await logService.Write("Main", $"Probably time to think about creating shards. {shardCount}");
+            if (shardCount > 1)
+                await logService.Write("Main", $"Probably time to think about creating shards. {shardCount}");
         }
 
         private Task Log(LogMessage msg)

@@ -1,60 +1,77 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
 using IDal.Database;
+using Logic.Exceptions;
 using Logic.Services;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using CommandService = Logic.Services.CommandService;
 
 namespace Logic.Handlers
 {
     public class CommandHandler : BaseHandler
     {
-        private readonly IDbCommand _command;
+        private readonly CommandService _commandService;
+        private readonly ServerService _server;
         private readonly IDbLanguage _language;
         private readonly LocalizationService _localization;
-        private readonly LogsService _logs;
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly CommandService _service;
+        private readonly Discord.Commands.CommandService _dcService;
 
-        public CommandHandler(DiscordSocketClient client, IDbCommand command, IDbLanguage language, LocalizationService localization, LogsService logs, IServiceProvider serviceProvider) : base(client)
+        public CommandHandler(DiscordShardedClient client, LogsService logs, CommandService commandService, ServerService server, IDbLanguage language, LocalizationService localization, IServiceProvider serviceProvider) : base(client, logs)
         {
-            _command = command;
+            _commandService = commandService;
+            _server = server;
             _language = language;
             _localization = localization;
-            _logs = logs;
             _serviceProvider = serviceProvider;
-            _service = new CommandService(new CommandServiceConfig
+            _dcService = new Discord.Commands.CommandService(new CommandServiceConfig
             {
-                DefaultRunMode = RunMode.Async
+                DefaultRunMode = RunMode.Async,
+                CaseSensitiveCommands = false
             });
         }
 
         public override async Task Initialize()
         {
-            await _service.AddModulesAsync(Assembly.GetExecutingAssembly(), _serviceProvider);
+            await base.Initialize();
+            await _dcService.AddModulesAsync(Assembly.GetExecutingAssembly(), _serviceProvider);
             Client.MessageReceived += HandleCommandAsync;
         }
 
         private async Task HandleCommandAsync(SocketMessage s)
         {
-#if DEBUG
-            if (!s.Author.Id.Equals(255453041531158538)) return;
-#endif
             try
             {
                 if (s.Author.IsBot) return;
                 if (!(s is SocketUserMessage msg)) return;
-                var context = new SocketCommandContext(Client, msg);
-                var prefix = await _command.GetPrefix(context.Guild.Id);
+                var context = new ShardedCommandContext(Client, msg);
+                var prefix = "/";
+                try
+                {
+                    prefix = await _commandService.GetPrefix(context.Guild.Id);
+                }
+                catch (UnknownServerException e)
+                {
+                    await _server.Update(context.Guild);
+                }
                 var argPos = 0;
-                if (!msg.HasStringPrefix(prefix, ref argPos) && !msg.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
+                if (!msg.HasStringPrefix(prefix, ref argPos) &&
+                    !msg.HasMentionPrefix(Client.CurrentUser, ref argPos)) return;
 
-                await _logs.Write("Commands", context.Guild, $"{context.User.Username} executed command '{context.Message}'.");
-                var result = await _service.ExecuteAsync(context, argPos, _serviceProvider);
+#if DEBUG
+                if (!s.Author.Id.Equals(255453041531158538))
+                {
+                    await context.Channel.SendMessageAsync("Sorry, I cannot do that right now. I'm under development");
+                    return;
+                }
+#endif
+                await Logs.Write("Commands", $"{context.User.Username} executed command '{context.Message}'.", context.Guild);
+                var result = await _dcService.ExecuteAsync(context, argPos, _serviceProvider);
                 if (result.IsSuccess) return;
-                await _logs.Write("Commands", context.Guild, $"Execution failed. Error code: {result.ErrorReason}.");
+                await Logs.Write("Commands", $"Execution failed. Error code: {result.ErrorReason}.", context.Guild);
                 await _localization.Load(await _language.GetLanguage(context.Guild.Id));
                 switch (result.Error)
                 {
@@ -62,7 +79,8 @@ namespace Logic.Handlers
                         await context.Channel.SendMessageAsync(_localization.GetMessage("Command invalid permissions"));
                         break;
                     case CommandError.BadArgCount:
-                        await context.Channel.SendMessageAsync(_localization.GetMessage("Command invalid arguments", prefix));
+                        await context.Channel.SendMessageAsync(_localization.GetMessage("Command invalid arguments",
+                            prefix));
                         break;
                     default:
                         if (await SendCustomCommand(context, argPos)) return;
@@ -73,16 +91,23 @@ namespace Logic.Handlers
             catch (Exception e)
             {
                 if ((s.Channel as SocketGuildChannel).Guild.Id.Equals(264445053596991498)) return;
-                await _logs.Write("Crashes", $"CommandHandler crashed. Stacktrace: {e}");
+                await Logs.Write("Crashes", "CommandHandler crashed.", e);
             }
         }
 
         private async Task<bool> SendCustomCommand(SocketCommandContext context, int argPos)
         {
-            var message = context.Message.Content.Substring(argPos);
-            var command = await _command.GetCustomCommand(context.Guild.Id, message);
-            if (command == null) return false;
-            await context.Channel.SendMessageAsync(command.Response);
+            var command = context.Message.Content.Substring(argPos);
+            try
+            {
+                var response = await _commandService.GetResponse(context.Guild.Id, command);
+                await context.Channel.SendMessageAsync(response);
+            }
+            catch (InvalidCommandException)
+            {
+                return false;
+            }
+
             return true;
         }
     }
